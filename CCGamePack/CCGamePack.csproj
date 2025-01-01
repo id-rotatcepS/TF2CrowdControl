@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ConnectorLib">
+      <HintPath>..\ConnectorLib.dll</HintPath>
+    </Reference>
+    <Reference Include="CrowdControl.Common">
+      <HintPath>..\CrowdControl.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="CrowdControl.Extensions">
+      <HintPath>..\CrowdControl.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="CrowdControl.Games">
+      <HintPath>..\CrowdControl.Games.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

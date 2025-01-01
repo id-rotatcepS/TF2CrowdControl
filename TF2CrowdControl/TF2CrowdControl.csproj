@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Aspen">
+      <HintPath>..\..\Aspen\AspenWin\bin\Debug\Aspen.dll</HintPath>
+    </Reference>
+    <Reference Include="ConnectorLib.JSON">
+      <HintPath>ConnectorLib.JSON.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

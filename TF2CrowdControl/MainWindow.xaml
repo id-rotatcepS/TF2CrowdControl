@@ -1,0 +1,64 @@
+﻿<Window x:Class="TF2CrowdControl.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TF2CrowdControl"
+        mc:Ignorable="d"
+        Title="TF2 Spectator for Crowd Control" 
+        Background="DarkGray"
+        Height="450" Width="800"
+        ResizeMode="CanResizeWithGrip"
+        Closed="Window_Closed"
+        >
+    <Window.DataContext>
+        <!-- doing DataContext here instead of code-behind allows the visual editor to populate bindings -->
+        <local:TF2CrowdControlViewModel x:Name="ccvm"/>
+    </Window.DataContext>
+
+    <Grid>
+        <StackPanel>
+            <Expander x:Name="TF2Settings" Header="Team Fortress 2 Settings" Background="AntiqueWhite">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Column="0" Grid.Row="0" 
+                               HorizontalContentAlignment="Right">TF2 Path:</Label>
+                        <TextBox Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" 
+                                 x:Name="TF2Path" Text="{Binding TF2Path}" HorizontalAlignment="Stretch" />
+                        <Label Grid.Column="0" Grid.Row="1" 
+                               HorizontalContentAlignment="Right">RCON password:</Label>
+                        <TextBox Grid.Column="1" Grid.Row="1"
+                                 x:Name="RCONPassword" Text="{Binding RCONPassword}"/>
+                        <Label Grid.Column="2" Grid.Row="1" 
+                               HorizontalContentAlignment="Right">RCON port:</Label>
+                        <TextBox Grid.Column="3" Grid.Row="1" 
+                                 x:Name="RCONPort" Text="{Binding RCONPort}"/>
+                        <Button Grid.Column="0" Grid.Row="2"
+                                x:Name="InstallConfigs" Content="Install Configs" Command="{Binding InstallConfigsCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Expander>
+            <Expander x:Name="Log" Header="Log" IsExpanded="True" MaxHeight="350">
+                <ScrollViewer x:Name="logScroller" VerticalScrollBarVisibility="Visible">
+                    <TextBox x:Name="log" HorizontalAlignment="Left" MinHeight="70" TextWrapping="Wrap" VerticalContentAlignment="Stretch" MinWidth="700"
+                         Text="{Binding CommandLog}" 
+                         BorderBrush="Transparent"
+                         Background="Transparent" BorderThickness="0"
+                         Padding="5 0 0 0"
+                         IsReadOnly="True" IsReadOnlyCaretVisible="True" IsInactiveSelectionHighlightEnabled="True" TextChanged="log_TextChanged"/>
+                </ScrollViewer>
+            </Expander>
+        </StackPanel>
+    </Grid>
+</Window>
