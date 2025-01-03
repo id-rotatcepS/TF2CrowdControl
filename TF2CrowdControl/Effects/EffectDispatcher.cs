@@ -29,7 +29,16 @@ namespace Effects
                 _client.NotAppliedUnavailable(request);
                 return;
             }
+
             Effect effect = Effects.First(e => e.ID == request.EffectID);
+
+            if (!effect.IsClosed)
+            {
+                _client.NotAppliedRetry(request,
+                    // doesn't seem to listen to this.
+                    effect.Elapsed - effect.Duration);
+                return;
+            }
 
             IEnumerable<Effect> mutexEffects = GetBlockingMutexEffects(effect);
             if (mutexEffects.Any())
@@ -82,6 +91,25 @@ namespace Effects
                 Aspen.Log.ErrorException(ex, $"Effect failed [{request.EffectID}].");
                 _client.NotAppliedFailed(request, ex.Message);
             }
+        }
+
+        public IEnumerable<EffectState> GetEffectsStatus()
+        {
+            List<EffectState> result = new();
+            foreach (Effect openEffect in Effects)
+            {
+                result.Add(
+                    new EffectState(openEffect.ID)
+                    {
+                        Listed = openEffect.IsListableGameMode,
+                        Selectable = openEffect.IsSelectableGameState,
+                        Running = !openEffect.IsClosed,
+                        Remaining = !openEffect.IsClosed
+                        ? openEffect.Duration - openEffect.Elapsed
+                        : TimeSpan.Zero
+                    });
+            }
+            return result;
         }
 
         public void UpdateUnclosedEffects()
@@ -205,4 +233,18 @@ namespace Effects
 
     }
 
+    public class EffectState
+    {
+        public string ID { get; }
+
+        public EffectState(string iD)
+        {
+            this.ID = iD;
+        }
+
+        public bool Listed { get; set; }
+        public bool Selectable { get; set; }
+        public bool Running { get; set; }
+        public TimeSpan Remaining { get; set; }
+    }
 }

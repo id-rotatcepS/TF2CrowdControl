@@ -4,7 +4,7 @@ namespace Effects
 {
     abstract public class PausableEffect : Effect
     {
-        public static readonly TimeSpan DefaultTimeSpan = new TimeSpan(0, 1, 0);
+        public static readonly TimeSpan DefaultTimeSpan = new TimeSpan(0, minutes: 1, 0);
 
         private bool IsElapsing = false;
         private DateTime LastUpdate;

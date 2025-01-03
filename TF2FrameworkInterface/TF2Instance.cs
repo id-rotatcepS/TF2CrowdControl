@@ -185,6 +185,8 @@ namespace TF2FrameworkInterface
             ConnectRCON();
         }
 
+        public bool IsConnected => rconConnected;
+
         private void ConnectRCON()
         {
             if (rconConnected)

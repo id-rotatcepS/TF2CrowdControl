@@ -24,7 +24,31 @@
         {
             try
             {
-                return tF2Instance.ClassSelection == userClass
+                return tF2Instance?.ClassSelection == userClass
+                    && base.IsAvailable(tF2Instance);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+
+    internal class AliveClassForMinimumTime : AliveClass
+    {
+        public AliveClassForMinimumTime(string userClass, double seconds)
+            : base(userClass)
+        {
+            Seconds = seconds;
+        }
+
+        public double Seconds { get; }
+
+        override public bool IsAvailable(TF2Proxy tF2Instance)
+        {
+            try
+            {
+                return DateTime.Now.Subtract(tF2Instance?.UserSpawnTime ?? DateTime.MinValue) > TimeSpan.FromSeconds(Seconds)
                     && base.IsAvailable(tF2Instance);
             }
             catch (Exception)
@@ -40,7 +64,7 @@
         {
             try
             {
-                return tF2Instance.IsUserAlive
+                return tF2Instance?.IsUserAlive ?? false
                     && base.IsAvailable(tF2Instance);
             }
             catch (Exception)

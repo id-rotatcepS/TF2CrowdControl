@@ -37,9 +37,15 @@ namespace CrowdControl
                 new CCEffectResponder(_client));
 
             _effectDispatcher.Effects.AddRange([
+                new KillEffect(),
                 new ExplodeEffect(),
                 new EngineerDestroyBuildingsEffect(),
+                new EngineerDestroySentryEffect(),
+                new EngineerDestroyDispenserEffect(),
+                new EngineerDestroyTeleportersEffect(),
                 new SpyRemoveDisguiseEffect(),
+                new MedicUberNowEffect(),
+                new MedicRadarEffect(),
 
                 new BlackAndWhiteTimedEffect(),
                 new PixelatedTimedEffect(),
@@ -54,8 +60,10 @@ namespace CrowdControl
 
                 new RainbowCrosshairEffect(),
                 new CataractsCrosshairEffect(),
+                new GiantCrosshairEffect(),
 
                 new TauntAfterKillEffect(),
+                new MeleeOnlyEffect(),
                 ]);
         }
 
@@ -88,6 +96,8 @@ namespace CrowdControl
                 //TODO however, refresh should close things down when the instance is no good.  Mode is bad - hide everything.
                 _effectDispatcher.UpdateUnclosedEffects();
                 _effectDispatcher.RefreshEffectListings();
+                //TODO make this more granular - dispatcher should invoke when there's actually a change.
+                OnEffectStatesUpdated?.Invoke(this);
             }
             finally
             {
@@ -175,5 +185,10 @@ namespace CrowdControl
             else
                 _effectDispatcher.Responder.AppliedInstant(req);
         }
+
+        public delegate void EffectStatesUpdated(CrowdControlHelper cc);
+        public event EffectStatesUpdated OnEffectStatesUpdated;
+
+        public IEnumerable<EffectState> EffectStates => _effectDispatcher.GetEffectsStatus();
     }
 }

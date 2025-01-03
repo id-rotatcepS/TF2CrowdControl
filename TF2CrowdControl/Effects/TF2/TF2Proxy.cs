@@ -10,12 +10,13 @@ namespace Effects.TF2
         public bool IsOpen { get; }
 
         public bool IsMapLoaded { get; }
+        public string Map { get; }
 
         string? GetValue(string variable);
-        //public string Map { get; }
 
-        public string ClassSelection { get; }
         public bool IsUserAlive { get; }
+        public DateTime UserSpawnTime { get; }
+        public string ClassSelection { get; }
 
         public delegate void UserKill(string victim, string weapon, bool crit);
         public event UserKill? OnUserKill;
@@ -40,7 +41,7 @@ namespace Effects.TF2
         /// add a variable/command to this list if you don't want its GetValue to ever be reset by a null/blank value.  
         /// Sometimes they just don't load properly when polled, and sometimes that's hazardous to logic.
         /// </summary>
-        public List<string> NeverClearValues { get; } = new();
+        public List<string> ClearValues { get; } = new();
 
 
 
@@ -345,26 +346,16 @@ namespace Effects.TF2
             // Generally, add single variables and commands to be polled as "Values"
             Values = new()
             {
-                ["net_channels"] = null, // | Shows net channel info
+                //using getpos instead: ["net_channels"] = null, // | Shows net channel info
+                ["getpos"] = null,
+
                 ["name"] = null, // archive userinfo printonly svcanexec | Current user name
             };
-            //TODO should probably invert this and list just status values that must be assumed changed to blank if not available.
-            NeverClearValues = new()
+            // list just status values that must be assumed changed to blank if not available.
+            ClearValues = new()
             {
-                "name", // we always have a name - don't clear it out just from flakey rcon calls.
-
-                // most config values can be assumed unchanged.
-                "r_drawviewmodel",
-                "tf_use_min_viewmodels",
-                "viewmodel_fov",
-                "cl_first_person_uses_world_model",
-                "tf_taunt_first_person",
-
-                "mat_bloom_scalefactor_scalar",
-                "mat_force_bloom",
-                "mat_color_projection",
-                "mat_viewportscale",
-
+                //"net_channels",//TODO not sure about this
+                "cl_crosshair_file",//"" is a valid value and is the true default (vs. "default")
             };
             // If you have a custom command to run and want to cache its result, then use this.
             // May have to use this for SetInfo calls as well.
@@ -384,8 +375,19 @@ namespace Effects.TF2
             _ = tf2.SendCommand(new TF2FrameworkInterface.StringCommand(log.SetupCommand), (s) => { });
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
+            log.OnMapNameChanged += MapNameChanged;
             log.StartMonitor();
         }
+
+        private void MapNameChanged(string mapName)
+        {
+            Map = mapName;
+        }
+
+        /// <summary>
+        /// Last known map name (empty string if never loaded)
+        /// </summary>
+        public string Map { get; private set; } = string.Empty;
 
         private void PlayerDied(PlayerKiller circumstances)
         {
@@ -397,18 +399,27 @@ namespace Effects.TF2
 
         private void UserGotKilled(PlayerKiller circumstances)
         {
-            UserLastDeath = DateTime.Now;
-            IsUserAlive = false;
+            RecordUserDeath();
             if (circumstances.IsPlayer)
                 ASPEN.Aspen.Log.Info($"User Died to {circumstances.KillerName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
             else
                 ASPEN.Aspen.Log.Info($"User Died - nobody's fault");
         }
-        private DateTime UserLastDeath { get; set; } = DateTime.MaxValue;
+
+        private void RecordUserDeath()
+        {
+            UserLastDeath = DateTime.Now;
+            IsUserAlive = false;
+        }
+
+        private DateTime UserLastDeath { get; set; } = DateTime.Now.AddMinutes(5);
 
         private void UserGotAKill(PlayerKiller circumstances)
         {
-            IsUserAlive = true;
+            // a kill more than 10s after death (afterburn kill) indicates we're alive.
+            if (!IsUserAlive && DateTime.Now.Subtract(UserLastDeath).TotalSeconds > 10)
+                IsUserAlive = true;
+
             ASPEN.Aspen.Log.Info($"User Killed {circumstances.VictimName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
             OnUserKill?.Invoke(circumstances.VictimName, circumstances.KillerWeapon, circumstances.IsCrit);
         }
@@ -423,7 +434,10 @@ namespace Effects.TF2
             get
             {
                 if (!IsMapLoaded)
+                {
+                    RecordUserDeath();
                     return false;
+                }
                 if (_IsUserAlive)
                     return true;
 
@@ -434,9 +448,16 @@ namespace Effects.TF2
                 double spawnSeconds = deathcamSeconds + (1.5 * maxSpawnwaveSeconds);
                 // FUTURE if mp_disable_respawn_times is set to 1, just deathcam respawn
 
-                TimeSpan timeSinceDeath = DateTime.Now.Subtract(UserLastDeath);
+                DateTime now = DateTime.Now;
+                TimeSpan timeSinceDeath = now.Subtract(UserLastDeath);
                 bool diedTooLongAgo = timeSinceDeath > TimeSpan.FromSeconds(spawnSeconds);
                 IsUserAlive = diedTooLongAgo;
+
+                if (_IsUserAlive)
+                {
+                    UserSpawnTime = now;
+                    OnUserSpawned?.Invoke();
+                }
 
                 return _IsUserAlive;
             }
@@ -447,11 +468,15 @@ namespace Effects.TF2
 
                 _IsUserAlive = value;
                 if (value)
+                {
+                    UserSpawnTime = DateTime.Now;
                     OnUserSpawned?.Invoke();
+                }
                 else
                     OnUserDied?.Invoke();
             }
         }
+        public DateTime UserSpawnTime { get; private set; }
         public event TF2Proxy.UserSpawn? OnUserSpawned;
         public event TF2Proxy.UserDeath? OnUserDied;
 
@@ -471,8 +496,8 @@ namespace Effects.TF2
         {
             try
             {
-                // not currently polling "status" or anything else for additional log parsing.
-                //_ = tf2.SendCommand(new TF2FrameworkInterface.StringCommand(log.ActiveLoggingCommand), (s) => { });
+                // polling "status" or anything else for additional log parsing.
+                _ = tf2.SendCommand(new TF2FrameworkInterface.StringCommand(log.ActiveLoggingCommand), (s) => { });
 
                 PollCommandsAndVariables();
 
@@ -494,25 +519,30 @@ namespace Effects.TF2
             {
                 // reset results in case we're timing out
                 foreach (string name in Values.Keys
-                    .Except(NeverClearValues))
+                    .Intersect(ClearValues))
                     Values[name] = null;
                 foreach ((TF2FrameworkInterface.TF2Command _, Action<string?> response) in commands)
                     response?.Invoke(null);
 
                 foreach (string name in Values.Keys)
-                    tf2.SendCommand(new TF2FrameworkInterface.StringCommand(name),
-                        (s) =>
-                        {
-                            // never clear "NeverClear" values.
-                            if (string.IsNullOrEmpty(s) && NeverClearValues.Contains(name))
-                                return;
-                            Values[name] = s;
-                        }
-                        ).Wait();
+                    PollValueNow(name);
                 foreach ((TF2FrameworkInterface.TF2Command command, Action<string?> response) in commands)
                     tf2.SendCommand(command, response
                         ).Wait();
             }
+        }
+
+        private void PollValueNow(string name)
+        {
+            tf2.SendCommand(new TF2FrameworkInterface.StringCommand(name),
+                                    (s) =>
+                                    {
+                                        // never clear "NeverClear" values.
+                                        if (string.IsNullOrWhiteSpace(s) && !ClearValues.Contains(name))
+                                            return;
+                                        Values[name] = s;
+                                    }
+                                    ).Wait();
         }
 
         public void Dispose()
@@ -530,6 +560,11 @@ namespace Effects.TF2
                 if (!Values.ContainsKey(key))
                     Values[key] = null;
 
+                //this froze the app somehow:
+                //if (string.IsNullOrWhiteSpace(Values[key]))
+                //    if (!ClearValues.Contains(key))
+                //        PollValueNow(key);
+
                 return Values[key];
             }
         }
@@ -538,8 +573,8 @@ namespace Effects.TF2
         {
             get
             {
-                return tf2 != null;
-                //TODO (taken care of elsewhere now I think?) detect disconnected, provide reconnect code that resets that detection.
+                return tf2 != null
+                    && tf2.IsConnected;
             }
         }
 
@@ -554,8 +589,12 @@ namespace Effects.TF2
         // getpos - stays 000 until you're in the map (at least a camera).
         public bool IsMapLoaded => IsGetPos000();
 
+        public string AllValues => string.Join("\n",
+            Values?.Select(x => x.Key + "->" + x.Value)
+            ?? []);
+
         // not in map (no camera): "setpos 0.0 0.0 0.0;setang 0.0 0.0 0.0" (either order or sometimes one is missing or has newline)
-        private Regex setpos000 = new Regex(@".*setpos( 0(\.0+)?){3}");
+        private Regex setpos000 = new Regex(@".*setpos( 0(\.0+)?){3}.*", RegexOptions.Singleline);
 
         // getpos: in map: "setpos 2061.664551 -5343.968750 -948.968689;setang 14.071210 59.451595 0.000000"
         // "setang 9.200377 165.286209 0.000000

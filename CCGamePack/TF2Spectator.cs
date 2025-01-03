@@ -18,6 +18,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
 
     //new("Give Lives", "lives") { Quantity = 9 },
 
+    #region Camera
     /// <summary>
     /// mat_color_projection 4 (vs 0)
     /// Affects entire game including menus
@@ -45,7 +46,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
 
         // user-facing collections (can be used to disable/hide a set with an Effect Report)
         //EffectGrouping? Category;
-        //        Category = new EffectGrouping("cat1", "cat2"),
+        Category = new EffectGrouping("Camera"),
 
         // internal collections (can be used to disable/hide a set with an Effect Report)
         //EffectGrouping? Group;
@@ -66,7 +67,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         //SITimeSpan? SessionCooldown;
 
         //uint Price;
-        Price = 100,
+        Price = 200,
 
         //ItemKind Kind (constructor, Effect or Bidwar);
         //ParameterList? Parameters;
@@ -103,6 +104,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Camera"),
+        Price = 200
     };
     /// <summary>
     /// mat_bloom_scalefactor_scalar 50 (vs 1) and mat_force_bloom 1
@@ -114,8 +117,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Camera"),
+        Price = 100
     };
+    #endregion Camera
 
+    #region View Model
     /// <summary>
     /// tf_use_min_viewmodels 0 (vs 1) and r_drawviewmodel 1
     /// Affects game viewmodel (First-person arms/weapons)
@@ -125,6 +132,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Force my usual weapon viewmodels to the default big ones.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("View Model"),
+        Price = 20
     };
     /// <summary>
     /// tf_use_min_viewmodels 0 (vs 1) and r_drawviewmodel 1
@@ -135,6 +144,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Force my usual weapon viewmodels to small ones.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("View Model"),
+        Price = 20
     };
     /// <summary>
     /// r_drawviewmodel 0/1 toggle
@@ -145,6 +156,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Force my weapon viewmodels to hide (or show) - opposite of my usual.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("View Model"),
+        Price = 40
     };
     /// <summary>
     /// viewmodel_fov 160
@@ -155,6 +168,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Long arms",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("View Model"),
+        Price = 20
     };
     /// <summary>
     /// turn on cl_first_person_uses_world_model and tf_taunt_first_person
@@ -165,8 +180,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "My arms, weapons, and body are visible exactly as other players see them in game.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("View Model"),
+        Price = 20
     };
+    #endregion View Model
 
+    #region Crosshair
     /// <summary>
     /// animate a rainbow effect on the crosshair's color.
     /// Affects crosshair color
@@ -176,6 +195,21 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "A rainbow of colors for my crosshair",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
+        Category = new EffectGrouping("Crosshair"),
+        Price = 10
+    };
+
+    /// <summary>
+    /// large crosshair scale
+    /// Affects crosshair size
+    /// </summary>
+    public static readonly Effect crosshair_giant = new("Giant Crosshair", "crosshair_giant")
+    {
+        Description = "Make my crosshair gigantic",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        Category = new EffectGrouping("Crosshair"),
+        Price = 50
     };
 
     /// <summary>
@@ -188,8 +222,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Crosshair", "Camera"),
+        Price = 200
     };
+    #endregion Crosshair
 
+    #region Game Play
     /// <summary>
     /// Every the user gets a kill, immediately triggers a taunt.
     /// </summary>
@@ -199,25 +237,91 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Price = 500
     };
 
     public static readonly Effect explode = new("Explode", "explode")
     {
         Description = "Instant and dramatic death",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Price = 500
     };
 
-    public static readonly Effect destroybuildings = new("Destroy My Buildings", "destroybuildings")
+    public static readonly Effect kill = new("Die", "kill")
+    {
+        Description = "Instant death",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Price = 500
+    };
+
+    public static readonly Effect destroybuildings = new("Destroy All My Buildings", "destroybuildings")
     {
         Description = "Instantly destroy all of Engy's buildings",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Price = 300
+    };
+    public static readonly Effect destroysentry = new("Destroy My Sentry", "destroysentry")
+    {
+        Description = "Instantly destroy Engy's sentry",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Price = 130
+    };
+    public static readonly Effect destroydispenser = new("Destroy My Dispenser", "destroydispenser")
+    {
+        Description = "Instantly destroy Engy's dispenser",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Price = 100
+    };
+    public static readonly Effect destroyteleporters = new("Destroy My Teleporters", "destroyteleporters")
+    {
+        Description = "Instantly destroy both of Engy's teleporters",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Price = 100
     };
 
     public static readonly Effect removedisguise = new("Remove My Disguise", "removedisguise")
     {
         Description = "Undisguise Spy",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Gameplay", "Spy"),
+        Price = 100
     };
+
+    public static readonly Effect ubernow = new("Use My Über Now", "ubernow")
+    {
+        Description = "Right-click Medi Gun",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+        Category = new EffectGrouping("Gameplay", "Medic"),
+        Price = 200
+    };
+
+    public static readonly Effect medicradar = new("Medic Radar", "medicradar")
+    {
+        Description = "All teammates call medic with icons over their heads",
+        Duration = TimeSpan.FromSeconds(2),
+        IsDurationEditable = false,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
+        Category = new EffectGrouping("Gameplay", "Medic"),
+        Price = 10
+    };
+
+    public static readonly Effect melee_only = new("Melee Only", "melee_only")
+    {
+        Description = "Force slot 3 (melee) weapon",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Gameplay"),
+        Price = 200
+    };
+    #endregion Game Play
 
     public override EffectList Effects
         => new Effect[]{
@@ -232,13 +336,20 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
                 vr_mode,
 
                 crosshair_rainbow,
+                crosshair_giant,
                 crosshair_cataracts,
 
+                kill,
                 explode,
-                destroybuildings,
-                removedisguise,
-
+                melee_only,
                 taunt_after_kill,
+                destroybuildings,
+                destroysentry,
+                destroydispenser,
+                destroyteleporters,
+                removedisguise,
+                medicradar,
+                ubernow,
         };
 
     public override Game Game { get; } = new(

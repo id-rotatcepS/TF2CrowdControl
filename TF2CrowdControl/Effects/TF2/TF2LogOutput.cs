@@ -85,6 +85,8 @@ namespace Effects.TF2
                 new IdleMatcher(this),
                 new ConnectedMatcher(this),
 
+                new LoadMapMatcher(this),
+
                 // currently disabled/not needed:
                 //// output of the "status" command
                 //new StatusHostnameMatcher(this),
@@ -92,7 +94,8 @@ namespace Effects.TF2
                 //new StatusVersionMatcher(this),
                 //new StatusSteamidMatcher(this),
                 //new StatusAccountMatcher(this),
-                //new StatusMapMatcher(this),
+                // LoadMapMatcher is a one-shot deal that might fail or we might already be connected, so also do it this way.
+                new StatusMapMatcher(this),
                 //new StatusTagsMatcher(this),
                 //new StatusPlayersMatcher(this),
                 //new StatusEdictsMatcher(this),
@@ -110,7 +113,7 @@ namespace Effects.TF2
         // con_timestamp 1 ; Prefix console.log entries with timestamps
 
         // currently disabled/not needed:
-        //public string ActiveLoggingCommand => $"status;";
+        public string ActiveLoggingCommand => $"status;";
 
         /// <summary>
         /// Called OnPlayerDied
@@ -139,6 +142,20 @@ namespace Effects.TF2
         internal void NotifyUserClassChanged(string playerClass)
         {
             OnUserChangedClass.Invoke(playerClass);
+        }
+
+        /// <summary>
+        /// Called OnMapNameChanged
+        /// </summary>
+        /// <param name="mapName">pl_upward, etc.</param>
+        public delegate void MapNameChanged(string mapName);
+        /// <summary>
+        /// Fires when the map name changes.
+        /// </summary>
+        public event MapNameChanged OnMapNameChanged;
+        internal void NotifyMapNameChanged(string mapName)
+        {
+            OnMapNameChanged.Invoke(mapName);
         }
 
         //public delegate void StatusEvent(StatusCommandLogOutput source);
@@ -371,6 +388,31 @@ namespace Effects.TF2
         }
     }
 
+    public class LoadMapMatcher : LineMatcher
+    {
+        // Team Fortress
+        // Map: pl_pier
+        // Players: 19 / 32
+        // Build: 9433646
+        // Server Number: 18
+        private static readonly Regex mapConnectRegex = new Regex(@"^Map: (?<value>\S+)$");
+
+        public LoadMapMatcher(TF2LogOutput tF2LogOutput)
+            : base(tF2LogOutput, mapConnectRegex)
+        {
+        }
+        private string lastValue = string.Empty;
+        public override void Handle(Match match, string line)
+        {
+            string value = match.Groups["value"].Value;
+            if (value == lastValue)
+                return;
+            lastValue = value;
+            //base.Handle(match, line);
+            TF2LogOutput.NotifyMapNameChanged(value);
+        }
+    }
+
     public class StatusHostnameMatcher : LineMatcher
     {
         //hostname: Valve Matchmaking Server (Washington srcds1003-eat1 #41)
@@ -445,7 +487,7 @@ namespace Effects.TF2
     public class StatusMapMatcher : LineMatcher
     {
         //map     : pl_upward at: 0 x, 0 y, 0 z
-        private static readonly Regex mapRegex = new Regex(@"^map     : (?<value>.+)$");
+        private static readonly Regex mapRegex = new Regex(@"^map     : (?<value>\S+).*$");
 
         public StatusMapMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, mapRegex)
@@ -458,7 +500,8 @@ namespace Effects.TF2
             if (value == lastValue)
                 return;
             lastValue = value;
-            base.Handle(match, line);
+            //base.Handle(match, line);
+            TF2LogOutput.NotifyMapNameChanged(value);
         }
     }
 

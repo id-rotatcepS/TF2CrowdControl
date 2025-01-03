@@ -49,14 +49,61 @@
                     </Grid>
                 </StackPanel>
             </Expander>
+            <Expander x:Name="Status" Header="Status" IsExpanded="True">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Width="100">
+                        <TextBlock x:Name="MapName" 
+                                   Text="{Binding StatusMapName}" 
+                                   Foreground="{Binding StatusMapNameColor}"/>
+                        <TextBlock x:Name="ClassName" 
+                                   Text="{Binding StatusClassName}" 
+                                   Foreground="{Binding StatusClassNameColor}"/>
+                    </StackPanel>
+                    <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="430">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Background="White"></WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0" x:Name="BackgroundGrid">
+                                    <TextBlock Grid.Column="1" x:Name="TextBlock" Margin="5,0" Padding="0">
+                                        <Run Text="{Binding ID, Mode=OneWay}" />
+                                        <Run Text="{Binding Remaining, Mode=OneWay, StringFormat=\{0:m\\:ss\\.f\}}" />
+                                    </TextBlock>
+                                </Grid>
+
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Listed}" Value="False">
+                                        <Setter TargetName="BackgroundGrid" Property="Background" Value="Black"/>
+                                        <Setter TargetName="TextBlock" Property="Foreground" Value="Gray"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Selectable}" Value="False">
+                                        <Setter TargetName="TextBlock" Property="Foreground" Value="LightGray"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Running}" Value="True">
+                                        <Setter TargetName="TextBlock" Property="FontWeight" Value="Bold"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <TextBlock Text="{Binding ProxyValues}" Foreground="White" VerticalAlignment="Top" Width="200"/>
+
+                </StackPanel>
+            </Expander>
             <Expander x:Name="Log" Header="Log" IsExpanded="True" MaxHeight="350">
                 <ScrollViewer x:Name="logScroller" VerticalScrollBarVisibility="Visible">
                     <TextBox x:Name="log" HorizontalAlignment="Left" MinHeight="70" TextWrapping="Wrap" VerticalContentAlignment="Stretch" MinWidth="700"
-                         Text="{Binding CommandLog}" 
-                         BorderBrush="Transparent"
-                         Background="Transparent" BorderThickness="0"
-                         Padding="5 0 0 0"
-                         IsReadOnly="True" IsReadOnlyCaretVisible="True" IsInactiveSelectionHighlightEnabled="True" TextChanged="log_TextChanged"/>
+                             Text="{Binding CommandLog}" 
+                             BorderBrush="Transparent"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="5 0 0 0"
+                             IsReadOnly="True" IsReadOnlyCaretVisible="True" IsInactiveSelectionHighlightEnabled="True" TextChanged="log_TextChanged"/>
                 </ScrollViewer>
             </Expander>
         </StackPanel>

@@ -2,10 +2,12 @@
 
 using CrowdControl;
 
+using Effects;
 using Effects.TF2;
 
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Windows.Media;
 
 using TF2FrameworkInterface;
 
@@ -109,9 +111,37 @@ namespace TF2CrowdControl
             CommandLog = string.Empty;
 
             StartTF2Connection();
+
+            CC.OnEffectStatesUpdated += (c) =>
+            {
+                ViewNotification(nameof(StatusEffects));
+                ViewNotification(nameof(StatusMapName));
+                ViewNotification(nameof(StatusMapNameColor));
+                ViewNotification(nameof(StatusClassName));
+                ViewNotification(nameof(StatusClassNameColor));
+
+                ViewNotification(nameof(ProxyValues));
+            };
         }
 
         public CrowdControlHelper CC { get; }
+
+        public string StatusMapName => TF2Effects.TF2Proxy?.Map ?? string.Empty;
+        public Brush StatusMapNameColor => TF2Effects.TF2Proxy?.IsMapLoaded ?? false
+            ? new SolidColorBrush(Colors.Green)
+            : new SolidColorBrush(Colors.Gray);
+
+        public string StatusClassName => TF2Effects.TF2Proxy?.ClassSelection ?? string.Empty;
+        public Brush StatusClassNameColor => TF2Effects.TF2Proxy?.IsUserAlive ?? false
+            ? new SolidColorBrush(Colors.Green)
+            : new SolidColorBrush(Colors.Gray);
+
+        public IEnumerable<EffectState> StatusEffects
+        {
+            get => CC.EffectStates;
+        }
+
+        public string ProxyValues => (TF2Effects.TF2Proxy as TF2Poller)?.AllValues ?? string.Empty;
 
         private static TF2Config TF2Config => Aspen.Option.Get<TF2Config>(nameof(TF2Config));
 
@@ -181,6 +211,13 @@ namespace TF2CrowdControl
         {
             _tf2 = TF2Instance.CreateCommunications(RCONPort, RCONPassword);
             _tf2.SetOnDisconnected(RemakeConnection);
+            TF2Effects.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
+            TF2Effects.TF2Proxy.OnUserSpawned += () =>
+            {
+                ViewNotification(nameof(StatusClassName));
+                ViewNotification(nameof(StatusClassNameColor));
+                ViewNotification(nameof(StatusMapName));
+            };
 
             //_tf2.SetOnDisconnected(() => _tf2 = null);
 

@@ -53,16 +53,16 @@ namespace Effects.TF2
         {
             TF2Poller tf2 = new TF2Poller(_tf2Instance, TF2Config.TF2Path);
 
-            // subtle indicator of "app thinks you're dead/alive"
-            //TODO delete this or get a better indicator.
-            string DeadCommand =
-                "cl_hud_playerclass_use_playermodel 0";
-            string AliveCommand =
-                "cl_hud_playerclass_use_playermodel 1";
-            tf2.OnUserDied += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
-                DeadCommand), (r) => { });
-            tf2.OnUserSpawned += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
-                AliveCommand), (r) => { });
+            //// subtle indicator of "app thinks you're dead/alive"
+            ////TODO delete this or get a better indicator.
+            //string DeadCommand =
+            //    "cl_hud_playerclass_use_playermodel 0";
+            //string AliveCommand =
+            //    "cl_hud_playerclass_use_playermodel 1";
+            //tf2.OnUserDied += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
+            //    DeadCommand), (r) => { });
+            //tf2.OnUserSpawned += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
+            //    AliveCommand), (r) => { });
 
             return tf2;
         }
@@ -70,6 +70,7 @@ namespace Effects.TF2
         public static TF2Proxy? TF2Proxy { get; private set; }
 
         public static readonly string MUTEX_VIEWMODEL = "viewmodel";
+        public static readonly string MUTEX_WEAPONSLOT = "weaponslot";
         public static readonly string MUTEX_CROSSHAIR_COLOR = "crosshair_color";
         public static readonly string MUTEX_CROSSHAIR_SIZE = "crosshair_size";
         public static readonly string MUTEX_CROSSHAIR_SHAPE = "crosshair_shape";
@@ -93,6 +94,9 @@ namespace Effects.TF2
                 //TODO do something.
             }
             string result = string.Empty;
+
+            Aspen.Log.Info($"Run> {command}");
+
             TF2Instance.SendCommand(new TF2FrameworkInterface.StringCommand(command),
                 (r) => result = r
                 ).Wait();
@@ -163,6 +167,10 @@ namespace Effects.TF2
             : base(id, span)
         {
             VariableSettings = variableSettings;
+            // "register" all these values so they store a decent value by the time this starts.
+            foreach (string variable in VariableSettings.Keys)
+                _ = tf2.GetValue(variable);
+
         }
         public TimedSetEffect(string id, TimeSpan span, string variable, string activeValue)
             : this(id, span, new Dictionary<string, string> { [variable] = activeValue })
@@ -172,9 +180,11 @@ namespace Effects.TF2
         public Dictionary<string, string>? OriginalValues { get; private set; }
         public Dictionary<string, string> VariableSettings { get; }
 
+        private bool isStarted = false;
+
         public override bool IsSelectableGameState
-            => IsOriginalValuesDifferentFromEffectValues()
-            && IsAvailable;
+            => IsAvailable
+            && IsOriginalValuesDifferentFromEffectValues();
         ///// <summary>
         ///// Original Values must not already match effect active Values
         ///// </summary>
@@ -188,19 +198,8 @@ namespace Effects.TF2
         {
             try
             {
-                OriginalValues = null;
-
-                foreach (string variable in VariableSettings.Keys)
-                {
-                    string activeValue = VariableSettings[variable];
-
-                    string startValue = tf2.GetValue(variable);
-                    if (startValue != activeValue)
-                    {
-                        OriginalValues ??= new Dictionary<string, string>();
-                        OriginalValues[variable] = startValue;
-                    }
-                }
+                if (!isStarted)
+                    LoadOriginalValues();
 
                 return OriginalValues != null && OriginalValues.Count > 0;
             }
@@ -210,8 +209,27 @@ namespace Effects.TF2
             }
         }
 
+        private void LoadOriginalValues()
+        {
+            OriginalValues = null;
+
+            foreach (string variable in VariableSettings.Keys)
+            {
+                string activeValue = VariableSettings[variable];
+
+                string startValue = tf2.GetValue(variable);
+                if (startValue != activeValue)
+                {
+                    OriginalValues ??= new Dictionary<string, string>();
+                    OriginalValues[variable] = startValue;
+                }
+            }
+        }
+
         public override void StartEffect()
         {
+            isStarted = true;
+            LoadOriginalValues();
             foreach (string variable in VariableSettings.Keys)
             {
                 string activeValue = VariableSettings[variable];
@@ -226,6 +244,8 @@ namespace Effects.TF2
                 foreach (string variable in OriginalValues.Keys)
                     tf2.SetValue(variable, OriginalValues[variable]);
             //TODO else
+
+            isStarted = false;
         }
     }
 
@@ -315,6 +335,16 @@ namespace Effects.TF2
 
     #endregion base classes
 
+    public class KillEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "kill";
+        public KillEffect()
+            : base(EFFECT_ID, "kill")
+        {
+            Availability = new AliveInMap();
+        }
+    }
+
     public class ExplodeEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "explode";
@@ -329,7 +359,38 @@ namespace Effects.TF2
     {
         public static readonly string EFFECT_ID = "destroybuildings";
         public EngineerDestroyBuildingsEffect()
-            : base(EFFECT_ID, "destroy 0 0;destroy 1 0;destroy 1 1;destroy 2 0")
+            // needs some delay to actually work.  This is dramatically slow for my computer, but other setups it might just barely work I'm guessing.
+            : base(EFFECT_ID, "destroy 2 0;wait 200;destroy 1 0;wait 200;destroy 1 1;wait 200;destroy 0 0")
+        {
+            Availability = new AliveClass("engineer");
+        }
+    }
+    public class EngineerDestroyTeleportersEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "destroyteleporters";
+        public EngineerDestroyTeleportersEffect()
+            // needs some delay to actually work.  This is dramatically slow for my computer, but other setups it might just barely work I'm guessing.
+            : base(EFFECT_ID, "destroy 1 0;wait 200;destroy 1 1")
+        {
+            Availability = new AliveClass("engineer");
+        }
+    }
+    public class EngineerDestroySentryEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "destroysentry";
+        public EngineerDestroySentryEffect()
+            // needs some delay to actually work.  This is dramatically slow for my computer, but other setups it might just barely work I'm guessing.
+            : base(EFFECT_ID, "destroy 2 0")
+        {
+            Availability = new AliveClass("engineer");
+        }
+    }
+    public class EngineerDestroyDispenserEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "destroydispenser";
+        public EngineerDestroyDispenserEffect()
+            // needs some delay to actually work.  This is dramatically slow for my computer, but other setups it might just barely work I'm guessing.
+            : base(EFFECT_ID, "destroy 0 0")
         {
             Availability = new AliveClass("engineer");
         }
@@ -345,6 +406,34 @@ namespace Effects.TF2
         }
     }
 
+    public class MedicUberNowEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "ubernow";
+        public MedicUberNowEffect()
+            : base(EFFECT_ID, "slot2;+attack2;wait 40;-attack2")
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            // 24 seconds for vacc uber
+            // 32 seconds for kritz uber
+            // 40 seconds for stock uber
+            Availability = new AliveClassForMinimumTime("medic", 32);
+        }
+    }
+
+    public class MedicRadarEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "medicradar";
+        public MedicRadarEffect()
+            : base(EFFECT_ID, new TimeSpan(0, 0, seconds: 2), new()
+            {
+                ["hud_medicautocallers"] = "1",
+                ["Hud_MedicAutocallersThreshold"] = "150",
+            })
+        {
+            Availability = new AliveClass("medic");
+        }
+    }
+
     public class BlackAndWhiteTimedEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "blackandwhite";
@@ -352,6 +441,7 @@ namespace Effects.TF2
             : base(EFFECT_ID, PausableEffect.DefaultTimeSpan, "mat_color_projection", "4")
         {
             // Availability: even works in the menu
+            Availability = new InApplication();
         }
     }
     public class PixelatedTimedEffect : TimedSetEffect
@@ -476,7 +566,9 @@ namespace Effects.TF2
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
-        public override bool IsSelectableGameState => IsAvailable;
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == tf2.GetValue("crosshair");
 
         public override void StartEffect()
         {
@@ -486,11 +578,17 @@ namespace Effects.TF2
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
         {
-            //TODO make each increment multipied by the timespan for a precise rainbow speed.
+            // factors were based on about 3 increments per second.
+            /// but that seems slow, let's try 6
+            double incrementFactor = timeSinceLastUpdate.TotalSeconds * 6.0;
+            // make each increment multipied by the timespan for a precise rainbow speed.
+            int redincrement = (int)(2 * incrementFactor);
+            int grnincrement = (int)(3 * incrementFactor);
+            int bluincrement = (int)(4 * incrementFactor);
             _ = tf2.RunCommand(
-                "incrementvar cl_crosshair_red 50 255 2;" +
-                "incrementvar cl_crosshair_green 50 255 3;" +
-                "incrementvar cl_crosshair_blue 50 255 4;");
+                $"incrementvar cl_crosshair_red 50 255 {redincrement};" +
+                $"incrementvar cl_crosshair_green 50 255 {grnincrement};" +
+                $"incrementvar cl_crosshair_blue 50 255 {bluincrement};");
         }
 
         public override void StopEffect()
@@ -514,7 +612,9 @@ namespace Effects.TF2
 
             crosshair = "\"\"";
         }
-        public override bool IsSelectableGameState => IsAvailable;
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == tf2.GetValue("crosshair");
 
         public override void StartEffect()
         {
@@ -551,6 +651,24 @@ namespace Effects.TF2
                 "cl_crosshair_file " + crosshair);
         }
     }
+    public class GiantCrosshairEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_giant";
+
+        public GiantCrosshairEffect()
+            : base(EFFECT_ID, PausableEffect.DefaultTimeSpan, new()
+            {
+                ["cl_crosshair_scale"] = "1000"
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == tf2.GetValue("crosshair");
+    }
+
     public class TauntAfterKillEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_after_kill";
@@ -579,6 +697,35 @@ namespace Effects.TF2
         {
             if (TF2Effects.TF2Proxy != null)
                 TF2Effects.TF2Proxy.OnUserKill -= TauntAfterKillEffect_OnUserKill;
+        }
+    }
+
+    public class MeleeOnlyEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "melee_only";
+
+        public MeleeOnlyEffect()
+            : base(EFFECT_ID, PausableEffect.DefaultTimeSpan)
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = tf2.RunCommand("slot3");
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            _ = tf2.RunCommand("slot3");
+        }
+
+        public override void StopEffect()
+        {
+            //switch to primary
+            _ = tf2.RunCommand("slot1");
         }
     }
 }
