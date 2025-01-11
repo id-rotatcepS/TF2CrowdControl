@@ -2,9 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-using TF2FrameworkInterface;
-
-namespace Effects.TF2
+namespace EffectSystem.TF2
 {
 
     // change class causes class.cfg to execute.  Doesn't execute until spawn.
@@ -62,9 +60,8 @@ namespace Effects.TF2
 
     public class TF2LogOutput
     {
-        public TF2LogOutput(TF2Instance tf2, string tf2Path)
+        public TF2LogOutput(string tf2Path)
         {
-            TF2 = tf2;
             TF2Path = tf2Path;
 
             LineMatchers = new()
@@ -161,15 +158,29 @@ namespace Effects.TF2
         //public delegate void StatusEvent(StatusCommandLogOutput source);
         //public event StatusEvent StatusUpdated;
 
-        private TF2Instance TF2 { get; }
         private string TF2Path { get; }
 
         private Task? monitor;
         public void StartMonitor()
         {
-            monitor = Task.Run(
-                () => ReadLiveLogFile(LogFilePath)
-                );
+            int tries = 0;
+            while (tries < 10 * 60 * 5) // 5 minutes worth of retries.
+            {
+                try
+                {
+                    monitor = Task.Run(
+                        () => ReadLiveLogFile(LogFilePath)
+                        );
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    ++tries;
+                    Thread.Sleep(100);
+                    ASPEN.Aspen.Log.WarningException(ex, "TF2's Log File");
+                }
+            }
+            ASPEN.Aspen.Log.Error("TF2's Log File - giving up.");
         }
 
         //public void StopMonitor() { 
@@ -233,7 +244,7 @@ namespace Effects.TF2
 
          */
 
-        private static readonly Regex chatRegex = new Regex(@"^.*(\*(?<state>[A-Z]+)\* )?.*(?<name>" + LineMatcher.PlayerNamePattern + @").*﻿‍​ :  .*(?<text>.+).*$");
+        private static readonly Regex chatRegex = new Regex(@"^.*(\*(?<state>[A-Z]+)\* )?.*(?<name>" + PlayerNamePattern + @").*﻿‍​ :  .*(?<text>.+).*$");
 
         public ChatMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, chatRegex)
@@ -250,7 +261,7 @@ namespace Effects.TF2
     public class KilledMatcher : LineMatcher
     {
         //TODO risky - could match chat.
-        private static readonly Regex killedRegex = new Regex(@"^(?<killername>" + LineMatcher.PlayerNamePattern + @") killed (?<victimname>" + LineMatcher.PlayerNamePattern + @") with (?<weaponname>[a-z_\d]+)\.(?<crit> \(crit\))?$");
+        private static readonly Regex killedRegex = new Regex(@"^(?<killername>" + PlayerNamePattern + @") killed (?<victimname>" + PlayerNamePattern + @") with (?<weaponname>[a-z_\d]+)\.(?<crit> \(crit\))?$");
 
         public KilledMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, killedRegex)
@@ -271,7 +282,7 @@ namespace Effects.TF2
     public class SuicidedMatcher : LineMatcher
     {
         //TODO risky - could match chat.
-        private static readonly Regex suicidedRegex = new Regex(@"^(?<victimname>" + LineMatcher.PlayerNamePattern + @") suicided.$");
+        private static readonly Regex suicidedRegex = new Regex(@"^(?<victimname>" + PlayerNamePattern + @") suicided.$");
 
         public SuicidedMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, suicidedRegex)
@@ -290,7 +301,7 @@ namespace Effects.TF2
         // El Muchacho died.
 
         //TODO risky - could match chat.
-        private static readonly Regex diedRegex = new Regex(@"^(?<victimname>" + LineMatcher.PlayerNamePattern + @") died.$");
+        private static readonly Regex diedRegex = new Regex(@"^(?<victimname>" + PlayerNamePattern + @") died.$");
 
         public DiedMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, diedRegex)
@@ -333,7 +344,7 @@ namespace Effects.TF2
         //name defended place for team #n
 
         //TODO risky - could match chat.
-        private static readonly Regex defendedRegex = new Regex(@"^(?<name>" + LineMatcher.PlayerNamePattern + @") defended (?<place>.+) for (?<team>team #\d)$");
+        private static readonly Regex defendedRegex = new Regex(@"^(?<name>" + PlayerNamePattern + @") defended (?<place>.+) for (?<team>team #\d)$");
 
         public DefendedMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, defendedRegex)
@@ -357,7 +368,7 @@ namespace Effects.TF2
         // LuKaZ was moved to the other team for game balance
 
         //TODO risky - could match chat.
-        private static readonly Regex autobalancedRegex = new Regex(@"^(?<name>" + LineMatcher.PlayerNamePattern + @") was moved to the other team for game balance$");
+        private static readonly Regex autobalancedRegex = new Regex(@"^(?<name>" + PlayerNamePattern + @") was moved to the other team for game balance$");
 
         public AutobalancedMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, autobalancedRegex)
@@ -369,7 +380,7 @@ namespace Effects.TF2
         // Avodroc has been idle for too long and has been kicked
 
         //TODO risky - could match chat.
-        private static readonly Regex idleRegex = new Regex(@"^(?<name>" + LineMatcher.PlayerNamePattern + @") has been idle for too long and has been kicked$");
+        private static readonly Regex idleRegex = new Regex(@"^(?<name>" + PlayerNamePattern + @") has been idle for too long and has been kicked$");
 
         public IdleMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, idleRegex)
@@ -380,7 +391,7 @@ namespace Effects.TF2
     {
         // groovy connected
         //TODO risky - could match chat.
-        private static readonly Regex connectedRegex = new Regex(@"^(?<name>" + LineMatcher.PlayerNamePattern + @") connected$");
+        private static readonly Regex connectedRegex = new Regex(@"^(?<name>" + PlayerNamePattern + @") connected$");
 
         public ConnectedMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, connectedRegex)
@@ -578,7 +589,7 @@ namespace Effects.TF2
     {
         //#    777 "NameName"          [U:1:1111111111]    23:09       89    0 active
         private static readonly Regex playerRegex = new Regex(
-            @"^# +(?<userid>\d+) +""(?<name>" + LineMatcher.PlayerNamePattern + @")"" +(?<uniqueid>\[.*\]) +(?<connected>[\d:]+) +(?<ping>\d+) +(?<loss>\d+) +(?<state>\w+)$"
+            @"^# +(?<userid>\d+) +""(?<name>" + PlayerNamePattern + @")"" +(?<uniqueid>\[.*\]) +(?<connected>[\d:]+) +(?<ping>\d+) +(?<loss>\d+) +(?<state>\w+)$"
         // more detailed version:
         // turns out connected could have an hour part... just in case allowing for empty minute part
         //@"^#\s+(?<userid>\d+)\s+\""(?<name>.*)\""\s+(?<uniqueid>\[U:\d+:\d+\])\s+(?:(?:(?<connected_hr>\d+):)?(?<connected_min>\d+):)?(?<connected_sec>\d?\d)\s+(?<ping>\d+)\s+(?<loss>\d+)\s+(?<state>.*)"
@@ -617,7 +628,7 @@ namespace Effects.TF2
                 ASPEN.Aspen.Log.Warning("Match failed? " + line);
             else
                 ASPEN.Aspen.Log.Trace(
-                    this.GetType().Name + ":" +
+                    GetType().Name + ":" +
                     string.Join(
                         " ; ",
                         match.Groups.Values
@@ -628,7 +639,7 @@ namespace Effects.TF2
 
         internal LineHandler GetHandler(Match match, string line)
         {
-            return new LineHandler(match, line, this.Handle);
+            return new LineHandler(match, line, Handle);
         }
 
         internal Match Match(string line)
@@ -646,7 +657,7 @@ namespace Effects.TF2
         {
             this.match = match;
             this.line = line;
-            this.Handler = handler;
+            Handler = handler;
         }
 
         private Action<Match, string> Handler { get; }

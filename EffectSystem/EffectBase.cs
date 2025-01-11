@@ -1,29 +1,24 @@
 ﻿using ASPEN;
 
-namespace Effects
+namespace EffectSystem
 {
-    abstract public class PausableEffect : Effect
+    abstract public class EffectBase : Effect
     {
-        public static readonly TimeSpan DefaultTimeSpan = new TimeSpan(0, minutes: 1, 0);
-
         private bool IsElapsing = false;
         private DateTime LastUpdate;
 
-        public PausableEffect(string id, TimeSpan defaultDuration)
+        public EffectBase(string id)
         {
             ID = id;
-            DefaultDuration = defaultDuration;
         }
 
         public string ID { get; }
-        public TimeSpan DefaultDuration { get; }
 
         /// <summary>
         /// How long this effect will be performed - Zero if it is instant. 
         /// (clock time could be longer if the effect is paused during updates)
         /// </summary>
-        public TimeSpan Duration
-            => CurrentRequest?.RequestedDuration ?? DefaultDuration;
+        abstract public TimeSpan Duration { get; }
 
         /// <summary>
         /// List of mutually exclusive groups this effect belongs to
@@ -49,7 +44,7 @@ namespace Effects
         /// <summary>
         /// Whether this Effect is instant or uses a Duration to play out.
         /// </summary>
-        public bool HasDuration => (Duration > TimeSpan.Zero);
+        abstract public bool HasDuration { get; }
 
         /// <summary>
         /// Whether the game state is appropriate for this effect to be activated.
@@ -80,7 +75,7 @@ namespace Effects
         /// Update will be called until the duration is completed.
         /// </summary>
         /// <param name="request"></param>
-        protected abstract void StartEffect(EffectDispatchRequest request);
+        abstract protected void StartEffect(EffectDispatchRequest request);
 
         public void Stop()
         {
@@ -113,7 +108,7 @@ namespace Effects
         /// May be called before Duration is over if an early stop is requested.
         /// </summary>
         /// <param name="request"></param>
-        protected abstract void StopEffect(TimeSpan timeSinceLastUpdate);
+        abstract protected void StopEffect(TimeSpan timeSinceLastUpdate);
 
         public void Update(Action<Effect> OnPaused, Action<Effect> OnResumed, Action<Effect> OnClosing)
         {
@@ -135,7 +130,7 @@ namespace Effects
         /// <summary>
         /// Whether the effect duration should not be paused.  Defaults to true.
         /// </summary>
-        virtual protected bool CanElapse => true;
+        abstract protected bool CanElapse { get; }
 
         private void UpdatePaused(Action<Effect> OnPaused)
         {
@@ -190,5 +185,4 @@ namespace Effects
         /// </summary>
         abstract protected void Update(TimeSpan span);
     }
-
 }

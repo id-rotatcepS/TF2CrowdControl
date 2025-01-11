@@ -1,8 +1,7 @@
 ﻿using ASPEN;
 
 using ConnectorLib.JSON;
-
-using Effects;
+using EffectSystem;
 
 namespace CrowdControl
 {

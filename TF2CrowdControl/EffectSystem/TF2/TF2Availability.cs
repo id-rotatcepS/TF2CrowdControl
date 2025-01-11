@@ -1,4 +1,4 @@
-﻿namespace Effects.TF2
+﻿namespace EffectSystem.TF2
 {
     public interface TF2Availability
     {
@@ -15,6 +15,10 @@
     {
         private string userClass;
 
+        /// <summary>
+        /// Available if user is alive as the named class
+        /// </summary>
+        /// <param name="userClass"></param>
         public AliveClass(string userClass)
         {
             this.userClass = userClass;
@@ -36,6 +40,11 @@
 
     internal class AliveClassForMinimumTime : AliveClass
     {
+        /// <summary>
+        /// Available if user has been alive as the named class for at least a minimum amount of time
+        /// </summary>
+        /// <param name="userClass"></param>
+        /// <param name="seconds"></param>
         public AliveClassForMinimumTime(string userClass, double seconds)
             : base(userClass)
         {
@@ -60,6 +69,11 @@
 
     internal class AliveInMap : InMap
     {
+        /// <summary>
+        /// Available if user is alive in a loaded map
+        /// </summary>
+        /// <param name="tF2Instance"></param>
+        /// <returns></returns>
         override public bool IsAvailable(TF2Proxy tF2Instance)
         {
             try
@@ -76,6 +90,11 @@
 
     internal class InMap : InApplication
     {
+        /// <summary>
+        /// Available if user has loaded into a map
+        /// </summary>
+        /// <param name="tf2StatusProxy"></param>
+        /// <returns></returns>
         override public bool IsAvailable(TF2Proxy tf2StatusProxy)
         {
             // status system that queries this stuff regularly and this class just asks for latest answer.
@@ -88,6 +107,11 @@
 
     internal class InApplication : TF2Availability
     {
+        /// <summary>
+        /// Available if the TF2 application is running
+        /// </summary>
+        /// <param name="tf2StatusProxy"></param>
+        /// <returns></returns>
         virtual public bool IsAvailable(TF2Proxy tf2StatusProxy)
         {
             // status system that queries this stuff regularly and this class just asks for latest answer.

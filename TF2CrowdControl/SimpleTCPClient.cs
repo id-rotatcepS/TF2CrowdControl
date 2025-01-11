@@ -70,26 +70,7 @@ namespace CrowdControl
             {
                 try
                 {
-                    _client = new TcpClient()
-                    {
-                        ExclusiveAddressUse = false,
-                        LingerState = new LingerOption(true, 0)
-                    };
-                    await _client.ConnectAsync(CROWD_CONTROL_HOST, APP_CROWD_CONTROL_PORT);
-                    if (!_client.Connected)
-                        continue;
-
-                    Connected = true;
-                    try
-                    {
-                        OnConnected?.Invoke();
-                    }
-                    catch (Exception e)
-                    {
-                        Aspen.Log.ErrorException(e, "OnConnected failed");
-                    }
-                    _ready.Set();
-                    _ = await _error.WaitHandle.WaitOneAsync(_quitting.Token);
+                    await ConnectAsync();
                 }
                 catch (Exception e)
                 {
@@ -97,20 +78,49 @@ namespace CrowdControl
                 }
                 finally
                 {
-                    Connected = false;
-                    _error.Reset();
-                    _ready.Reset();
-                    try
-                    {
-                        _client.Close();
-                    }
-                    catch { /**/ }
-
-                    if (!_quitting.IsCancellationRequested)
-                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    await DisconnectAsync();
                 }
             }
             Connected = false;
+        }
+
+        private async Task ConnectAsync()
+        {
+            _client = new TcpClient()
+            {
+                ExclusiveAddressUse = false,
+                LingerState = new LingerOption(true, 0)
+            };
+            await _client.ConnectAsync(CROWD_CONTROL_HOST, APP_CROWD_CONTROL_PORT);
+            if (!_client.Connected)
+                return;
+
+            Connected = true;
+            try
+            {
+                OnConnected?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Aspen.Log.ErrorException(e, "OnConnected failed");
+            }
+            _ready.Set();
+            _ = await _error.WaitHandle.WaitOneAsync(_quitting.Token);
+        }
+
+        private async Task DisconnectAsync()
+        {
+            Connected = false;
+            _error.Reset();
+            _ready.Reset();
+            try
+            {
+                _client.Close();
+            }
+            catch { /**/ }
+
+            if (!_quitting.IsCancellationRequested)
+                await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         private async void Listen()
@@ -136,16 +146,7 @@ namespace CrowdControl
                         if (b != 0)
                             mBytes.Add(b);
                         else
-                        {
-                            //Log.Debug($"Got a complete message: {mBytes.ToArray().ToHexadecimalString()}");
-                            string json = Encoding.UTF8.GetString(mBytes.ToArray());
-                            //Log.Debug($"Got a complete message: {json}");
-                            SimpleJSONRequest req = SimpleJSONRequest.Parse(json);
-                            //Log.Debug($"Got a request with ID {req.id}.");
-                            try { OnRequestReceived?.Invoke(req); }
-                            catch (Exception e) { Aspen.Log.ErrorException(e, "OnRequestReceived failed"); }
-                            mBytes.Clear();
-                        }
+                            InvokeRequest(mBytes);
                     }
                 }
                 catch (Exception e)
@@ -159,6 +160,18 @@ namespace CrowdControl
                         await Task.Delay(TimeSpan.FromSeconds(1));
                 }
             }
+        }
+
+        private void InvokeRequest(List<byte> mBytes)
+        {
+            //Log.Debug($"Got a complete message: {mBytes.ToArray().ToHexadecimalString()}");
+            string json = Encoding.UTF8.GetString(mBytes.ToArray());
+            //Log.Debug($"Got a complete message: {json}");
+            SimpleJSONRequest req = SimpleJSONRequest.Parse(json);
+            //Log.Debug($"Got a request with ID {req.id}.");
+            try { OnRequestReceived?.Invoke(req); }
+            catch (Exception e) { Aspen.Log.ErrorException(e, "OnRequestReceived failed"); }
+            mBytes.Clear();
         }
 
         private async void KeepAlive()

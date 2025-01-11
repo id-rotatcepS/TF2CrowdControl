@@ -2,8 +2,8 @@
 
 using ConnectorLib.JSON;
 
-using Effects;
-using Effects.TF2;
+using EffectSystem;
+using EffectSystem.TF2;
 
 namespace CrowdControl
 {
@@ -161,7 +161,7 @@ namespace CrowdControl
                 _effectDispatcher.Responder.NotAppliedUnavailable(req);
                 return;
             }
-            Effects.Effect effect = _effectDispatcher.Effects.First(e => e.ID == request.code);//Effects[request.code];
+            Effect effect = _effectDispatcher.Effects.First(e => e.ID == request.code);//Effects[request.code];
 
             //if (((request.parameters as JArray)?.Count ?? 0) < effect.ParameterTypes.Length)
             //{

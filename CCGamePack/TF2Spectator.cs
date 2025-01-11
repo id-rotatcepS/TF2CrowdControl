@@ -50,7 +50,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
 
         // internal collections (can be used to disable/hide a set with an Effect Report)
         //EffectGrouping? Group;
-        Group = new EffectGrouping("g1", "g2"),
+        //Group = new EffectGrouping("g1", "g2"),
         //List<string>? Tags;
 
         //List<string>? Metadata;
@@ -71,6 +71,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
 
         //ItemKind Kind (constructor, Effect or Bidwar);
         //ParameterList? Parameters;
+        //Parameters = new ParameterList(new ParameterDef[] {
+        //    new ParameterDef("param definition", "def1",
+        //        new Parameter("param option one", "p1", 20),
+        //        new Parameter("param option two", "p2", 30))
+        //}),
 
         //SITimeSpan? ResponseTimeout;
         //uint? RetryMaxAttempts;

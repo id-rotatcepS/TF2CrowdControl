@@ -1,4 +1,4 @@
-﻿namespace Effects
+﻿namespace EffectSystem
 {
     /// <summary>
     /// Interface for communicating to an Effect UI the status of the effect and it's selectability.

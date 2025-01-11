@@ -1,41 +1,20 @@
-﻿using System.Text.RegularExpressions;
+﻿using ASPEN;
 
-namespace Effects.TF2
+using System.Text.RegularExpressions;
+
+using TF2FrameworkInterface;
+
+namespace EffectSystem.TF2
 {
-    /// <summary>
-    /// Provides the latest known TF2 Status
-    /// </summary>
-    public interface TF2Proxy
-    {
-        public bool IsOpen { get; }
-
-        public bool IsMapLoaded { get; }
-        public string Map { get; }
-
-        string? GetValue(string variable);
-
-        public bool IsUserAlive { get; }
-        public DateTime UserSpawnTime { get; }
-        public string ClassSelection { get; }
-
-        public delegate void UserKill(string victim, string weapon, bool crit);
-        public event UserKill? OnUserKill;
-
-        public delegate void UserSpawn();
-        public event UserSpawn? OnUserSpawned;
-        public delegate void UserDeath();
-        public event UserDeath? OnUserDied;
-    }
-
     /// <summary>
     /// "safely" polls the tf2 instance for regular status information and retains the most recent good responses for queries.
     /// </summary>
-    public class TF2Poller : TF2Proxy
+    public class PollingCacheTF2Proxy : TF2Proxy
     {
-        private readonly TF2FrameworkInterface.TF2Instance tf2;
+        private readonly TF2Instance tf2;
         private readonly Timer timer;
         private readonly TF2LogOutput log;
-        private readonly Dictionary<TF2FrameworkInterface.TF2Command, Action<string?>> commands;
+        private readonly Dictionary<TF2Command, Action<string?>> commands;
         private readonly Dictionary<string, string?> Values;
         /// <summary>
         /// add a variable/command to this list if you don't want its GetValue to ever be reset by a null/blank value.  
@@ -339,7 +318,7 @@ namespace Effects.TF2
          */
 
 
-        public TF2Poller(TF2FrameworkInterface.TF2Instance tf2, string tf2Path)
+        public PollingCacheTF2Proxy(TF2Instance tf2, string tf2Path)
         {
             this.tf2 = tf2;
 
@@ -362,7 +341,7 @@ namespace Effects.TF2
             commands = new()
             {
                 // lightweight sanity test.
-                [new TF2FrameworkInterface.StringCommand("echo _polling_")] = (s) => { },
+                [new StringCommand("echo _polling_")] = (s) => { },
 
                 //[new TF2FrameworkInterface.StringCommand("net_channels")] = (s) => Values["net_channels"] = s,
             };
@@ -371,8 +350,8 @@ namespace Effects.TF2
                 // start in 10 seconds, manual repeat
                 dueTime: 1000 * 10, period: Timeout.Infinite);
 
-            log = new TF2LogOutput(tf2, tf2Path);
-            _ = tf2.SendCommand(new TF2FrameworkInterface.StringCommand(log.SetupCommand), (s) => { });
+            log = new TF2LogOutput(tf2Path);
+            _ = tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { });
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
             log.OnMapNameChanged += MapNameChanged;
@@ -401,9 +380,9 @@ namespace Effects.TF2
         {
             RecordUserDeath();
             if (circumstances.IsPlayer)
-                ASPEN.Aspen.Log.Info($"User Died to {circumstances.KillerName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
+                Aspen.Log.Info($"User Died to {circumstances.KillerName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
             else
-                ASPEN.Aspen.Log.Info($"User Died - nobody's fault");
+                Aspen.Log.Info($"User Died - nobody's fault");
         }
 
         private void RecordUserDeath()
@@ -420,7 +399,7 @@ namespace Effects.TF2
             if (!IsUserAlive && DateTime.Now.Subtract(UserLastDeath).TotalSeconds > 10)
                 IsUserAlive = true;
 
-            ASPEN.Aspen.Log.Info($"User Killed {circumstances.VictimName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
+            Aspen.Log.Info($"User Killed {circumstances.VictimName} with {circumstances.KillerWeapon}. crit? {circumstances.IsCrit}");
             OnUserKill?.Invoke(circumstances.VictimName, circumstances.KillerWeapon, circumstances.IsCrit);
         }
         public event TF2Proxy.UserKill? OnUserKill;
@@ -445,7 +424,7 @@ namespace Effects.TF2
                 // typically 10s for respawn wave, but might require 2 waves.  We'll split the difference as 1.5 waves.
                 double deathcamSeconds = 5;
                 double maxSpawnwaveSeconds = 10; // not technically max, but typical max.
-                double spawnSeconds = deathcamSeconds + (1.5 * maxSpawnwaveSeconds);
+                double spawnSeconds = deathcamSeconds + 1.5 * maxSpawnwaveSeconds;
                 // FUTURE if mp_disable_respawn_times is set to 1, just deathcam respawn
 
                 DateTime now = DateTime.Now;
@@ -482,7 +461,7 @@ namespace Effects.TF2
 
         private void UserChangedClass(string playerClass)
         {
-            ASPEN.Aspen.Log.Info($"User Spawned as new class {playerClass}");
+            Aspen.Log.Info($"User Spawned as new class {playerClass}");
             IsUserAlive = true;
 
             ClassSelection = playerClass;
@@ -497,7 +476,7 @@ namespace Effects.TF2
             try
             {
                 // polling "status" or anything else for additional log parsing.
-                _ = tf2.SendCommand(new TF2FrameworkInterface.StringCommand(log.ActiveLoggingCommand), (s) => { });
+                _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { });
 
                 PollCommandsAndVariables();
 
@@ -506,7 +485,7 @@ namespace Effects.TF2
             }
             catch (Exception pollEx)
             {
-                ASPEN.Aspen.Log.WarningException(pollEx, "unable to poll tf2 status - pausing for a bit");
+                Aspen.Log.WarningException(pollEx, "unable to poll tf2 status - pausing for a bit");
                 // give us a long break to finish loading or whatever else is wrong.
                 // This is to prevent game crashes we were getting during map loads.
                 _ = timer.Change(1000 * 15, Timeout.Infinite);
@@ -521,12 +500,12 @@ namespace Effects.TF2
                 foreach (string name in Values.Keys
                     .Intersect(ClearValues))
                     Values[name] = null;
-                foreach ((TF2FrameworkInterface.TF2Command _, Action<string?> response) in commands)
+                foreach ((TF2Command _, Action<string?> response) in commands)
                     response?.Invoke(null);
 
                 foreach (string name in Values.Keys)
                     PollValueNow(name);
-                foreach ((TF2FrameworkInterface.TF2Command command, Action<string?> response) in commands)
+                foreach ((TF2Command command, Action<string?> response) in commands)
                     tf2.SendCommand(command, response
                         ).Wait();
             }
@@ -534,7 +513,7 @@ namespace Effects.TF2
 
         private void PollValueNow(string name)
         {
-            tf2.SendCommand(new TF2FrameworkInterface.StringCommand(name),
+            tf2.SendCommand(new StringCommand(name),
                                     (s) =>
                                     {
                                         // never clear "NeverClear" values.
@@ -551,6 +530,28 @@ namespace Effects.TF2
             OnUserDied = null;
             OnUserKill = null;
             OnUserSpawned = null;
+        }
+
+        public string RunCommand(string command)
+        {
+            string result = string.Empty;
+
+            Aspen.Log.Info($"Run> {command}");
+
+            tf2.SendCommand(new StringCommand(command),
+                (r) => result = r
+                ).Wait();
+            return result;
+        }
+
+        public void SetInfo(string variable, string value)
+        {
+            _ = RunCommand("setinfo " + variable + " " + value);
+        }
+
+        public void SetValue(string variable, string value)
+        {
+            _ = RunCommand(variable + " " + value);
         }
 
         public string? GetValue(string key)
@@ -570,13 +571,8 @@ namespace Effects.TF2
         }
 
         public bool IsOpen
-        {
-            get
-            {
-                return tf2 != null
-                    && tf2.IsConnected;
-            }
-        }
+            => tf2 != null
+            && tf2.IsConnected;
 
         /// <summary>
         /// The user's in-game name. 

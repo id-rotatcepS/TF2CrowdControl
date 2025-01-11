@@ -1,6 +1,6 @@
 ﻿using ASPEN;
 
-using Effects.TF2;
+using EffectSystem.TF2;
 
 using Newtonsoft.Json;
 
@@ -54,9 +54,6 @@ namespace TF2CrowdControl
             return GetFilePath(configPath, file);
         }
 
-        //public readonly static string ConfigFilename = "TF2Spectator.config.txt";
-        //public readonly static string ConfigFilePath = GetConfigFilePath(ConfigFilename);
-
         public readonly static string TF2ConfigFilename = "TF2Config.json";
         public readonly static string TF2ConfigFilePath = GetConfigFilePath(TF2ConfigFilename);
 
@@ -84,20 +81,10 @@ namespace TF2CrowdControl
         private void LoadConfig()
         {
             LoadTF2Config();
-
-            //LoadTwitchConfig();
-            //options[nameof(TF2WindowsViewModel.TwitchUsername)] = lines.Length > 0 ? lines[0] : DefaultUserName;
-            //options[nameof(TF2WindowsViewModel.AuthToken)] = lines.Length > 1 ? lines[1] : string.Empty;
-            //options[nameof(TF2WindowsViewModel.TwitchConnectMessage)] = lines.Length > 6 ? lines[6] : DefaultConnectMessage;
-
-            //LoadCCConfig();
         }
 
         private void LoadTF2Config()
         {
-            //options[nameof(TF2WindowsViewModel.BotDetectorLog)] = lines.Length > 5 ? lines[5] : string.Empty;
-            //options[nameof(TF2WindowsViewModel.SteamUUID)] = lines.Length > 7 ? lines[7] : "[U:1:123456]";
-
             TF2Config? config = null;
             try
             {
@@ -124,17 +111,10 @@ namespace TF2CrowdControl
         internal void SaveConfig()
         {
             SaveTF2Config();
-            //SaveTwitchConfig();
-            ////content.AppendLine(ASPEN.Aspen.Option.Get<string>(nameof(TF2WindowsViewModel.TwitchUsername)));
-            ////content.AppendLine(ASPEN.Aspen.Option.Get<string>(nameof(TF2WindowsViewModel.AuthToken)));
-
-            ////content.AppendLine(ASPEN.Aspen.Option.Get<string>(nameof(TF2WindowsViewModel.TwitchConnectMessage)));
         }
 
         private void SaveTF2Config()
         {
-            ////content.AppendLine(ASPEN.Aspen.Option.Get<string>(nameof(TF2WindowsViewModel.BotDetectorLog)));
-            ////content.AppendLine(ASPEN.Aspen.Option.Get<string>(nameof(TF2WindowsViewModel.SteamUUID)));
             try
             {
                 string json = JsonConvert.SerializeObject(Aspen.Option.Get<TF2Config>(nameof(TF2Config)));

@@ -1,6 +1,6 @@
 ﻿using ASPEN;
 
-namespace Effects
+namespace EffectSystem
 {
     /// <summary>
     /// Simple and generic interface to the effect list, accounting for Mutex groups.  
@@ -158,7 +158,7 @@ namespace Effects
                 //could not find the effect
                 return;
             }
-            Effects.Effect effect = Effects.First(e => e.ID == req.EffectID);//Effects[request.code];
+            Effect effect = Effects.First(e => e.ID == req.EffectID);//Effects[request.code];
 
             try
             {
@@ -239,7 +239,7 @@ namespace Effects
 
         public EffectState(string iD)
         {
-            this.ID = iD;
+            ID = iD;
         }
 
         public bool Listed { get; set; }

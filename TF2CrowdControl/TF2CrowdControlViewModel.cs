@@ -2,8 +2,8 @@
 
 using CrowdControl;
 
-using Effects;
-using Effects.TF2;
+using EffectSystem;
+using EffectSystem.TF2;
 
 using System.ComponentModel;
 using System.Windows.Input;
@@ -126,13 +126,13 @@ namespace TF2CrowdControl
 
         public CrowdControlHelper CC { get; }
 
-        public string StatusMapName => TF2Effects.TF2Proxy?.Map ?? string.Empty;
-        public Brush StatusMapNameColor => TF2Effects.TF2Proxy?.IsMapLoaded ?? false
+        public string StatusMapName => TF2Effects.Instance.TF2Proxy?.Map ?? string.Empty;
+        public Brush StatusMapNameColor => TF2Effects.Instance.TF2Proxy?.IsMapLoaded ?? false
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.Gray);
 
-        public string StatusClassName => TF2Effects.TF2Proxy?.ClassSelection ?? string.Empty;
-        public Brush StatusClassNameColor => TF2Effects.TF2Proxy?.IsUserAlive ?? false
+        public string StatusClassName => TF2Effects.Instance.TF2Proxy?.ClassSelection ?? string.Empty;
+        public Brush StatusClassNameColor => TF2Effects.Instance.TF2Proxy?.IsUserAlive ?? false
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.Gray);
 
@@ -141,7 +141,7 @@ namespace TF2CrowdControl
             get => CC.EffectStates;
         }
 
-        public string ProxyValues => (TF2Effects.TF2Proxy as TF2Poller)?.AllValues ?? string.Empty;
+        public string ProxyValues => (TF2Effects.Instance.TF2Proxy as PollingCacheTF2Proxy)?.AllValues ?? string.Empty;
 
         private static TF2Config TF2Config => Aspen.Option.Get<TF2Config>(nameof(TF2Config));
 
@@ -188,41 +188,52 @@ namespace TF2CrowdControl
 
         public string CommandLog { get; set; }
 
-        private TF2Instance? _tf2
-        {
-            get => TF2Effects.TF2Instance;
-            set => TF2Effects.TF2Instance = value;
-        }
-
         public void StartTF2Connection()
         {
             RemakeConnection();
 
-            Task respondedTask = _tf2.SendCommand(
-                new StringCommand("echo hi"),
-                (s) => { });
-            //respondedTask.Wait();
-
-            //CrowdControlHelper.Instance.Active;
-            //CrowdControlHelper.Instance.Update();
+            try
+            {
+                _ = TF2Effects.Instance.TF2Proxy?.RunCommand("echo hi");
+            }
+            catch (Exception)
+            {
+                // just a test... if TF2 isn't running that's OK.
+                Aspen.Log.Warning("No TF2 connection yet.");
+            }
         }
 
         private void RemakeConnection()
         {
-            _tf2 = TF2Instance.CreateCommunications(RCONPort, RCONPassword);
-            _tf2.SetOnDisconnected(RemakeConnection);
-            TF2Effects.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
-            TF2Effects.TF2Proxy.OnUserSpawned += () =>
+            TF2Effects.Instance.TF2Proxy = NewTF2Poller();
+
+            TF2Effects.Instance.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
+            TF2Effects.Instance.TF2Proxy.OnUserSpawned += () =>
             {
                 ViewNotification(nameof(StatusClassName));
                 ViewNotification(nameof(StatusClassNameColor));
                 ViewNotification(nameof(StatusMapName));
             };
+        }
 
-            //_tf2.SetOnDisconnected(() => _tf2 = null);
+        private TF2Proxy NewTF2Poller()
+        {
+            TF2Instance TF2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
+            TF2Instance.SetOnDisconnected(RemakeConnection);
+            PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(TF2Instance, TF2Config.TF2Path);
 
-            //_tf2.ShouldProcessResultValues = true;//default
-            //_tf2.TF2RCON
+            //// subtle indicator of "app thinks you're dead/alive"
+            ////TODO delete this or get a better indicator.
+            //string DeadCommand =
+            //    "cl_hud_playerclass_use_playermodel 0";
+            //string AliveCommand =
+            //    "cl_hud_playerclass_use_playermodel 1";
+            //tf2.OnUserDied += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
+            //    DeadCommand), (r) => { });
+            //tf2.OnUserSpawned += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
+            //    AliveCommand), (r) => { });
+
+            return tf2;
         }
 
         /// <summary>

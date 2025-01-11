@@ -1,4 +1,4 @@
-﻿namespace Effects
+﻿namespace EffectSystem
 {
     public interface EffectDispatchRequest
     {
