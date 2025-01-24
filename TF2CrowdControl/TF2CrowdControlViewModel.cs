@@ -205,22 +205,31 @@ namespace TF2CrowdControl
 
         private void RemakeConnection()
         {
-            TF2Effects.Instance.TF2Proxy = NewTF2Poller();
-
-            TF2Effects.Instance.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
-            TF2Effects.Instance.TF2Proxy.OnUserSpawned += () =>
+            TF2Effects.Instance.TF2Proxy?.ShutDown();
+            try
             {
-                ViewNotification(nameof(StatusClassName));
-                ViewNotification(nameof(StatusClassNameColor));
-                ViewNotification(nameof(StatusMapName));
-            };
+                TF2Effects.Instance.TF2Proxy = NewTF2Poller();
+
+                TF2Effects.Instance.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
+                TF2Effects.Instance.TF2Proxy.OnUserSpawned += () =>
+                {
+                    ViewNotification(nameof(StatusClassName));
+                    ViewNotification(nameof(StatusClassNameColor));
+                    ViewNotification(nameof(StatusMapName));
+                };
+            }
+            catch (Exception ex)
+            {
+                TF2Effects.Instance.TF2Proxy = null;
+                Aspen.Log.ErrorException(ex, "Failed Connection to TF2");
+            }
         }
 
         private TF2Proxy NewTF2Poller()
         {
-            TF2Instance TF2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
-            TF2Instance.SetOnDisconnected(RemakeConnection);
-            PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(TF2Instance, TF2Config.TF2Path);
+            TF2Instance tf2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
+            tf2Instance.SetOnDisconnected(RemakeConnection);
+            PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(tf2Instance, TF2Config.TF2Path);
 
             //// subtle indicator of "app thinks you're dead/alive"
             ////TODO delete this or get a better indicator.
@@ -244,6 +253,8 @@ namespace TF2CrowdControl
             (Aspen.Option as TF2SpectatorSettings).SaveConfig();
             // try to shut down effects, but this doesn't help if TF2 was shut down already.
             this.CC?.ShutDown();
+
+            TF2Effects.Instance.TF2Proxy?.ShutDown();
         }
     }
 }

@@ -15,6 +15,28 @@ namespace EffectSystem.TF2
     // HOWEVER Engineer is not an option for that hack - it would destroy his buildings.
     // THEREFORE we have to rely on backup timer of perhaps 30 seconds.
 
+
+    //TODO we also have "*You will spawn as Demoman"
+    //TODO "Unhandled GameEvent in ClientModeShared::FireGameEvent - player_death"
+    //TODO "Unhandled GameEvent in ClientModeShared::FireGameEvent - localplayer_changeclass"
+    /*
+Sending request to abandon current match
+Sending request to exit matchmaking, marking assigned match as ended
+Disconnecting from abandoned match server
+Unhandled GameEvent in ClientModeShared::FireGameEvent - client_disconnect
+
+Connecting to 169.254.208.58:37176...
+Unhandled GameEvent in ClientModeShared::FireGameEvent - client_beginconnect
+Unhandled GameEvent in ClientModeShared::FireGameEvent - server_spawn
+
+Unhandled GameEvent in ClientModeShared::FireGameEvent - player_teleported
+
+Unhandled GameEvent in ClientModeShared::FireGameEvent - teamplay_win_panel
+
+Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_update
+     */
+
+
     public abstract class PlayerKiller
     {
         public PlayerKiller(string victimName)
@@ -101,7 +123,7 @@ namespace EffectSystem.TF2
             };
         }
 
-        public string LogFileName { get; set; } = "TF2SpectatorCommandLogOutput.txt".ToLower(); // apparently it ignores case when you set log file name?
+        public string LogFileName { get; } = "TF2SpectatorCommandLogOutput.txt".ToLower(); // apparently it ignores case when you set log file name?
 
         protected string LogFilePath
             => Path.Combine(TF2Path, "tf", LogFileName);
@@ -186,22 +208,34 @@ namespace EffectSystem.TF2
         //public void StopMonitor() { 
         //}
 
+        private bool notQuitting = true;
         private void ReadLiveLogFile(string path)
         {
-            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (StreamReader sr = new StreamReader(fs, Encoding.Default))
+            ASPEN.Aspen.Log.Info("TF2's Log File - starting.");
+            try
             {
-                FlushOldLogLines(sr);
-
-                //TODO cancel mechanism
-                while (true)
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (StreamReader sr = new StreamReader(fs, Encoding.Default))
                 {
-                    for (string? line = sr.ReadLine(); line != null; line = sr.ReadLine())
-                        SelectHandler(line)
-                            .Handle();
+                    FlushOldLogLines(sr);
 
-                    Thread.Sleep(100);
+                    while (notQuitting)
+                    {
+                        for (string? line = sr.ReadLine(); line != null; line = sr.ReadLine())
+                            SelectHandler(line)
+                                .Handle();
+
+                        Thread.Sleep(100);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                ASPEN.Aspen.Log.ErrorException(ex, "TF2's Log File - ending.");
+            }
+            finally
+            {
+                ASPEN.Aspen.Log.Info("TF2's Log File - ending.");
             }
         }
 
@@ -209,6 +243,13 @@ namespace EffectSystem.TF2
         {
             while (sr.ReadLine() != null)
                 ;
+        }
+
+        public void Dispose()
+        {
+            notQuitting = false;
+            //throws exception if not rantocompetion/faulted/cancelled... also shouldn't matter since above line should end it.
+            //monitor?.Dispose();
         }
 
         public List<LineMatcher> LineMatchers { get; }

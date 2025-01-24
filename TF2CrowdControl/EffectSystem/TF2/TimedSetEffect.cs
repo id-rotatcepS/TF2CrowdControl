@@ -59,8 +59,8 @@
             {
                 string activeValue = VariableSettings[variable];
 
-                string startValue = TF2Effects.Instance.GetValue(variable);
-                if (startValue != activeValue)
+                string? startValue = TF2Effects.Instance.GetValue(variable);
+                if (startValue != null && startValue != activeValue)
                 {
                     OriginalValues ??= new Dictionary<string, string>();
                     OriginalValues[variable] = startValue;
@@ -233,7 +233,7 @@
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
             Availability = new AliveInMap();
         }
-        public override bool IsSelectableGameState => IsAvailable
+        public override bool IsSelectableGameState => base.IsSelectableGameState
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }

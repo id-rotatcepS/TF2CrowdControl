@@ -19,7 +19,8 @@ namespace CrowdControl
     {
         private static CrowdControlHelper? _Instance;
         public static CrowdControlHelper Instance
-            => _Instance ??= new CrowdControlHelper();
+            => _Instance
+            ??= new CrowdControlHelper();
 
         private readonly EffectDispatcher _effectDispatcher;
 

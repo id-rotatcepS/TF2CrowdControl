@@ -1,5 +1,6 @@
 ﻿using ASPEN;
 
+using System.IO;
 using System.Text.RegularExpressions;
 
 using TF2FrameworkInterface;
@@ -7,11 +8,13 @@ using TF2FrameworkInterface;
 namespace EffectSystem.TF2
 {
     /// <summary>
-    /// "safely" polls the tf2 instance for regular status information and retains the most recent good responses for queries.
+    /// "Safely" polls the tf2 instance for regular status information and retains the most recent good responses for queries.
+    /// Backs up & restores main config.cfg file to protect against commands run this session.
     /// </summary>
     public class PollingCacheTF2Proxy : TF2Proxy
     {
         private readonly TF2Instance tf2;
+
         private readonly Timer timer;
         private readonly TF2LogOutput log;
         private readonly Dictionary<TF2Command, Action<string?>> commands;
@@ -321,6 +324,10 @@ namespace EffectSystem.TF2
         public PollingCacheTF2Proxy(TF2Instance tf2, string tf2Path)
         {
             this.tf2 = tf2;
+            this.ConfigFilepath = Path.Combine(tf2Path, "tf/cfg/config.cfg");
+            this.BackupConfigFilepath = Path.Combine(tf2Path, "tf/cfg/config.cfg-tf2spectatorbackup");
+
+            BackupTF2ConfigFile();
 
             // Generally, add single variables and commands to be polled as "Values"
             Values = new()
@@ -329,6 +336,8 @@ namespace EffectSystem.TF2
                 ["getpos"] = null,
 
                 ["name"] = null, // archive userinfo printonly svcanexec | Current user name
+
+                ["info_class"] = null, // setinfo set by each class's cfg.
             };
             // list just status values that must be assumed changed to blank if not available.
             ClearValues = new()
@@ -351,11 +360,72 @@ namespace EffectSystem.TF2
                 dueTime: 1000 * 10, period: Timeout.Infinite);
 
             log = new TF2LogOutput(tf2Path);
-            _ = tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { });
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
             log.OnMapNameChanged += MapNameChanged;
             log.StartMonitor();
+        }
+
+        private string ConfigFilepath { get; }
+        private string BackupConfigFilepath { get; }
+        private void BackupTF2ConfigFile()
+        {
+            //TODO maybe if backup file still exists, prompt user to quit TF2 and restore settings using it
+            // if it exists, we failed to restore it on shutdown - restore it now.
+            RestoreTF2ConfigFileFromBackup();
+            // if it restored, it doesn't exist anymore, so we need to write it (again)
+
+            try
+            {
+                File.Copy(ConfigFilepath, BackupConfigFilepath, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                Aspen.Log.ErrorException(ex, "Failure backing up tf2 config.cfg file - this is fine, unless something crashes without restoring settings.");
+            }
+        }
+
+        private void RestoreTF2ConfigFileFromBackup()
+        {
+            try
+            {
+                if (!File.Exists(BackupConfigFilepath))
+                    return;
+
+                File.Copy(BackupConfigFilepath, ConfigFilepath, overwrite: true);
+                try
+                {
+                    File.Delete(BackupConfigFilepath);
+                }
+                catch (Exception ex)
+                {
+                    Aspen.Log.ErrorException(ex, string.Format("Failure deleting old backup of tf2 config.cfg file - this may lead to issues with backing them up and/or restoring them later.  Consider quitting and manually deleting {0}", BackupConfigFilepath));
+                }
+            }
+            catch (Exception ex)
+            {
+                Aspen.Log.ErrorException(ex, "Failure restoring tf2 config.cfg file - your settings might not be what you expect.");
+            }
+        }
+
+        public void ShutDown()
+        {
+            // TF2 still running will probably overwrite any restored config - leave it for next time we start.
+            // TODO This is not foolproof - IsOpen just refers to the RCON connection.
+            if (!IsOpen)
+                RestoreTF2ConfigFileFromBackup();
+
+            Dispose();
+        }
+
+        private void Dispose()
+        {
+            timer.Dispose();
+            OnUserDied = null;
+            OnUserKill = null;
+            OnUserSpawned = null;
+            log.Dispose();
+            tf2.Dispose();
         }
 
         private void MapNameChanged(string mapName)
@@ -461,6 +531,9 @@ namespace EffectSystem.TF2
 
         private void UserChangedClass(string playerClass)
         {
+            if (ClassSelection == playerClass)
+                return;
+
             Aspen.Log.Info($"User Spawned as new class {playerClass}");
             IsUserAlive = true;
 
@@ -471,12 +544,24 @@ namespace EffectSystem.TF2
         /// </summary>
         public string ClassSelection { get; private set; } = string.Empty;
 
+        /// <summary>
+        /// One-time command has successfully run?
+        /// </summary>
+        private bool _PollingSetupRun = false;
         private void PollTick(object? state)
         {
             try
             {
                 // polling "status" or anything else for additional log parsing.
-                _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { });
+                _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
+                    .Wait(MaxCommandRunTime);
+                // that command worked, so do any leftover initialization
+                if (!_PollingSetupRun)
+                {
+                    _PollingSetupRun =
+                        tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { })
+                        .Wait(MaxCommandRunTime);
+                }
 
                 PollCommandsAndVariables();
 
@@ -506,41 +591,47 @@ namespace EffectSystem.TF2
                 foreach (string name in Values.Keys)
                     PollValueNow(name);
                 foreach ((TF2Command command, Action<string?> response) in commands)
-                    tf2.SendCommand(command, response
-                        ).Wait();
+                    _ = tf2.SendCommand(command, response
+                        ).Wait(MaxCommandRunTime);
+
+                string? playerClass = Values["info_class"];
+                if (playerClass != null
+                    // before first set_info, returns 'Unknown command "info_class"'
+                    && !playerClass.Contains("info_class"))
+                    UserChangedClass(playerClass);
             }
         }
 
         private void PollValueNow(string name)
         {
-            tf2.SendCommand(new StringCommand(name),
-                                    (s) =>
-                                    {
-                                        // never clear "NeverClear" values.
-                                        if (string.IsNullOrWhiteSpace(s) && !ClearValues.Contains(name))
-                                            return;
-                                        Values[name] = s;
-                                    }
-                                    ).Wait();
+            bool completed = tf2.SendCommand(new StringCommand(name),
+                (s) =>
+                {
+                    // never clear "NeverClear" values.
+                    if (string.IsNullOrWhiteSpace(s) && !ClearValues.Contains(name))
+                        return;
+                    Values[name] = s;
+                }
+                ).Wait(MaxCommandRunTime);
         }
 
-        public void Dispose()
-        {
-            timer.Dispose();
-            OnUserDied = null;
-            OnUserKill = null;
-            OnUserSpawned = null;
-        }
-
+        private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
         public string RunCommand(string command)
         {
             string result = string.Empty;
 
             Aspen.Log.Info($"Run> {command}");
 
-            tf2.SendCommand(new StringCommand(command),
+            bool completed =
+                tf2.SendCommand(new StringCommand(command),
                 (r) => result = r
-                ).Wait();
+                ).Wait(MaxCommandRunTime);
+
+            // Oddly, if we restart this app this happens once... then further commands connect to the same TF2 instance just fine.
+            // So one bad command resets the RCON port or something like that.
+            if (!completed)
+                Aspen.Log.Warning("TF2 command took too long - If this continues, restart TF2");
+
             return result;
         }
 

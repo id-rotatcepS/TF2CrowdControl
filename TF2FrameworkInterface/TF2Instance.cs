@@ -16,7 +16,7 @@ namespace TF2FrameworkInterface
 	/// (new) Option 3: Launches TF2 (optional) with partial settings for an rcon connection, the rest written to <see cref="RconConfigFileBaseName"/>
 	/// cfg file that must be exec'd to finisih setup.
     /// </summary>
-    public class TF2Instance
+    public class TF2Instance : IDisposable
     {
         // tf2_bot_detector: "Invoking commands in the game is done via passing rcon commands to your client. "
 
@@ -187,14 +187,6 @@ namespace TF2FrameworkInterface
 
         public bool IsConnected => rconConnected;
 
-        private void ConnectRCON()
-        {
-            if (rconConnected)
-                return;
-            Task rconTask = TF2RCON.ConnectAsync();
-            rconConnected = rconTask.Wait(TF2Instance.COMMAND_TIMEOUT);
-        }
-
         private void SetUpRCON()
         {
             System.Net.IPEndPoint endpoint = new System.Net.IPEndPoint(host, rconPort);
@@ -203,7 +195,21 @@ namespace TF2FrameworkInterface
             TF2RCON.OnDisconnected += () => rconConnected = false;
         }
 
+        private void ConnectRCON()
+        {
+            if (rconConnected)
+                return;
+            Task rconTask = TF2RCON.ConnectAsync();
+            rconConnected = rconTask.Wait(TF2Instance.COMMAND_TIMEOUT);
+        }
+
         public RCON TF2RCON { get; private set; }
+
+        public void Dispose()
+        {
+            TF2RCON?.Dispose();
+            TF2RCON = null;
+        }
 
         /// <summary>
         /// add to the RCON disconnect event

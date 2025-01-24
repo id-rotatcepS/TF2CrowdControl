@@ -2,8 +2,10 @@
 {
     public class TF2Effects
     {
-        private static TF2Effects _instance;
-        public static TF2Effects Instance => _instance ??= new TF2Effects();
+        private static TF2Effects? _instance;
+        public static TF2Effects Instance
+            => _instance
+            ??= new TF2Effects();
 
         public TF2Proxy? TF2Proxy { get; internal set; }
 
@@ -16,22 +18,37 @@
         public string RunCommand(string command)
         {
             if (TF2Proxy == null)
-                //TODO do something.
+            {
+                ASPEN.Aspen.Log.Warning(string.Format("No connection available to run command: {0}", command));
                 return "";
+            }
+
             return TF2Proxy.RunCommand(command);
         }
 
         public void SetInfo(string variable, string value)
         {
+            if (TF2Proxy == null)
+            {
+                ASPEN.Aspen.Log.Warning(string.Format("No connection available to set info: {0} = {1}", variable, value));
+                return;
+            }
+
             TF2Proxy?.SetInfo(variable, value);
         }
 
         public void SetValue(string variable, string value)
         {
+            if (TF2Proxy == null)
+            {
+                ASPEN.Aspen.Log.Warning(string.Format("No connection available to set value: {0} = {1}", variable, value));
+                return;
+            }
+
             TF2Proxy?.SetValue(variable, value);
         }
 
-        public string GetValue(string variable)
+        public string? GetValue(string variable)
         {
             return TF2Proxy?.GetValue(variable);
         }

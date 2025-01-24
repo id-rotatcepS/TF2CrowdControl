@@ -74,7 +74,7 @@
     public class CataractsCrosshairEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "crosshair_cataracts";
-
+        private static readonly string CROSSHAIR_DEFAULT = "\"\"";
         private string crosshair;
         public CataractsCrosshairEffect()
             : base(EFFECT_ID, DefaultTimeSpan)
@@ -83,7 +83,7 @@
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
 
-            crosshair = "\"\"";
+            crosshair = CROSSHAIR_DEFAULT;
         }
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
@@ -91,9 +91,10 @@
 
         public override void StartEffect()
         {
-            crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file");
+            crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
+                ?? CROSSHAIR_DEFAULT;
             if (string.IsNullOrWhiteSpace(crosshair))
-                crosshair = "\"\"";
+                crosshair = CROSSHAIR_DEFAULT;
 
             // "dot" crosshair, will grow
             _ = TF2Effects.Instance.RunCommand(

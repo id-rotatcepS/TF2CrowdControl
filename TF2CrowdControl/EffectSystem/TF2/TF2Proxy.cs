@@ -46,6 +46,11 @@
         void SetValue(string variable, string value);
 
         /// <summary>
+        /// call this to clean up when shutting down (e.g. restoring any settings)
+        /// </summary>
+        void ShutDown();
+
+        /// <summary>
         /// User has spawned and has not died.
         /// </summary>
         public bool IsUserAlive { get; }
