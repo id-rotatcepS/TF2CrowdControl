@@ -548,6 +548,8 @@ namespace EffectSystem.TF2
         /// One-time command has successfully run?
         /// </summary>
         private bool _PollingSetupRun = false;
+        public static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan PollPauseTime = TimeSpan.FromSeconds(15);
         private void PollTick(object? state)
         {
             try
@@ -557,23 +559,21 @@ namespace EffectSystem.TF2
                     .Wait(MaxCommandRunTime);
                 // that command worked, so do any leftover initialization
                 if (!_PollingSetupRun)
-                {
                     _PollingSetupRun =
                         tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { })
                         .Wait(MaxCommandRunTime);
-                }
 
                 PollCommandsAndVariables();
 
                 // standard update period, manual repeat
-                _ = timer.Change(1000, Timeout.Infinite);
+                _ = timer.Change(PollPeriod, Timeout.InfiniteTimeSpan);
             }
             catch (Exception pollEx)
             {
                 Aspen.Log.WarningException(pollEx, "unable to poll tf2 status - pausing for a bit");
                 // give us a long break to finish loading or whatever else is wrong.
                 // This is to prevent game crashes we were getting during map loads.
-                _ = timer.Change(1000 * 15, Timeout.Infinite);
+                _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
         }
 

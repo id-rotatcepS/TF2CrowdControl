@@ -88,6 +88,34 @@
         }
     }
 
+    internal class ClassInMap : InMap
+    {
+        private string userClass;
+
+        /// <summary>
+        /// Available if user last picked the named class and is in a game
+        /// </summary>
+        /// <param name="userClass"></param>
+        public ClassInMap(string userClass)
+        {
+            this.userClass = userClass;
+        }
+
+        override public bool IsAvailable(TF2Proxy tF2Instance)
+        {
+            try
+            {
+                return tF2Instance?.ClassSelection == userClass
+                    && base.IsAvailable(tF2Instance);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+    }
+
+
     internal class InMap : InApplication
     {
         /// <summary>

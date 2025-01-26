@@ -31,21 +31,30 @@
                             <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Label Grid.Column="0" Grid.Row="0" 
                                HorizontalContentAlignment="Right">TF2 Path:</Label>
                         <TextBox Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" 
-                                 x:Name="TF2Path" Text="{Binding TF2Path}" HorizontalAlignment="Stretch" />
+                                 x:Name="TF2Path" Text="{Binding TF2Path}" HorizontalAlignment="Stretch" 
+                                 ToolTip="The path of the folder that contains tf2_win64.exe"/>
                         <Label Grid.Column="0" Grid.Row="1" 
                                HorizontalContentAlignment="Right">RCON password:</Label>
                         <TextBox Grid.Column="1" Grid.Row="1"
-                                 x:Name="RCONPassword" Text="{Binding RCONPassword}"/>
+                                 x:Name="RCONPassword" Text="{Binding RCONPassword}"
+                                 ToolTip="Anything is fine - this is just local on your machine"/>
                         <Label Grid.Column="2" Grid.Row="1" 
                                HorizontalContentAlignment="Right">RCON port:</Label>
-                        <TextBox Grid.Column="3" Grid.Row="1" 
-                                 x:Name="RCONPort" Text="{Binding RCONPort}"/>
+                        <TextBox Grid.Column="3" Grid.Row="1"
+                                 x:Name="RCONPort" Text="{Binding RCONPort}"
+                                 ToolTip="Any number typically between 40000 and 49000 - this is just local on your machine"/>
                         <Button Grid.Column="0" Grid.Row="2"
                                 x:Name="InstallConfigs" Content="Install Configs" Command="{Binding InstallConfigsCommand}"/>
+                        <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="3" TextWrapping="Wrap" Margin="5,10">
+                            <Run>For the RCON connection to work with this app, TF2's Launch Options must include</Run>
+                            <Run Text=" "/><Run FontFamily="Courier New" Background="LightGray">-usercon</Run><Run Text=" "/>
+                            <Run>and the configs must be installed.</Run>
+                        </TextBlock>
                     </Grid>
                 </StackPanel>
             </Expander>
