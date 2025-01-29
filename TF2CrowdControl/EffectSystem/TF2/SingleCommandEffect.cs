@@ -26,7 +26,7 @@
         {
             //base.StartEffect(request);
 
-            _ = TF2Effects.Instance.RunCommand(Command);
+            _ = TF2Effects.Instance.RunRequiredCommand(Command);
 
             Thread.Sleep(WaitTimeToVerify);
             CheckEffectWorked();
@@ -45,7 +45,7 @@
         {
             if (Availability != null
                 && Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException();
+                throw new EffectNotVerifiedException("Couldn't verify that the effect started.");
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
@@ -131,7 +131,7 @@
         protected override void CheckEffectWorked()
         {
             if (!Worked.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException();
+                throw new EffectNotVerifiedException("Destroy building didn't work - player is no longer an engineer in game.");
         }
     }
 
@@ -151,7 +151,7 @@
         protected override void CheckEffectWorked()
         {
             if (!Worked.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException();
+                throw new EffectNotVerifiedException("Remove Disguise didn't work - player is no longer a spy in game.");
         }
     }
 
@@ -175,7 +175,7 @@
         protected override void CheckEffectWorked()
         {
             if (!Worked.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException();
+                throw new EffectNotVerifiedException("Über didn't work - player is no longer an alive medic.");
         }
     }
 }

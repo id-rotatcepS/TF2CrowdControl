@@ -33,7 +33,7 @@
 
         public override void StartEffect()
         {
-            _ = TF2Effects.Instance.RunCommand(GetToggleCommand());
+            _ = TF2Effects.Instance.RunRequiredCommand(GetToggleCommand());
         }
 
         private string GetToggleCommand()

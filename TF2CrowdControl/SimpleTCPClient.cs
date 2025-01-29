@@ -74,7 +74,7 @@ namespace CrowdControl
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "Connect failed");
+                    Aspen.Log.ErrorException(e, "Crowd Control Connect failed");
                 }
                 finally
                 {
@@ -102,7 +102,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "OnConnected failed");
+                Aspen.Log.ErrorException(e, "Crowd Control OnConnected failed");
             }
             _ready.Set();
             _ = await _error.WaitHandle.WaitOneAsync(_quitting.Token);
@@ -151,7 +151,7 @@ namespace CrowdControl
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "Listen failed");
+                    Aspen.Log.ErrorException(e, "Crowd Control Listen failed");
                     _error.Set();
                 }
                 finally
@@ -170,7 +170,7 @@ namespace CrowdControl
             SimpleJSONRequest req = SimpleJSONRequest.Parse(json);
             //Log.Debug($"Got a request with ID {req.id}.");
             try { OnRequestReceived?.Invoke(req); }
-            catch (Exception e) { Aspen.Log.ErrorException(e, "OnRequestReceived failed"); }
+            catch (Exception e) { Aspen.Log.ErrorException(e, "Crowd Control OnRequestReceived failed"); }
             mBytes.Clear();
         }
 
@@ -191,7 +191,7 @@ namespace CrowdControl
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "KeepAlive failed");
+                    Aspen.Log.ErrorException(e, "Crowd Control KeepAlive failed");
                     _error.Set();
                 }
                 finally
@@ -218,7 +218,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Respond to effect response failed");
+                Aspen.Log.ErrorException(e, "Respond to Crowd Control effect response failed");
                 return false;
             }
         }
@@ -249,7 +249,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Effect update failed");
+                Aspen.Log.ErrorException(e, "Crowd Control effect Update failed");
                 return false;
             }
         }
@@ -268,7 +268,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Game update failed");
+                Aspen.Log.ErrorException(e, "Crowd Control game Update failed");
                 return false;
             }
         }

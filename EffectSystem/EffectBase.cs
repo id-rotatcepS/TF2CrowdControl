@@ -73,6 +73,7 @@ namespace EffectSystem
         /// <summary>
         /// Do the actual effect.  If this is performed over a duration,
         /// Update will be called until the duration is completed.
+        /// Throwing an Exception indicates the Effect did not successfully start.
         /// </summary>
         /// <param name="request"></param>
         abstract protected void StartEffect(EffectDispatchRequest request);

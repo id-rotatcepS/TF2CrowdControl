@@ -431,6 +431,13 @@ namespace EffectSystem.TF2
         private void MapNameChanged(string mapName)
         {
             Map = mapName;
+
+            // we start over.
+            RecordUserDeath();
+
+            SetInfo("info_class", string.Empty);
+            Values["info_class"] = string.Empty;
+            ClassSelection = string.Empty;
         }
 
         /// <summary>
@@ -490,23 +497,13 @@ namespace EffectSystem.TF2
                 if (_IsUserAlive)
                     return true;
 
-                // about 5s for deathcam
-                // typically 10s for respawn wave, but might require 2 waves.  We'll split the difference as 1.5 waves.
-                double deathcamSeconds = 5;
-                double maxSpawnwaveSeconds = 10; // not technically max, but typical max.
-                double spawnSeconds = deathcamSeconds + 1.5 * maxSpawnwaveSeconds;
-                // FUTURE if mp_disable_respawn_times is set to 1, just deathcam respawn
+                if (string.IsNullOrEmpty(ClassSelection))
+                    return false;
 
-                DateTime now = DateTime.Now;
-                TimeSpan timeSinceDeath = now.Subtract(UserLastDeath);
-                bool diedTooLongAgo = timeSinceDeath > TimeSpan.FromSeconds(spawnSeconds);
-                IsUserAlive = diedTooLongAgo;
+                InferIsUserAlive();
 
                 if (_IsUserAlive)
-                {
-                    UserSpawnTime = now;
                     OnUserSpawned?.Invoke();
-                }
 
                 return _IsUserAlive;
             }
@@ -525,6 +522,29 @@ namespace EffectSystem.TF2
                     OnUserDied?.Invoke();
             }
         }
+
+        private void InferIsUserAlive()
+        {
+            // We think we have a class defined since joining a map
+            // if they didn't change class after death, we can't detect respawn,
+            // so just assume they respawn a few seconds later.
+
+            // about 5s for deathcam
+            // typically 10s for respawn wave, but might require 2 waves.  We'll split the difference as 1.5 waves.
+            double deathcamSeconds = 5;
+            double maxSpawnwaveSeconds = 10; // not technically max, but typical max.
+            double spawnSeconds = deathcamSeconds + 1.5 * maxSpawnwaveSeconds;
+            // FUTURE if mp_disable_respawn_times is set to 1, just deathcam respawn
+
+            DateTime now = DateTime.Now;
+            TimeSpan timeSinceDeath = now.Subtract(UserLastDeath);
+            bool diedTooLongAgo = timeSinceDeath > TimeSpan.FromSeconds(spawnSeconds);
+            IsUserAlive = diedTooLongAgo;
+
+            if (_IsUserAlive)
+                UserSpawnTime = now;
+        }
+
         public DateTime UserSpawnTime { get; private set; }
         public event TF2Proxy.UserSpawn? OnUserSpawned;
         public event TF2Proxy.UserDeath? OnUserDied;

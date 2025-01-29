@@ -46,6 +46,7 @@
         public override void StartEffect()
         {
             // violet (but in range of the updates)
+            // (not RunRequiredCommand - updates can pause and continue from any color)
             _ = TF2Effects.Instance.RunCommand("cl_crosshair_blue 255; cl_crosshair_green 50; cl_crosshair_red 143;");
         }
 
@@ -97,7 +98,7 @@
                 crosshair = CROSSHAIR_DEFAULT;
 
             // "dot" crosshair, will grow
-            _ = TF2Effects.Instance.RunCommand(
+            _ = TF2Effects.Instance.RunRequiredCommand(
                 "cl_crosshair_file crosshair5;" +
                 "cl_crosshair_scale 32");
         }
@@ -140,8 +141,10 @@
 
         public override void StartEffect()
         {
-            if (TF2Effects.Instance.TF2Proxy != null)
-                TF2Effects.Instance.TF2Proxy.OnUserKill += TauntAfterKillEffect_OnUserKill;
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            TF2Effects.Instance.TF2Proxy.OnUserKill += TauntAfterKillEffect_OnUserKill;
         }
 
         private void TauntAfterKillEffect_OnUserKill(string victim, string weapon, bool crit)
@@ -171,6 +174,7 @@
 
         public override void StartEffect()
         {
+            // (not RunRequiredCommand - updates can pause and continue same command)
             _ = TF2Effects.Instance.RunCommand("slot3");
         }
 

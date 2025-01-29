@@ -76,7 +76,7 @@
             {
                 string activeValue = VariableSettings[variable];
 
-                TF2Effects.Instance.SetValue(variable, activeValue);
+                TF2Effects.Instance.SetRequiredValue(variable, activeValue);
             }
         }
 

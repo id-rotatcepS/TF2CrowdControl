@@ -17,11 +17,21 @@
 
         public string RunCommand(string command)
         {
-            if (TF2Proxy == null)
+            try
             {
-                ASPEN.Aspen.Log.Warning(string.Format("No connection available to run command: {0}", command));
+                return RunRequiredCommand(command);
+            }
+            catch (Exception ex)
+            {
+                ASPEN.Aspen.Log.Warning(ex.Message);
                 return "";
             }
+        }
+
+        public string RunRequiredCommand(string command)
+        {
+            if (TF2Proxy == null)
+                throw new EffectNotAppliedException(string.Format("No connection available to run command: {0}", command));
 
             return TF2Proxy.RunCommand(command);
         }
@@ -39,11 +49,26 @@
 
         public void SetValue(string variable, string value)
         {
-            if (TF2Proxy == null)
+            try
             {
-                ASPEN.Aspen.Log.Warning(string.Format("No connection available to set value: {0} = {1}", variable, value));
-                return;
+                SetRequiredValue(variable, value);
             }
+            catch (Exception ex)
+            {
+                ASPEN.Aspen.Log.Warning(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="variable"></param>
+        /// <param name="value"></param>
+        /// <exception cref="EffectNotAppliedException"></exception>
+        public void SetRequiredValue(string variable, string value)
+        {
+            if (TF2Proxy == null)
+                throw new EffectNotAppliedException(string.Format("No connection available to set value: {0} = {1}", variable, value));
 
             TF2Proxy?.SetValue(variable, value);
         }
