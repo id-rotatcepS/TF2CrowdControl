@@ -1,6 +1,7 @@
 ﻿using ASPEN;
 
 using ConnectorLib.JSON;
+
 using EffectSystem;
 
 namespace CrowdControl
@@ -82,18 +83,14 @@ namespace CrowdControl
             try
             {
                 Aspen.Log.Info($"{result} effect [{effectID}].");
-                //TODO just guessing how to do this... no request to respond to,
-                //     guessing the key is the effect name id and status is just
-                //     repeating the status again for some reason.
-                return await _client.Respond(new EffectResponse()
+                return await _client.Update(new EffectUpdate()
                 {
-                    id = 0,
+                    id = 0,//TODO uuid.v4()
                     status = result,
                     type = ResponseType.EffectStatus,
-                    metadata = new()
-                    {
-                        [effectID] = new(key: effectID, status: result),
-                    },
+                    // list of specific effects, vs. a list of group or category names to update.
+                    idType = EffectUpdate.IdentifierType.Effect,
+                    ids = [effectID],
                 });
             }
             catch (Exception e)
