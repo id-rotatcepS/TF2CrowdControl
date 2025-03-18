@@ -1,13 +1,10 @@
-﻿//using JetBrains.Annotations;
-
-using ConnectorLib.SimpleTCP;
+﻿using ConnectorLib.SimpleTCP;
 
 using CrowdControl.Common;
 
 namespace CrowdControl.Games.Packs.TF2Spectator;
 
-//[UsedImplicitly]
-public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example was SimpleWebsocketServerConnector
+public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 {
     //TODO need some education here.
     public TF2Spectator(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler)
@@ -16,7 +13,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     public static readonly string CROWD_CONTROL_HOST = "127.0.0.1";//TODO share with my SimpleTCPClient instance
     public static readonly ushort APP_CROWD_CONTROL_PORT = 58430;//TODO share with my SimpleTCPClient instance
 
-    //new("Give Lives", "lives") { Quantity = 9 },
+    /// <summary>
+    /// only requires loading the app/game
+    /// </summary>
+    public static readonly string G_APP = "app";
+    /// <summary>
+    /// requires being loaded into a map
+    /// </summary>
+    public static readonly string G_MAP = "map_loaded";
+    /// <summary>
+    /// requires being alive
+    /// </summary>
+    public static readonly string G_ALIVE = "alive";
+    public static readonly string G_SCOUT = "scout";
+    public static readonly string G_SOLLY = "soldier";
+    public static readonly string G_PYRO = "pyro";
+    public static readonly string G_DEMO = "demoman";
+    public static readonly string G_ENGY = "engineer";
+    public static readonly string G_HEAVY = "heavyweapons";
+    public static readonly string G_MEDIC = "medic";
+    public static readonly string G_SNIPER = "sniper";
+    public static readonly string G_SPY = "spy";
 
     #region Camera
     /// <summary>
@@ -27,7 +44,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     {
         //string ID (constructor);
         //string Name (constructor);
-        //string? SortName = "Black and White",
+        SortName = "Camera: Black and White",
+        //string? Note; // "subtitle" next to Name
 
         //QuantityRange Quantity = 1;
         //uint DefaultQuantity;
@@ -35,22 +53,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         //SITimeSpan? Duration;
         Duration = TimeSpan.FromSeconds(60),
         //bool IsDurationEditable = true;
-        //? IsDurationEditable = true,
         IsDurationEditable = true,
 
-        //string? Description;
         Description = "TF2 in the 50s.",
-        //string? Note;
         //string? StartMessage;
         //string? EndMessage;
 
         // user-facing collections (can be used to disable/hide a set with an Effect Report)
-        //EffectGrouping? Category;
         Category = new EffectGrouping("Camera"),
 
         // internal collections (can be used to disable/hide a set with an Effect Report)
-        //EffectGrouping? Group;
-        //Group = new EffectGrouping("g1", "g2"),
+        Group = new EffectGrouping(G_APP),
         //List<string>? Tags;
 
         //List<string>? Metadata;
@@ -66,7 +79,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         //SITimeSpan? ViewerCooldown;
         //SITimeSpan? SessionCooldown;
 
-        //uint Price;
         Price = 25,
 
         //ItemKind Kind (constructor, Effect or Bidwar);
@@ -87,7 +99,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         //bool Inactive;
         //bool Disabled;
 
-        //Alignment? Alignment;
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
 
         //bool? NoPooling;
@@ -105,11 +116,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect pixelated = new("Pixelated", "pixelated")
     {
+        SortName = "Camera: Pixelated",
         Description = "TF2 in the 80s.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping("Camera"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 25
     };
     /// <summary>
@@ -118,11 +131,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect dream = new("Dream Mode", "dream")
     {
+        SortName = "Camera: Dream Mode",
         Description = "The radiant glow of TF2 in a dream.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping("Camera"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 25
     };
     #endregion Camera
@@ -134,10 +149,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect big_guns = new("Big Guns", "big_guns")
     {
+        SortName = "View Model: Big Guns",
         Description = "Force my usual weapon viewmodels to the default big ones.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 0
     };
     /// <summary>
@@ -146,10 +163,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect small_guns = new("Small Guns", "small_guns")
     {
+        SortName = "View Model: Small Guns",
         Description = "Force my usual weapon viewmodels to small ones.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 0
     };
     /// <summary>
@@ -158,10 +177,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect no_guns = new("No Guns?", "no_guns")
     {
+        SortName = "View Model: No Guns",
         Description = "Force a change to whether my weapon viewmodels are visible.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 5
     };
     /// <summary>
@@ -170,10 +191,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect long_arms = new("Long Arms", "long_arms")
     {
+        SortName = "View Model: Long Arms",
         Description = "Force my viewmodels to have very long arms.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 5
     };
     /// <summary>
@@ -182,10 +205,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
     /// </summary>
     public static readonly Effect vr_mode = new("VR Mode", "vr_mode")
     {
+        SortName = "View Model: VR Mode",
         Description = "My arms, weapons, and body are visible exactly as other players see them in game.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 0
     };
     #endregion View Model
@@ -201,6 +226,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(240),// max duration - the effect is subtle.
         IsDurationEditable = true,
         Category = new EffectGrouping("Crosshair"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 0
     };
 
@@ -214,6 +240,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Category = new EffectGrouping("Crosshair"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 5
     };
 
@@ -228,6 +255,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping("Crosshair", "Camera"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 20
     };
     #endregion Crosshair
@@ -243,22 +271,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
 
     public static readonly Effect explode = new("Explode", "explode")
     {
+        SortName = "Die: Explode",
         Description = "Instant and dramatic death.",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 50
     };
 
     public static readonly Effect kill = new("Die", "kill")
     {
+        SortName = "Die: Die",
         Description = "Instant death.",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 50
     };
 
@@ -269,6 +302,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Instantly destroy all of Engy's buildings. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay", "Engineer"),
+        Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 50 // sort of equivalent to dying
     };
     public static readonly Effect destroysentry = new("Destroy My Sentry", "destroysentry")
@@ -276,6 +310,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Instantly destroy Engy's sentry. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay", "Engineer"),
+        Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 30
     };
     public static readonly Effect destroydispenser = new("Destroy My Dispenser", "destroydispenser")
@@ -283,6 +318,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Instantly destroy Engy's dispenser. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay", "Engineer"),
+        Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 10
     };
     public static readonly Effect destroyteleporters = new("Destroy My Teleporters", "destroyteleporters")
@@ -290,6 +326,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Instantly destroy both of Engy's teleporters. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping("Gameplay", "Engineer"),
+        Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 20
     };
 
@@ -298,6 +335,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Undisguise Spy. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping("Gameplay", "Spy"),
+        Group = new EffectGrouping(G_ALIVE, G_SPY),
         Price = 20
     };
 
@@ -306,6 +344,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         Description = "Right-click Medi Gun. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping("Gameplay", "Medic"),
+        Group = new EffectGrouping(G_ALIVE, G_MEDIC),
         Price = 30
     };
 
@@ -316,6 +355,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
         Category = new EffectGrouping("Gameplay", "Medic"),
+        Group = new EffectGrouping(G_ALIVE, G_MEDIC),
         Price = 0
     };
 
@@ -326,6 +366,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector> // example w
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
     #endregion Game Play
