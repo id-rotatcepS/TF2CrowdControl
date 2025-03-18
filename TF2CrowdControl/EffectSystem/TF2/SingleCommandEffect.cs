@@ -198,4 +198,84 @@
         }
     }
 
+    public class ForceChangeClassEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "join_class_autokill";
+        public ForceChangeClassEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected ForceChangeClassEffect(string id)
+            : base(id, "join_class {1}")
+        {
+            Availability = new InMap();
+        }
+
+        protected virtual string Autokill => "1";
+
+        // we should be able to verify within 60s that the class forcibly changed.
+        protected override TimeSpan WaitTimeToVerify => TimeSpan.FromSeconds(60);
+
+        protected string classSelection = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // not using base - request parameter is part of the command, also smart required variable.
+
+            classSelection = request.Parameter.ToLower(); // join_class supports "random" directly
+            string formattedMainCommand = string.Format(Command, request.Requestor, classSelection);
+            string formattedCommand = AddTempVariableChange(formattedMainCommand,
+                variable: "hud_classautokill", val: Autokill,
+                def: "0");
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+
+            CheckEffectWorked();
+        }
+
+        private string AddTempVariableChange(string mainCommand, string variable, string val, string def)
+        {
+            string prev = TF2Effects.Instance.GetValue(variable)
+                ?? def;
+            if (prev == def)
+                return mainCommand;
+            // set value; run command; restore value.
+            return string.Format("{0} {1};{2};{0} {3}", variable, val, mainCommand, prev);
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Left the map before class applied");
+
+            // we should be able to verify within 60s that the class forcibly changed.
+            if (!string.IsNullOrEmpty(classSelection)
+                && classSelection != "random"
+                && TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
+                throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
+        }
+
+    }
+    /// <summary>
+    /// This verison can't positively verify itself - the user might not respawn before CC verification timeout.
+    /// </summary>
+    public class ChangeClassEffect : ForceChangeClassEffect
+    {
+        new public static readonly string EFFECT_ID = "join_class";
+        public ChangeClassEffect()
+            : base(EFFECT_ID)
+        {
+        }
+
+        protected override string Autokill => "0";
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Left the map before class applied");
+            // but we can't guarantee a POSITIVE verification within the CC timeout - the user might not die.
+            //    if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
+        }
+    }
+
 }
