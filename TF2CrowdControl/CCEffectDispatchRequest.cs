@@ -1,4 +1,5 @@
 ﻿using ConnectorLib.JSON;
+
 using EffectSystem;
 
 namespace CrowdControl
@@ -19,5 +20,7 @@ namespace CrowdControl
         public string Parameter => OriginalRequest.message;//TODO is this right?
         //Note apparently CC request duration is in milliseconds
         public TimeSpan RequestedDuration => TimeSpan.FromMilliseconds(OriginalRequest.duration ?? 0);
+        public string Requestor => OriginalRequest.viewer;
+
     }
 }

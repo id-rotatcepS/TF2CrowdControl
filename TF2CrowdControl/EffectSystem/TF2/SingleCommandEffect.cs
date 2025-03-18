@@ -178,4 +178,24 @@
                 throw new EffectNotVerifiedException("Über didn't work - player is no longer an alive medic.");
         }
     }
+
+    public class PartyChatEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "say_party";
+        public PartyChatEffect()
+            : base(EFFECT_ID, "say_party {0} in stream says: '{1}'")
+        {
+            Availability = new InApplication();
+        }
+
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            //base.StartEffect(request);
+            string formattedCommand = string.Format(Command, request.Requestor, request.Parameter);
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+
+            // no verification.
+        }
+    }
+
 }
