@@ -132,7 +132,11 @@
         public static readonly string EFFECT_ID = "taunt_after_kill";
 
         public TauntAfterKillEffect()
-            : base(EFFECT_ID, DefaultTimeSpan)
+            : this(EFFECT_ID)
+        {
+        }
+        protected TauntAfterKillEffect(string id)
+            : base(id, DefaultTimeSpan)
         {
             Availability = new AliveInMap();
         }
@@ -149,14 +153,36 @@
 
         private void TauntAfterKillEffect_OnUserKill(string victim, string weapon, bool crit)
         {
-            _ = TF2Effects.Instance.RunCommand("taunt");
+            if (ShouldTaunt(victim, weapon, crit))
+                _ = TF2Effects.Instance.RunCommand("taunt");
             //FUTURE tempting to add "say ha ha I killed you, {victim}"
+        }
+
+        virtual protected bool ShouldTaunt(string victim, string weapon, bool crit)
+        {
+            return true;
         }
 
         public override void StopEffect()
         {
             if (TF2Effects.Instance.TF2Proxy != null)
                 TF2Effects.Instance.TF2Proxy.OnUserKill -= TauntAfterKillEffect_OnUserKill;
+        }
+    }
+
+    public class TauntAfterCritKillEffect : TauntAfterKillEffect
+    {
+        new public static readonly string EFFECT_ID = "taunt_after_crit_kill";
+
+        public TauntAfterCritKillEffect()
+            : base(EFFECT_ID)
+        {
+            Availability = new AliveInMap();
+        }
+
+        protected override bool ShouldTaunt(string victim, string weapon, bool crit)
+        {
+            return crit;
         }
     }
 
@@ -189,4 +215,79 @@
             _ = TF2Effects.Instance.RunCommand("slot1");
         }
     }
+
+    public class ShowScoreboardEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "show_score";
+        public ShowScoreboardEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(6))
+        {
+            Availability = new InMap();
+            Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+showscores");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-showscores");
+        }
+    }
+
+    public class SpinEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "spin_left";
+
+        public SpinEffect()
+            : base(EFFECT_ID, DefaultTimeSpan)
+        {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+left");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-left");
+        }
+    }
+
+    /// <summary>
+    /// Oddly enough, pressing W or M1 does not cancel this out.
+    /// </summary>
+    public class WM1Effect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "wm1";
+
+        public WM1Effect()
+            : base(EFFECT_ID, DefaultTimeSpan)
+        {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+forward;+attack");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-attack;-forward");
+        }
+    }
+
 }

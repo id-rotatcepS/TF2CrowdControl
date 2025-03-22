@@ -237,4 +237,67 @@
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }
+
+    public class MouseSensitivityHighEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "mouse_sensitivity_high";
+
+        public MouseSensitivityHighEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["sensitivity"] = "20"
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOUSE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
+    public class MouseSensitivityLowEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "mouse_sensitivity_low";
+
+        public MouseSensitivityLowEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["sensitivity"] = "1.0"
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOUSE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
+
+    // doesn't have an impact??
+    //public class MouseDisabledEffect : TimedSetEffect
+    //{
+    //    public static readonly string EFFECT_ID = "mouse_off";
+
+    //    public MouseDisabledEffect()
+    //        : base(EFFECT_ID, DefaultTimeSpan, new()
+    //        {
+    //            ["cl_mouseenable"] = "0"
+    //        })
+    //    {
+    //        Mutex.Add(TF2Effects.MUTEX_MOUSE);
+    //        Availability = new InApplication();
+    //    }
+    //    public override bool IsSelectableGameState => base.IsSelectableGameState;
+    //}
+    public class WallhacksForGrassEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "wallhacks_grass";
+
+        public WallhacksForGrassEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["r_drawdetailprops"] = "2"
+            })
+        {
+            //Mutex.Add(TF2Effects.MUTEX_DRAW_DETAIL_PROPS);
+            Availability = new InMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
 }

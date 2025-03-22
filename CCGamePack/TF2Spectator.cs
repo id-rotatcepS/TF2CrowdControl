@@ -4,9 +4,30 @@ using CrowdControl.Common;
 
 namespace CrowdControl.Games.Packs.TF2Spectator;
 
+/*
+    Lexi [Developer] — 3/19/2025 7:29 PM
+    FYI some extra clarification:
+    - A *Game* is a JSON file describing an entity like `Super Mario 64`.
+    - Every *Game* has at least one *Game Pack* that defines a unique version of the game; for example, SM64 has 2\*: `Super Mario 64` and `Super Mario 64 Randomizer`
+    - Every *Game Pack* has a JSON file that defines metadata for the game version such as how Crowd Control connects to the game(/mod) and what effects are available
+    - Every\*\* *Game Pack* has a C# file which is used to generate the aforementioned *Game Pack* JSON file. They also implement the logic for connecting to the game(/mod), although this usually just entails extending a pre-defined connector class.
+    - The *Game Pack* C# file gets compiled to a DLL and (down)loaded into the Crowd Control desktop app's *Native Client*, which manages effect queueing & retrying & timing & communication with our PubSub server & etc
+    - The *Game Mod* is coded in any language and generally connects to the *Game Pack* loaded into the *Native Client* over a local TCP or WebSocket connection and can send responses to effect requests, effect variables, and reports on what effects should be visible & purchasable
+    -# \*It actually has 4; BizHawk, Project64, Randomizer v0.5, & Randomizer v1.2
+    -# \*\*Standalone/Unity games generally do not have an accompany C# file or game mod and instead connect directly to our PubSub backend service
+ */
+
+/// <summary>
+/// Crowd Control Game Pack class.
+/// 
+/// Used to generate the Game Pack JSON file (that defines metadata for the game version such as
+/// how Crowd Control connects to the game(/mod) and what effects are available).
+/// Implements the logic for connecting to the game(/mod) (mostly by extending a pre-defined connector class).
+/// This file gets compiled to a DLL and (down)loaded into the Crowd Control desktop app's Native Client,
+/// which manages effect queueing & retrying & timing & communication with the PubSub server, etc.
+/// </summary>
 public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 {
-    //TODO need some education here.
     public TF2Spectator(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler)
         : base(player, responseHandler, statusUpdateHandler) { }
 
@@ -14,15 +35,15 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly ushort APP_CROWD_CONTROL_PORT = 58430;//TODO share with my SimpleTCPClient instance
 
     /// <summary>
-    /// only requires loading the app/game
+    /// Group: only requires loading the app/game
     /// </summary>
     public static readonly string G_APP = "app";
     /// <summary>
-    /// requires being loaded into a map
+    /// Group: requires being loaded into a map
     /// </summary>
     public static readonly string G_MAP = "map_loaded";
     /// <summary>
-    /// requires being alive
+    /// Group: requires being alive
     /// </summary>
     public static readonly string G_ALIVE = "alive";
     public static readonly string G_SCOUT = "scout";
@@ -139,6 +160,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Category = new EffectGrouping("Camera"),
         Group = new EffectGrouping(G_ALIVE),
         Price = 25
+    };
+
+    public static readonly Effect wallhacks_grass = new("Wallhacks for Grass", "wallhacks_grass")
+    {
+        SortName = "Camera: Wallhacks for Grass",
+        Description = "At least it doesn't count as a cheat. (No effect unless player is near grass on the map)",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Camera"),
+        Group = new EffectGrouping(G_MAP),
+        Price = 5
     };
     #endregion Camera
 
@@ -369,35 +402,167 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
+
+    public static readonly Effect taunt_after_crit_kill = new("Taunt after every Crit Kill", "taunt_after_crit_kill")
+    {
+        Description = "Forced to act like a jerk to players I kill with crits (including headshots).",
+        Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 30 // it'll probably get you killed... if it triggers.
+    };
     #endregion Game Play
+
+    #region HUD and Movement
+    public static readonly Effect hide_hud = new("Hide HUD", "hide_hud")
+    {
+        Description = "Hides the Heads-up Display (HUD) until I check the scoreboard or otherwise reload it",
+        //Duration = TimeSpan.FromSeconds(60),
+        //IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+        Category = new EffectGrouping("HUD"),
+        Group = new EffectGrouping(G_MAP),
+        Price = 5
+    };
+    public static readonly Effect show_score = new("Show Scoreboard", "show_score")
+    {
+        Description = "Shows the scoreboard for a few seconds",
+        Duration = TimeSpan.FromSeconds(6),
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+        Category = new EffectGrouping("HUD"),
+        Group = new EffectGrouping(G_MAP),
+        Price = 1
+    };
+    public static readonly Effect mouse_sensitivity_high = new("High Sensitivity", "mouse_sensitivity_high")
+    {
+        SortName = "Mouse: High Sensitivity",
+        Description = "My teammates will start looking at me funny.",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Movement"),
+        Group = new EffectGrouping(G_APP),
+        Price = 75 // really annoying
+    };
+    public static readonly Effect mouse_sensitivity_low = new("Low Sensitivity", "mouse_sensitivity_low")
+    {
+        SortName = "Mouse: Low Sensitivity",
+        Description = "I need a bigger mousepad for this.",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Movement"),
+        Group = new EffectGrouping(G_APP),
+        Price = 75 // really annoying
+    };
+    public static readonly Effect retry = new("Zero-out My Score", "retry")
+    {
+        Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress. ",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("HUD", "Gameplay"),
+        Group = new EffectGrouping(G_MAP),
+        Price = 100 // worse than getting killed
+    };
+    public static readonly Effect spin_left = new("Spinnnnnn", "spin_left")
+    {
+        SortName = "Mouse: Spin Left",
+        Description = "I swear I'm not a spinbot.",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Movement", "Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 40 // might get us kicked
+    };
+    public static readonly Effect wm1 = new("W+M1", "wm1")
+    {
+        Description = "Best strategy in the game.",
+        Duration = TimeSpan.FromSeconds(60),
+        IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+        Category = new EffectGrouping("Movement", "Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 30
+    };
+    #endregion HUD and Movement
+
+    public static readonly Effect quit = new("'Quit Smoking'", "quit")
+    {
+        Description = "This is what happens if you type 'quit smoking' in the console. ",
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_APP),
+        Price = 2000
+    };
+
+    public static readonly Effect join_class_autokill = new("Death by Class Change", "join_class_autokill")
+    {
+        Description = "Change to this class NOW, kills me if I'm out of spawn.",
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Class", id:"class",
+                new Parameter("Scout", "scout"),
+                new Parameter("Soldier", "soldier"),
+                new Parameter("Pyro", "pyro"),
+                new Parameter("Demo", "demoman"),
+                new Parameter("Heavy", "heavyweapons"),
+                new Parameter("Engy", "engineer"),
+                new Parameter("Medic", "medic"),
+                new Parameter("Sniper", "sniper"),
+                new Parameter("Spy", "spy"),
+                new Parameter("?Random?", "random")
+                )
+        }),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 70 // worse than getting killed
+    };
 
     public override EffectList Effects
         => new Effect[]{
-                blackandwhite,
-                pixelated,
-                dream,
+            spin_left,
+            wm1,
+            mouse_sensitivity_high,
+            mouse_sensitivity_low,
 
-                big_guns,
-                small_guns,
-                no_guns,
-                long_arms,
-                vr_mode,
+            quit,
+            retry,
 
-                crosshair_rainbow,
-                crosshair_giant,
-                crosshair_cataracts,
+            join_class_autokill,
 
-                kill,
-                explode,
-                melee_only,
-                taunt_after_kill,
-                destroybuildings,
-                destroysentry,
-                destroydispenser,
-                destroyteleporters,
-                removedisguise,
-                medicradar,
-                ubernow,
+            blackandwhite,
+            pixelated,
+            dream,
+            wallhacks_grass,
+
+            big_guns,
+            small_guns,
+            no_guns,
+            long_arms,
+            vr_mode,
+
+            hide_hud,
+            show_score,
+
+            crosshair_rainbow,
+            crosshair_giant,
+            crosshair_cataracts,
+
+            kill,
+            explode,
+            melee_only,
+            taunt_after_kill,
+            taunt_after_crit_kill,
+            destroybuildings,
+            destroysentry,
+            destroydispenser,
+            destroyteleporters,
+            removedisguise,
+            medicradar,
+            ubernow,
         };
 
     public override Game Game { get; } = new(
@@ -407,12 +572,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         connector: ConnectorType.SimpleTCPServerConnector
         );
 
-    //TODO what is this supposed to mean? do I have to hook my entire app up to this for any accuracy??
-    protected override bool IsReady(EffectRequest? request)
-        //TODO
-        => true;
+    //protected override bool IsReady(EffectRequest? request)
 
-    //value to setting this?
+    //value in setting this?
     //protected override string ProcessName => "tf2";
 
     public override string Host => CROWD_CONTROL_HOST;

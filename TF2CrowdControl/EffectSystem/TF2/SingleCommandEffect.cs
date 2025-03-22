@@ -198,14 +198,54 @@
         }
     }
 
-    public class ForceChangeClassEffect : SingleCommandEffect
+    /// <summary>
+    /// shows the scoreboard and reloads the hud and doesn't release the scoreboard thus hiding everything until the next time you hit tab.
+    /// </summary>
+    public class HideHUDEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "hide_hud";
+        public HideHUDEffect()
+            : base(EFFECT_ID, "+showscores; hud_reloadscheme;")//internet used +score, which is also a valid command - I assume they're the same thing.
+        {
+            Availability = new InMap();
+            Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // can't really be verified.
+            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Left map as effect started.");
+        }
+    }
+
+    public class QuitEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "quit";
+        public QuitEffect()
+            : base(EFFECT_ID, "quit")
+        {
+            Availability = new InApplication();
+        }
+    }
+    public class RetryEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "retry";
+        public RetryEffect()
+            : base(EFFECT_ID, "retry")
+        {
+            Availability = new InMap();
+        }
+    }
+
+    public class ForcedChangeClassEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "join_class_autokill";
-        public ForceChangeClassEffect()
+        public ForcedChangeClassEffect()
             : this(EFFECT_ID)
         {
         }
-        protected ForceChangeClassEffect(string id)
+        protected ForcedChangeClassEffect(string id)
             : base(id, "join_class {1}")
         {
             Availability = new InMap();
@@ -244,38 +284,43 @@
         protected override void CheckEffectWorked()
         {
             // availability doesn't change, but if it became unavailable it probably won't take.
-            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
                 throw new EffectNotVerifiedException("Left the map before class applied");
 
             // we should be able to verify within 60s that the class forcibly changed.
             if (!string.IsNullOrEmpty(classSelection)
                 && classSelection != "random"
-                && TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
+                && TF2Effects.Instance.TF2Proxy?.ClassSelection == classSelection)
                 throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
         }
 
     }
-    /// <summary>
-    /// This verison can't positively verify itself - the user might not respawn before CC verification timeout.
-    /// </summary>
-    public class ChangeClassEffect : ForceChangeClassEffect
-    {
-        new public static readonly string EFFECT_ID = "join_class";
-        public ChangeClassEffect()
-            : base(EFFECT_ID)
-        {
-        }
+    ///// <summary>
+    ///// This version can't positively verify itself - the user might not respawn before CC verification timeout.
+    ///// ... even worse, in cases where we must restore the autokill value to 1 IMMEDIATELY invokes the autokill.
+    ///// Could only be an option for users that have autokill set to 0.
+    ///// </summary>
+    //public class ChangeClassEffect : ForcedChangeClassEffect
+    //{
+    //    new public static readonly string EFFECT_ID = "join_class";
+    //    public ChangeClassEffect()
+    //        : base(EFFECT_ID)
+    //    {
+    //        //TODO add "autokill set to 0" to availability.
+    //    }
 
-        protected override string Autokill => "0";
+    //    protected override string Autokill => "0";
 
-        protected override void CheckEffectWorked()
-        {
-            // availability doesn't change, but if it became unavailable it probably won't take.
-            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException("Left the map before class applied");
-            // but we can't guarantee a POSITIVE verification within the CC timeout - the user might not die.
-            //    if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
-        }
-    }
+    //    protected override void CheckEffectWorked()
+    //    {
+    //        // availability doesn't change, but if it became unavailable it probably won't take.
+    //        if (Availability != null
+    //            && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+    //            throw new EffectNotVerifiedException("Left the map before class applied");
+    //        // but we can't guarantee a POSITIVE verification within the CC timeout - the user might not die.
+    //        //    if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
+    //    }
+    //}
 
 }
