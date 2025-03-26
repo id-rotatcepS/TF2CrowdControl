@@ -78,6 +78,11 @@ namespace CrowdControl
                 new ForcedChangeClassEffect(),
                 new SpinEffect(),
                 new WM1Effect(),
+
+                new ChallengeMeleeTimedEffect(),
+                new SingleTauntAfterKillEffect(),
+                new SingleTauntAfterCritKillEffect(),
+                new ChallengeCataractsEffect(),
                 ]);
         }
 

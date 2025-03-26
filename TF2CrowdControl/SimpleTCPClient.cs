@@ -164,10 +164,15 @@ namespace CrowdControl
 
         private void InvokeRequest(List<byte> mBytes)
         {
-            //Log.Debug($"Got a complete message: {mBytes.ToArray().ToHexadecimalString()}");
             string json = Encoding.UTF8.GetString(mBytes.ToArray());
-            //Log.Debug($"Got a complete message: {json}");
-            SimpleJSONRequest req = SimpleJSONRequest.Parse(json);
+
+            bool parsed = SimpleJSONRequest.TryParse(json, out SimpleJSONRequest? req);
+            if (!parsed || req == null)
+            {
+                Aspen.Log.Error("Crowd Control Request Parse failed");
+                return;
+            }
+
             //Log.Debug($"Got a request with ID {req.id}.");
             try { OnRequestReceived?.Invoke(req); }
             catch (Exception e) { Aspen.Log.ErrorException(e, "Crowd Control OnRequestReceived failed"); }

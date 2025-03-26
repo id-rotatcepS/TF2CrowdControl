@@ -291,6 +291,21 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Price = 20
     };
+    /// <summary>
+    /// animate dot crosshair scale until it fills up most of the screen.
+    /// Affects crosshair shape and scale.
+    /// </summary>
+    public static readonly Effect cataracts_challenge = new("Cataracts", "crosshair_cataracts_challenge_3k")
+    {
+        Note = "3 kills challenge",
+        Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
+        Duration = TimeSpan.FromMinutes(10),
+        //IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Crosshair", "Camera"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 100
+    };
     #endregion Crosshair
 
     #region Game Play
@@ -402,6 +417,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
+    public static readonly Effect melee_only_challenge = new("Melee Only", "melee_only_challenge_3k")
+    {
+        Note = "3 kill challenge",
+        Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
+        Duration = TimeSpan.FromMinutes(10),
+        //IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 100 // it'll probably get you killed
+    };
 
     public static readonly Effect taunt_after_crit_kill = new("Taunt after every Crit Kill", "taunt_after_crit_kill")
     {
@@ -412,6 +438,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Category = new EffectGrouping("Gameplay"),
         Group = new EffectGrouping(G_ALIVE),
         Price = 30 // it'll probably get you killed... if it triggers.
+    };
+    public static readonly Effect taunt_after_single_kill = new("Taunt after next Kill", "taunt_after_kill_challenge_1k")
+    {
+        Note = "until 1 kill",
+        Description = "Forced to act like a jerk to next next player I kill.",
+        Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
+        //IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 15
+    };
+    public static readonly Effect taunt_after_single_crit_kill = new("Taunt after next Crit Kill", "taunt_after_crit_kill_challenge_1k")
+    {
+        Note = "until 1 kill",
+        Description = "Forced to act like a jerk to next next player I kill with a crit (including headshots).",
+        Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
+        //IsDurationEditable = true,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+        Category = new EffectGrouping("Gameplay"),
+        Group = new EffectGrouping(G_ALIVE),
+        Price = 10
     };
     #endregion Game Play
 
@@ -563,6 +611,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             removedisguise,
             medicradar,
             ubernow,
+
+            cataracts_challenge,
+            melee_only_challenge,
+            taunt_after_single_kill,
+            taunt_after_single_crit_kill,
         };
 
     public override Game Game { get; } = new(
