@@ -194,7 +194,7 @@ namespace TF2CrowdControl
 
             try
             {
-                _ = TF2Effects.Instance.TF2Proxy?.RunCommand("echo hi");
+                _ = TF2Effects.Instance.TF2Proxy?.RunCommand("echo test tf2 connection");
             }
             catch (Exception)
             {

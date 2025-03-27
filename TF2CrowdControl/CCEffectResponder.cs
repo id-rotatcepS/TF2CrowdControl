@@ -40,7 +40,7 @@ namespace CrowdControl
                 if (timeRemaining == null)
                     Aspen.Log.Info($"{result} effect [{request.code}]. {message}");
                 else
-                    Aspen.Log.Info($"{result} effect [{request.code}] {timeRemaining.Value.TotalSeconds}s. {message}");
+                    Aspen.Log.Trace($"{result} effect [{request.code}] {timeRemaining.Value.TotalSeconds}s. {message}");
 
                 return await _client.Respond(new EffectResponse()
                 {
@@ -88,7 +88,7 @@ namespace CrowdControl
         {
             try
             {
-                Aspen.Log.Info($"{result} effect [{effectID}].");
+                Aspen.Log.Trace($"{result} effect [{effectID}].");
                 return await _client.Update(new EffectUpdate()
                 {
                     id = 0,//TODO uuid.v4()
