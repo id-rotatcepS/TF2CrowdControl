@@ -31,6 +31,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public TF2Spectator(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler)
         : base(player, responseHandler, statusUpdateHandler) { }
 
+    public static readonly string C_CHALLENGES = "Challenges";
+    public static readonly string C_CAMERA = "Camera";
+    public static readonly string C_CROSSHAIR = "Crosshair";
+    public static readonly string C_GAMEPLAY = "Gameplay";
+    public static readonly string C_HUD = "HUD";
+    public static readonly string C_MOVEMENT = "Movement";
+
     public static readonly string CROWD_CONTROL_HOST = "127.0.0.1";//TODO share with my SimpleTCPClient instance
     public static readonly ushort APP_CROWD_CONTROL_PORT = 58430;//TODO share with my SimpleTCPClient instance
 
@@ -81,7 +88,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //string? EndMessage;
 
         // user-facing collections (can be used to disable/hide a set with an Effect Report)
-        Category = new EffectGrouping("Camera"),
+        Category = new EffectGrouping(C_CAMERA),
 
         // internal collections (can be used to disable/hide a set with an Effect Report)
         Group = new EffectGrouping(G_APP),
@@ -131,6 +138,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         // SITimeSpan ScaleDecayTime property
         //ScaleDecayTime = TimeSpan.FromSeconds(1),
     };
+    public static readonly Effect blackandwhite_challenge_5ks = new("Black & White", "blackandwhite_challenge_5ks")
+    {
+        Note = "5 streak challenge",
+        SortName = "Challenge: Black and White",
+        Duration = TimeSpan.FromMinutes(30),
+        //IsDurationEditable = true,
+        Description = "Stuck with TF2 in the 50s until I get a 5 kill streak.",
+        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Group = new EffectGrouping(G_APP),
+        Price = 250,
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+    };
     /// <summary>
     /// mat_viewportscale 0.1 (vs 1)
     /// Affects game generation - relative to primary resolution.
@@ -142,7 +161,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Camera"),
+        Category = new EffectGrouping(C_CAMERA),
         Group = new EffectGrouping(G_ALIVE),
         Price = 25
     };
@@ -157,7 +176,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Camera"),
+        Category = new EffectGrouping(C_CAMERA),
         Group = new EffectGrouping(G_ALIVE),
         Price = 25
     };
@@ -169,7 +188,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Camera"),
+        Category = new EffectGrouping(C_CAMERA),
         Group = new EffectGrouping(G_MAP),
         Price = 5
     };
@@ -258,7 +277,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "A rainbow of colors for my crosshair.",
         Duration = TimeSpan.FromSeconds(240),// max duration - the effect is subtle.
         IsDurationEditable = true,
-        Category = new EffectGrouping("Crosshair"),
+        Category = new EffectGrouping(C_CROSSHAIR),
         Group = new EffectGrouping(G_ALIVE),
         Price = 0
     };
@@ -272,7 +291,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "Make my crosshair gigantic.",
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
-        Category = new EffectGrouping("Crosshair"),
+        Category = new EffectGrouping(C_CROSSHAIR),
         Group = new EffectGrouping(G_ALIVE),
         Price = 5
     };
@@ -287,7 +306,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(40),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Crosshair", "Camera"),
+        Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA),
         Group = new EffectGrouping(G_ALIVE),
         Price = 20
     };
@@ -298,11 +317,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect cataracts_challenge = new("Cataracts", "crosshair_cataracts_challenge_3k")
     {
         Note = "3 kills challenge",
+        SortName = "Challenge: Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
         //IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Crosshair", "Camera"),
+        Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA, C_CHALLENGES),
         Group = new EffectGrouping(G_ALIVE),
         Price = 100
     };
@@ -318,7 +338,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
@@ -328,7 +348,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Die: Explode",
         Description = "Instant and dramatic death.",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 50
     };
@@ -338,7 +358,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Die: Die",
         Description = "Instant death.",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 50
     };
@@ -349,7 +369,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Instantly destroy all of Engy's buildings. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 50 // sort of equivalent to dying
     };
@@ -357,7 +377,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Instantly destroy Engy's sentry. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 30
     };
@@ -365,7 +385,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Instantly destroy Engy's dispenser. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 10
     };
@@ -373,7 +393,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Instantly destroy both of Engy's teleporters. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay", "Engineer"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
         Price = 20
     };
@@ -382,7 +402,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Undisguise Spy. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Gameplay", "Spy"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Spy"),
         Group = new EffectGrouping(G_ALIVE, G_SPY),
         Price = 20
     };
@@ -391,7 +411,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Right-click Medi Gun. " + CAUTION,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
-        Category = new EffectGrouping("Gameplay", "Medic"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
         Price = 30
     };
@@ -402,7 +422,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(2),
         IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
-        Category = new EffectGrouping("Gameplay", "Medic"),
+        Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
         Price = 0
     };
@@ -413,18 +433,19 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
     public static readonly Effect melee_only_challenge = new("Melee Only", "melee_only_challenge_3k")
     {
         Note = "3 kill challenge",
+        SortName = "Challenge: Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
         //IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY, C_CHALLENGES),
         Group = new EffectGrouping(G_ALIVE),
         Price = 100 // it'll probably get you killed
     };
@@ -435,7 +456,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 30 // it'll probably get you killed... if it triggers.
     };
@@ -446,7 +467,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
         //IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 15
     };
@@ -457,7 +478,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
         //IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 10
     };
@@ -470,7 +491,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //Duration = TimeSpan.FromSeconds(60),
         //IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
-        Category = new EffectGrouping("HUD"),
+        Category = new EffectGrouping(C_HUD),
         Group = new EffectGrouping(G_MAP),
         Price = 5
     };
@@ -480,7 +501,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(6),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
-        Category = new EffectGrouping("HUD"),
+        Category = new EffectGrouping(C_HUD),
         Group = new EffectGrouping(G_MAP),
         Price = 1
     };
@@ -491,7 +512,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Movement"),
+        Category = new EffectGrouping(C_MOVEMENT),
         Group = new EffectGrouping(G_APP),
         Price = 75 // really annoying
     };
@@ -502,7 +523,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping("Movement"),
+        Category = new EffectGrouping(C_MOVEMENT),
         Group = new EffectGrouping(G_APP),
         Price = 75 // really annoying
     };
@@ -510,7 +531,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress. ",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("HUD", "Gameplay"),
+        Category = new EffectGrouping(C_HUD, C_GAMEPLAY),
         Group = new EffectGrouping(G_MAP),
         Price = 100 // worse than getting killed
     };
@@ -521,7 +542,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Movement", "Gameplay"),
+        Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 40 // might get us kicked
     };
@@ -531,7 +552,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         IsDurationEditable = true,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
-        Category = new EffectGrouping("Movement", "Gameplay"),
+        Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 30
     };
@@ -541,7 +562,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "This is what happens if you type 'quit smoking' in the console. ",
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_APP),
         Price = 2000
     };
@@ -564,7 +585,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 )
         }),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping("Gameplay"),
+        Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
         Price = 70 // worse than getting killed
     };
@@ -616,6 +637,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             melee_only_challenge,
             taunt_after_single_kill,
             taunt_after_single_crit_kill,
+            blackandwhite_challenge_5ks,
         };
 
     public override Game Game { get; } = new(

@@ -101,7 +101,12 @@
     {
         public static readonly string EFFECT_ID = "blackandwhite";
         public BlackAndWhiteTimedEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, "mat_color_projection", "4")
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+
+        protected BlackAndWhiteTimedEffect(string id, TimeSpan duration)
+            : base(id, duration, "mat_color_projection", "4")
         {
             // Availability: even works in the menu
             Availability = new InApplication();

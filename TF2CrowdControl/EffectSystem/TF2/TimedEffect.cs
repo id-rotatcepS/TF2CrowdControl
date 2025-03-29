@@ -274,6 +274,20 @@
     // TimedSetEffect until...
 
     /// <summary>
+    /// 30 minute Effect that cancels upon meeting the 5 kill streak challenge.
+    /// </summary>
+    public class ChallengeBlackAndWhiteTimedEffect : BlackAndWhiteTimedEffect
+    {
+        new public static readonly string EFFECT_ID = "blackandwhite_challenge_5ks";
+
+        public ChallengeBlackAndWhiteTimedEffect()
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 30, 0))
+        {
+            challenge = new KillstreakChallenge(5);
+        }
+    }
+
+    /// <summary>
     /// 10 minute Effect that cancels upon meeting the 3 kills challenge.
     /// </summary>
     public class ChallengeMeleeTimedEffect : MeleeOnlyEffect
