@@ -14,14 +14,14 @@
     <framework targetVersion="4.5" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Application Files\TF2CrowdControl_1_0_2_4\TF2CrowdControl.dll.manifest" size="8293">
+    <dependentAssembly dependencyType="install" codebase="Application Files\TF2CrowdControl_1_0_2_4\TF2CrowdControl.dll.manifest" size="7881">
       <assemblyIdentity name="TF2CrowdControl.exe" version="1.0.2.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>5dMVV4YyHc6IUtREw4zsK0oCf5tz+ma+v2LJfgY5Rw4=</dsig:DigestValue>
+        <dsig:DigestValue>WBYrrpVY0agh0Ue1iVSYkWOJUnmbK3583omGuHvKGfA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

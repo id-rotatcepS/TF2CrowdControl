@@ -97,12 +97,19 @@ namespace TF2CrowdControl
         }
 
         public override void Execute(object? obj)
-            => Execute();
+            => ExecuteAndLogErrors();
 
-        private void Execute()
+        private void ExecuteAndLogErrors()
         {
-            foreach ((string file, string content) in configurations)
-                EnsureConfigured(file, content);
+            try
+            {
+                foreach ((string file, string content) in configurations)
+                    EnsureConfigured(file, content);
+            }
+            catch (Exception ex)
+            {
+                Aspen.Log.ErrorException(ex, "Failure while installing configuration - connection with TF2 may not work.");
+            }
         }
 
         private void EnsureConfigured(string filename, string content)
@@ -111,6 +118,7 @@ namespace TF2CrowdControl
                 return;
 
             string cfgPath = GetTF2CfgPath(filename);
+            EnsurePathDirectories(cfgPath);
 
             File.AppendAllLines(cfgPath,
                 new[] {
@@ -118,6 +126,17 @@ namespace TF2CrowdControl
                     "// Perform configuration for TF2 Spectator:",
                     content
                 });
+
+            Aspen.Log.Info(string.Format("Configured {0}", cfgPath));
+        }
+
+        private void EnsurePathDirectories(string cfgPath)
+        {
+            // assumes absolute file path
+            string? directory = Path.GetDirectoryName(cfgPath);
+            if (directory == null)
+                return;
+            _ = Directory.CreateDirectory(directory);
         }
     }
 }

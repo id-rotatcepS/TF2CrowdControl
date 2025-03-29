@@ -62,13 +62,13 @@
       <dsig:DigestValue>hL1IImQPmdcxhGcGUGHT1ArKlTaKOF+EL8qC04Qswi4=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="ConnectorLib.JSON.dll" size="41472">
+  <file name="ConnectorLib.JSON.dll" size="30208">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>D819dH6/0nsACpibbhzp977ak5Mm/Cf01NOu8U8zdtQ=</dsig:DigestValue>
+      <dsig:DigestValue>/p9JIoxC8fAlydZn/Dzs8vPfov9iuRbkX07SXy9ovbI=</dsig:DigestValue>
     </hash>
   </file>
   <file name="CoreRCON.dll" size="61440">
@@ -86,7 +86,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>geWO32TDD28rAnmACRVj8Hi+F37XrzsnUMQLemaZurg=</dsig:DigestValue>
+      <dsig:DigestValue>ao4K91c9q7Lx2ljvlx8Zy8RK0rBFBxWdTA4eTUOJRNE=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Microsoft.Extensions.Logging.Abstractions.dll" size="66168">
@@ -107,15 +107,6 @@
       <dsig:DigestValue>IsZJ91/OW+fHzNqIgEc7Y072ns8z9dGritiSyvR9Wgc=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="System.Collections.Immutable.dll" size="251152">
-    <hash>
-      <dsig:Transforms>
-        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
-      </dsig:Transforms>
-      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>C6SAigIFUyANpTK1z2DmnAMT919ZRXTuoyDA/EbSCLk=</dsig:DigestValue>
-    </hash>
-  </file>
   <file name="System.IO.Pipelines.dll" size="85120">
     <hash>
       <dsig:Transforms>
@@ -125,22 +116,22 @@
       <dsig:DigestValue>07gYpPeoT7Dr2GB9wi+TMzZ8XQ4C2eeAB4NJkWnermE=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="TF2CrowdControl.deps.json" size="3990">
+  <file name="TF2CrowdControl.deps.json" size="3401">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>9EHphVILDsC5/4kzgvgTLsNHjJxg4LHCIZnqHXvOFmM=</dsig:DigestValue>
+      <dsig:DigestValue>ufpsL8gDnPYy/X+cipkQkFXkT9kraRnUvamilkHAxDE=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="TF2CrowdControl.dll" size="94720">
+  <file name="TF2CrowdControl.dll" size="87552">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>ojygxXuBZqPWHpmm1yqDGh63f0L5VCL/ptCHFdJTatw=</dsig:DigestValue>
+      <dsig:DigestValue>ey1SiNxAz+D73baWV3A3dxCj4W3eOEqe9QpfDKkC7v8=</dsig:DigestValue>
     </hash>
   </file>
   <file name="TF2CrowdControl.exe" size="142848">
@@ -149,7 +140,7 @@
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>O1V4JahGRA5sIbpgNrIaC8fHAEoCpv8Az4BbBc1kO8c=</dsig:DigestValue>
+      <dsig:DigestValue>eYjvIo0GLYkgkFtKAuG+1QqeU/GWJhp7Rxx2+lCVzb0=</dsig:DigestValue>
     </hash>
   </file>
   <file name="TF2CrowdControl.runtimeconfig.json" size="458">
