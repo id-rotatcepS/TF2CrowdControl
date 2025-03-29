@@ -224,7 +224,7 @@
         public MouseSensitivityHighEffect()
             : base(EFFECT_ID, DefaultTimeSpan, new()
             {
-                ["sensitivity"] = "20"
+                ["sensitivity"] = "20" // default 3
             })
         {
             Mutex.Add(TF2Effects.MUTEX_MOUSE);
@@ -239,7 +239,7 @@
         public MouseSensitivityLowEffect()
             : base(EFFECT_ID, DefaultTimeSpan, new()
             {
-                ["sensitivity"] = "1.0"
+                ["sensitivity"] = "1.0" // default 3
             })
         {
             Mutex.Add(TF2Effects.MUTEX_MOUSE);

@@ -1,5 +1,10 @@
 ﻿namespace EffectSystem.TF2
 {
+    /// <summary>
+    /// An effect reports it's "availability" and pauses its duration when not available.
+    /// Simplifies StartEffect & StopEffect.
+    /// (with optional Challenge to stop the duration early)
+    /// </summary>
     abstract public class TimedEffect : PausableEffect
     {
         public TimedEffect(string id, TimeSpan span) : base(id,
@@ -44,6 +49,7 @@
     public class TauntAfterKillEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_after_kill";
+        private DateTime startTime = DateTime.MinValue;
 
         public TauntAfterKillEffect()
             : this(EFFECT_ID, DefaultTimeSpan)
@@ -68,8 +74,10 @@
         private void TauntAfterKillEffect_OnUserKill(string victim, string weapon, bool crit)
         {
             if (ShouldTaunt(victim, weapon, crit))
-                // makes multiple attempts in case player is mid-jump. Shortest ability taunt is 1.2 seconds
-                _ = TF2Effects.Instance.RunCommand("taunt;wait 30;taunt;wait 30;taunt");
+            {
+                startTime = DateTime.Now;
+                SendTaunt();
+            }
             //FUTURE tempting to add "say ha ha I killed you, {victim}"
         }
 
@@ -78,8 +86,39 @@
             return true;
         }
 
+        private void SendTaunt()
+        {
+            // choose a random taunt AND default taunt in case nothing was equipped there.
+            // slot 0 is held-weapon taunt, equippable slots are 1-8
+            int tauntSlot = Random.Shared.Next(0, 9);// max is EXclusive.
+
+            _ = TF2Effects.Instance.RunCommand(string.Format("taunt {0}", tauntSlot));
+            //FUTURE user-selected taunt by name?
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            // Makes multiple attempts in case player is mid-jump.
+            // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
+            // ... but we're often mid-air longer than that, so it's worth the risk I think.
+            TimeSpan longestAttempt = TimeSpan.FromSeconds(2.0);
+            if (startTime != DateTime.MinValue
+                && DateTime.Now.Subtract(startTime) <= longestAttempt)
+                SendTaunt();
+            else if (startTime != DateTime.MinValue)
+            {
+                // final attempt with just default taunt.
+                _ = TF2Effects.Instance.RunCommand("taunt");
+
+                startTime = DateTime.MinValue;
+            }
+        }
+
         public override void StopEffect()
         {
+            startTime = DateTime.MinValue;
             if (TF2Effects.Instance.TF2Proxy != null)
                 TF2Effects.Instance.TF2Proxy.OnUserKill -= TauntAfterKillEffect_OnUserKill;
         }
