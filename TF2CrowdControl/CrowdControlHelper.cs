@@ -65,6 +65,25 @@ namespace CrowdControl
 
                 new TauntAfterKillEffect(),
                 new MeleeOnlyEffect(),
+
+                // experimental
+                new HideHUDEffect(),
+                new ShowScoreboardEffect(),
+                new MouseSensitivityHighEffect(),
+                new MouseSensitivityLowEffect(),
+                new WallhacksForGrassEffect(),
+                new TauntAfterCritKillEffect(),
+                new QuitEffect(),
+                new RetryEffect(),
+                new ForcedChangeClassEffect(),
+                new SpinEffect(),
+                new WM1Effect(),
+
+                new ChallengeMeleeTimedEffect(),
+                new SingleTauntAfterKillEffect(),
+                new SingleTauntAfterCritKillEffect(),
+                new ChallengeCataractsEffect(),
+                new ChallengeBlackAndWhiteTimedEffect(),
                 ]);
         }
 

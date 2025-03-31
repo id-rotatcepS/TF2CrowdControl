@@ -1,5 +1,8 @@
 ﻿namespace EffectSystem
 {
+    /// <summary>
+    /// an effect with an expected (and a default) Duration
+    /// </summary>
     abstract public class PausableEffect : EffectBase
     {
         public static readonly TimeSpan DefaultTimeSpan = new TimeSpan(0, minutes: 1, 0);

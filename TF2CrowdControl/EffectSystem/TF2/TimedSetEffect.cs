@@ -27,14 +27,6 @@
         public override bool IsSelectableGameState
             => IsAvailable
             && IsOriginalValuesDifferentFromEffectValues();
-        ///// <summary>
-        ///// Original Values must not already match effect active Values
-        ///// </summary>
-        ///// <returns></returns>
-        //public override bool IsReady()
-        //{
-        //    return base.IsReady() && IsOriginalValuesDifferentFromEffectValues();
-        //}
 
         private bool IsOriginalValuesDifferentFromEffectValues()
         {
@@ -109,7 +101,12 @@
     {
         public static readonly string EFFECT_ID = "blackandwhite";
         public BlackAndWhiteTimedEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, "mat_color_projection", "4")
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+
+        protected BlackAndWhiteTimedEffect(string id, TimeSpan duration)
+            : base(id, duration, "mat_color_projection", "4")
         {
             // Availability: even works in the menu
             Availability = new InApplication();
@@ -173,19 +170,6 @@
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
         }
-
-        public override bool IsSelectableGameState
-        {
-            get
-            {
-                var x = OriginalValues;
-                var y = base.IsSelectableGameState;
-                if (y)
-                    return y;
-                else
-                    return y;
-            }
-        }
     }
 
     public class LongArmsTimedEffect : TimedSetEffect
@@ -236,5 +220,158 @@
         public override bool IsSelectableGameState => base.IsSelectableGameState
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
+    }
+
+    public class MouseSensitivityHighEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "mouse_sensitivity_high";
+
+        public MouseSensitivityHighEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["sensitivity"] = "20" // default 3
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOUSE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
+    public class MouseSensitivityLowEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "mouse_sensitivity_low";
+
+        public MouseSensitivityLowEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["sensitivity"] = "1.0" // default 3
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOUSE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
+
+    public class WallhacksForGrassEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "wallhacks_grass";
+
+        public WallhacksForGrassEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["r_drawdetailprops"] = "2"
+            })
+        {
+            //Mutex.Add(TF2Effects.MUTEX_DRAW_DETAIL_PROPS);
+            Availability = new InMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState;
+    }
+
+    public class RainbowCrosshairEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_rainbow";
+
+        public RainbowCrosshairEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                // violet (but in range of the updates)
+                ["cl_crosshair_blue"] = "255",
+                ["cl_crosshair_green"] = "50",
+                ["cl_crosshair_red"] = "143"
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            // factors were based on about 3 increments per second.
+            /// but that seems slow, let's try 6
+            double incrementFactor = timeSinceLastUpdate.TotalSeconds * 6.0;
+            // make each increment multipied by the timespan for a precise rainbow speed.
+            int redincrement = (int)(2 * incrementFactor);
+            int grnincrement = (int)(3 * incrementFactor);
+            int bluincrement = (int)(4 * incrementFactor);
+            _ = TF2Effects.Instance.RunCommand(
+                $"incrementvar cl_crosshair_red 50 255 {redincrement};" +
+                $"incrementvar cl_crosshair_green 50 255 {grnincrement};" +
+                $"incrementvar cl_crosshair_blue 50 255 {bluincrement};");
+        }
+    }
+
+    public class CataractsCrosshairEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_cataracts";
+        private static readonly string CROSSHAIR_DEFAULT = "\"\"";
+        private string crosshair;
+        public CataractsCrosshairEffect()
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+        protected CataractsCrosshairEffect(string id, TimeSpan span)
+            : base(id, span, new()
+            {
+                ["cl_crosshair_scale"] = "32",
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Availability = new AliveInMap();
+
+            crosshair = CROSSHAIR_DEFAULT;
+        }
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        public override void StartEffect()
+        {
+            // custom restore code because blank crosshair file might not restore right.
+            crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
+                ?? CROSSHAIR_DEFAULT;
+            if (string.IsNullOrWhiteSpace(crosshair))
+                crosshair = CROSSHAIR_DEFAULT;
+
+            base.StartEffect();
+
+            // "dot" crosshair, will grow
+            _ = TF2Effects.Instance.RunRequiredCommand(
+                "cl_crosshair_file crosshair5");
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            // reaches max in 30 seconds, and just stays there until effect ends.
+            TimeSpan growtime = TimeSpan.FromSeconds(30);
+            double percent;
+            if (Elapsed >= growtime)
+                percent = 1.0;
+            else
+                percent = Elapsed.TotalMilliseconds / growtime.TotalMilliseconds;
+
+            //TODO scale the 3000 by resolution.
+            int scale = (int)(3000 * percent) + 32;
+
+            _ = TF2Effects.Instance.RunCommand("cl_crosshair_scale " + scale);
+        }
+
+        public override void StopEffect()
+        {
+            base.StopEffect();
+
+            //reset to default
+            _ = TF2Effects.Instance.RunCommand(
+                "cl_crosshair_file " + crosshair);
+        }
     }
 }

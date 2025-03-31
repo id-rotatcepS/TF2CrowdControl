@@ -8,7 +8,7 @@
         /// </summary>
         /// <param name="tF2Instance"></param>
         /// <returns></returns>
-        bool IsAvailable(TF2Proxy tF2Instance);
+        bool IsAvailable(TF2Proxy? tF2Instance);
     }
 
     internal class AliveClass : AliveInMap
@@ -24,7 +24,7 @@
             this.userClass = userClass;
         }
 
-        override public bool IsAvailable(TF2Proxy tF2Instance)
+        override public bool IsAvailable(TF2Proxy? tF2Instance)
         {
             try
             {
@@ -53,7 +53,7 @@
 
         public double Seconds { get; }
 
-        override public bool IsAvailable(TF2Proxy tF2Instance)
+        override public bool IsAvailable(TF2Proxy? tF2Instance)
         {
             try
             {
@@ -74,7 +74,7 @@
         /// </summary>
         /// <param name="tF2Instance"></param>
         /// <returns></returns>
-        override public bool IsAvailable(TF2Proxy tF2Instance)
+        override public bool IsAvailable(TF2Proxy? tF2Instance)
         {
             try
             {
@@ -101,7 +101,7 @@
             this.userClass = userClass;
         }
 
-        override public bool IsAvailable(TF2Proxy tF2Instance)
+        override public bool IsAvailable(TF2Proxy? tF2Instance)
         {
             try
             {
@@ -123,7 +123,7 @@
         /// </summary>
         /// <param name="tf2StatusProxy"></param>
         /// <returns></returns>
-        override public bool IsAvailable(TF2Proxy tf2StatusProxy)
+        override public bool IsAvailable(TF2Proxy? tf2StatusProxy)
         {
             // status system that queries this stuff regularly and this class just asks for latest answer.
             if (tf2StatusProxy == null)
@@ -140,7 +140,7 @@
         /// </summary>
         /// <param name="tf2StatusProxy"></param>
         /// <returns></returns>
-        virtual public bool IsAvailable(TF2Proxy tf2StatusProxy)
+        virtual public bool IsAvailable(TF2Proxy? tf2StatusProxy)
         {
             // status system that queries this stuff regularly and this class just asks for latest answer.
             if (tf2StatusProxy == null)

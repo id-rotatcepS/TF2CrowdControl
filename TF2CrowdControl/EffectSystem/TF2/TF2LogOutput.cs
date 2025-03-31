@@ -185,24 +185,29 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         private Task? monitor;
         public void StartMonitor()
         {
+            monitor = Task.Run(
+                () => ReadLiveLogFileWithRetries()
+                );
+        }
+
+        private void ReadLiveLogFileWithRetries()
+        {
             int tries = 0;
-            while (tries < 10 * 60 * 5) // 5 minutes worth of retries.
+            while (tries < 60 * 5) // 5 minutes worth of retries.
             {
                 try
                 {
-                    monitor = Task.Run(
-                        () => ReadLiveLogFile(LogFilePath)
-                        );
+                    ReadLiveLogFile(LogFilePath);
                     return;
                 }
                 catch (Exception ex)
                 {
                     ++tries;
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                     ASPEN.Aspen.Log.WarningException(ex, "TF2's Log File");
                 }
             }
-            ASPEN.Aspen.Log.Error("TF2's Log File - giving up.");
+            ASPEN.Aspen.Log.Error("TF2's Log File - giving up. MOST STATUS CHECKS WILL NOT WORK. Recommend restarting this app and TF2.");
         }
 
         //public void StopMonitor() { 
@@ -211,11 +216,11 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         private bool notQuitting = true;
         private void ReadLiveLogFile(string path)
         {
-            ASPEN.Aspen.Log.Info("TF2's Log File - starting.");
-            try
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader sr = new StreamReader(fs, Encoding.Default))
             {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (StreamReader sr = new StreamReader(fs, Encoding.Default))
+                ASPEN.Aspen.Log.Info("TF2's Log File - starting.");
+                try
                 {
                     FlushOldLogLines(sr);
 
@@ -228,14 +233,14 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
                         Thread.Sleep(100);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                ASPEN.Aspen.Log.ErrorException(ex, "TF2's Log File - ending.");
-            }
-            finally
-            {
-                ASPEN.Aspen.Log.Info("TF2's Log File - ending.");
+                catch (Exception ex)
+                {
+                    ASPEN.Aspen.Log.ErrorException(ex, "TF2's Log File - error.");
+                }
+                finally
+                {
+                    ASPEN.Aspen.Log.Info("TF2's Log File - ending.");
+                }
             }
         }
 

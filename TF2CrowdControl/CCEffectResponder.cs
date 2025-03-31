@@ -18,6 +18,12 @@ namespace CrowdControl
             _client = client;
         }
 
+        /*
+         * Kat [Developer] — 3/22/2025 at 7:23 PM
+         * in the should-be-unusual situation of not being ready to reply success, fail, or retry immediately, the tcp/websocket plugins should respond with status Wait with the timeRemaining field set to the maximum time the crowd control client should wait until considering the effect lost/abandoned (it's 5s by default if you don't sent a Wait) 
+         * the wait msg can be repeated to request even more time
+         */
+
         public void AppliedFor(EffectDispatchRequest request, TimeSpan duration)
             => Respond(request, EffectStatus.Success, duration).Forget();
 
@@ -34,7 +40,7 @@ namespace CrowdControl
                 if (timeRemaining == null)
                     Aspen.Log.Info($"{result} effect [{request.code}]. {message}");
                 else
-                    Aspen.Log.Info($"{result} effect [{request.code}] {timeRemaining.Value.TotalSeconds}s. {message}");
+                    Aspen.Log.Trace($"{result} effect [{request.code}] {timeRemaining.Value.TotalSeconds}s. {message}");
 
                 return await _client.Respond(new EffectResponse()
                 {
@@ -69,7 +75,7 @@ namespace CrowdControl
             => Respond(request, EffectStatus.Failure, null, message).Forget();
 
         public void NotAppliedRetry(EffectDispatchRequest request, TimeSpan waitTime)
-            //TODO the theory is sound, but the SDK doesn't appear to use the time value at all.
+            //the SDK doesn't appear to use the time value at all.
             => Respond(request, EffectStatus.Retry, waitTime).Forget();
 
         public void NotAppliedUnavailable(EffectDispatchRequest request)
@@ -82,7 +88,7 @@ namespace CrowdControl
         {
             try
             {
-                Aspen.Log.Info($"{result} effect [{effectID}].");
+                Aspen.Log.Trace($"{result} effect [{effectID}].");
                 return await _client.Update(new EffectUpdate()
                 {
                     id = 0,//TODO uuid.v4()

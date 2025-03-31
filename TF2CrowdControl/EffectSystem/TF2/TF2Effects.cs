@@ -14,6 +14,9 @@
         public static readonly string MUTEX_CROSSHAIR_COLOR = "crosshair_color";
         public static readonly string MUTEX_CROSSHAIR_SIZE = "crosshair_size";
         public static readonly string MUTEX_CROSSHAIR_SHAPE = "crosshair_shape";
+        public static readonly string MUTEX_SCOREBOARD = "scoreboard";
+        public static readonly string MUTEX_MOUSE = "mouse";
+        public static readonly string MUTEX_FORCE_MOVE = "force_move";
 
         public string RunCommand(string command)
         {

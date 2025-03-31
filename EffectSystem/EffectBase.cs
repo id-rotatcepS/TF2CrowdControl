@@ -169,18 +169,27 @@ namespace EffectSystem
         {
             TimeSpan span = ElapsedTimeSpanIncrement();
             if (Elapsed < Duration)
-                Update(span);
-            else
             {
-                StopEffect(span);
-                // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
-                onClosing?.Invoke(this);
-                CurrentRequest = null;
+                try
+                {
+                    Update(span);
+                    return;
+                }
+                catch (EffectFinishedEarlyException)
+                {
+                    // fall through to "stop" code
+                }
             }
+
+            StopEffect(span);
+            // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
+            onClosing?.Invoke(this);
+            CurrentRequest = null;
         }
 
         /// <summary>
         /// Perform effect updates since last update (or start).
+        /// Throw <see cref="EffectFinishedEarlyException"/> if the Update determines the effect is ending prior to the full Duration.
         /// Assume CanElapse already passed.
         /// If Duration has completed, <see cref="StopEffect(TimeSpan)"/> is called instead as the final update. 
         /// </summary>

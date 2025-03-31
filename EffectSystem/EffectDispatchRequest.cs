@@ -5,6 +5,7 @@
         string EffectID { get; }
         TimeSpan RequestedDuration { get; }
         string Parameter { get; }
+        string Requestor { get; }
     }
 
 }

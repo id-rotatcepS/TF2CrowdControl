@@ -36,7 +36,7 @@ namespace EffectSystem
             {
                 _client.NotAppliedRetry(request,
                     // doesn't seem to listen to this.
-                    effect.Elapsed - effect.Duration);
+                    GetRemainingTime(effect));
                 return;
             }
 
@@ -44,7 +44,7 @@ namespace EffectSystem
             if (mutexEffects.Any())
             {
                 Aspen.Log.Info($"{mutexEffects.Count()} similar effect(s) must close out before request [{request.EffectID}].");
-                TimeSpan retryTime = mutexEffects.Max(e => e.Duration - e.Elapsed);
+                TimeSpan retryTime = mutexEffects.Max(GetRemainingTime);
                 _client.NotAppliedRetry(request, retryTime);
                 return;
             }
@@ -58,6 +58,11 @@ namespace EffectSystem
             }
 
             ApplyEffectNow(effect, request);
+        }
+
+        private static TimeSpan GetRemainingTime(Effect effect)
+        {
+            return effect.Duration - effect.Elapsed;
         }
 
         private IEnumerable<Effect> GetBlockingMutexEffects(Effect effect)
@@ -105,7 +110,7 @@ namespace EffectSystem
                         Selectable = openEffect.IsSelectableGameState,
                         Running = !openEffect.IsClosed,
                         Remaining = !openEffect.IsClosed
-                        ? openEffect.Duration - openEffect.Elapsed
+                        ? GetRemainingTime(openEffect)
                         : TimeSpan.Zero
                     });
             }
@@ -134,12 +139,12 @@ namespace EffectSystem
 
         private void OnUpdatePausedEffect(Effect e)
         {
-            _client.DurationPaused(e.CurrentRequest, e.Duration - e.Elapsed);
+            _client.DurationPaused(e.CurrentRequest, GetRemainingTime(e));
         }
 
         private void OnUpdateResumedEffect(Effect e)
         {
-            _client.DurationResumed(e.CurrentRequest, e.Duration - e.Elapsed);
+            _client.DurationResumed(e.CurrentRequest, GetRemainingTime(e));
         }
 
         private void OnUpdateClosingEffect(Effect e)
