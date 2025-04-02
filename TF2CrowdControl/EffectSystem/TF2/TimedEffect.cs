@@ -281,7 +281,7 @@
         new public static readonly string EFFECT_ID = "blackandwhite_challenge_5ks";
 
         public ChallengeBlackAndWhiteTimedEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 30, 0))
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
             challenge = new KillstreakChallenge(5);
         }
@@ -309,7 +309,7 @@
         new public static readonly string EFFECT_ID = "taunt_after_kill_challenge_1k";
 
         public SingleTauntAfterKillEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 30, 0))
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
             challenge = new KillsChallenge(1);
         }
@@ -323,7 +323,7 @@
         new public static readonly string EFFECT_ID = "taunt_after_crit_kill_challenge_1k";
 
         public SingleTauntAfterCritKillEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 30, 0))
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
             challenge = new CritKillsChallenge(1);
         }
