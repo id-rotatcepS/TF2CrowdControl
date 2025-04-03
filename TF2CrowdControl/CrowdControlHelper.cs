@@ -26,6 +26,8 @@ namespace CrowdControl
 
         private readonly SimpleTCPClient _client;
 
+        public bool CrowdControlConnected => _client.Connected;
+
         private bool _connected_once = false;
 
         private CrowdControlHelper()

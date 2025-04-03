@@ -363,7 +363,6 @@ namespace EffectSystem.TF2
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
             log.OnMapNameChanged += MapNameChanged;
-            log.StartMonitor();
         }
 
         private string ConfigFilepath { get; }
@@ -564,12 +563,9 @@ namespace EffectSystem.TF2
         /// </summary>
         public string ClassSelection { get; private set; } = string.Empty;
 
-        /// <summary>
-        /// One-time command has successfully run?
-        /// </summary>
-        private bool _PollingSetupRun = false;
         public static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan PollPauseTime = TimeSpan.FromSeconds(15);
+        private string tickRepeatedExceptionMessage = string.Empty;
         private void PollTick(object? state)
         {
             try
@@ -577,24 +573,47 @@ namespace EffectSystem.TF2
                 // polling "status" or anything else for additional log parsing.
                 _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
                     .Wait(MaxCommandRunTime);
-                // that command worked, so do any leftover initialization
-                if (!_PollingSetupRun)
-                    _PollingSetupRun =
-                        tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { })
-                        .Wait(MaxCommandRunTime);
+                // sending a command first establishes the connection if it was not connected
+                if (tf2.IsConnected)
+                {
+                    InitializeLogWhenNeeded();
 
-                PollCommandsAndVariables();
+                    PollCommandsAndVariables();
+                }
 
+                tickRepeatedExceptionMessage = string.Empty;
                 // standard update period, manual repeat
                 _ = timer.Change(PollPeriod, Timeout.InfiniteTimeSpan);
             }
             catch (Exception pollEx)
             {
-                Aspen.Log.WarningException(pollEx, "unable to poll tf2 status - pausing for a bit");
+                if (tickRepeatedExceptionMessage != pollEx.Message)
+                {
+                    tickRepeatedExceptionMessage = pollEx.Message;
+                    Aspen.Log.WarningException(pollEx, "unable to poll tf2 status - pausing for a bit");
+                }
                 // give us a long break to finish loading or whatever else is wrong.
                 // This is to prevent game crashes we were getting during map loads.
                 _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
+        }
+
+        /// <summary>
+        /// One-time command has successfully run?
+        /// </summary>
+        private bool _PollingSetupRun = false;
+        private void InitializeLogWhenNeeded()
+        {
+            // do any leftover initialization
+            if (_PollingSetupRun)
+                return;
+
+            _PollingSetupRun =
+                tf2.SendCommand(new StringCommand(log.SetupCommand), (s) => { })
+                .Wait(MaxCommandRunTime);
+            // log is set up, start monitoring it.
+            if (_PollingSetupRun)
+                log.StartMonitor();
         }
 
         private void PollCommandsAndVariables()
@@ -651,6 +670,7 @@ namespace EffectSystem.TF2
             // So one bad command resets the RCON port or something like that.
             if (!completed)
                 Aspen.Log.Warning("TF2 command took too long - If this continues, restart TF2");
+            //TODO consider caching failures and retrying them before the requested command.
 
             return result;
         }

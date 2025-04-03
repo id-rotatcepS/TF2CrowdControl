@@ -343,8 +343,7 @@
             base.StartEffect();
 
             // "dot" crosshair, will grow
-            _ = TF2Effects.Instance.RunRequiredCommand(
-                "cl_crosshair_file crosshair5");
+            TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", "crosshair5");
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
@@ -362,16 +361,24 @@
             //TODO scale the 3000 by resolution.
             int scale = (int)(3000 * percent) + 32;
 
-            _ = TF2Effects.Instance.RunCommand("cl_crosshair_scale " + scale);
+            TF2Effects.Instance.SetValue("cl_crosshair_scale", scale.ToString());
         }
 
         public override void StopEffect()
         {
+            // "seteffect" claims to set scale to 32, but then we changes it more.  If user already had 32 it won't get reset.
+            // So take us back to the "we set it to this" value before restore is attempted.
+            foreach (string variable in VariableSettings.Keys)
+            {
+                string activeValue = VariableSettings[variable];
+
+                TF2Effects.Instance.SetValue(variable, activeValue);
+            }
+
             base.StopEffect();
 
             //reset to default
-            _ = TF2Effects.Instance.RunCommand(
-                "cl_crosshair_file " + crosshair);
+            TF2Effects.Instance.SetValue("cl_crosshair_file", crosshair);
         }
     }
 }
