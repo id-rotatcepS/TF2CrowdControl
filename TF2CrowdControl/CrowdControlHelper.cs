@@ -133,13 +133,13 @@ namespace CrowdControl
             {
                 switch (effectRequest.type)
                 {
-                    case RequestType.Test:
+                    case RequestType.EffectTest:
                         HandleEffectTest(effectRequest);
                         return;
-                    case RequestType.Start:
+                    case RequestType.EffectStart:
                         HandleEffectStart(effectRequest);
                         return;
-                    case RequestType.Stop:
+                    case RequestType.EffectStop:
                         HandleEffectStop(effectRequest);
                         return;
                     default:
@@ -195,9 +195,7 @@ namespace CrowdControl
             if (!effect.IsSelectableGameState)
             {
                 //Log.Debug($"Effect {request.code} was not ready.");
-                _effectDispatcher.Responder.NotAppliedRetry(req,
-                    //TODO arbitrary time
-                    TimeSpan.FromSeconds(10));
+                _effectDispatcher.Responder.NotAppliedRetry(req);
                 return;
             }
 

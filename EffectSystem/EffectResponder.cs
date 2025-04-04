@@ -11,7 +11,8 @@
 
         void NotAppliedUnavailable(EffectDispatchRequest request);
         void NotAppliedFailed(EffectDispatchRequest request, string message);
-        void NotAppliedRetry(EffectDispatchRequest request, TimeSpan waitTime);
+        void NotAppliedRetry(EffectDispatchRequest request);
+        void NotAppliedWait(EffectDispatchRequest request, TimeSpan waitTime);
 
         void DurationPaused(EffectDispatchRequest request, TimeSpan remainingTime);
         void DurationResumed(EffectDispatchRequest request, TimeSpan remainingTime);
