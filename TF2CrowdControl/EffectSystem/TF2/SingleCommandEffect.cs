@@ -209,6 +209,10 @@
         {
             Availability = new InMap();
             Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
+            // and it hides the crosshair, too.
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
         }
 
         protected override void CheckEffectWorked()

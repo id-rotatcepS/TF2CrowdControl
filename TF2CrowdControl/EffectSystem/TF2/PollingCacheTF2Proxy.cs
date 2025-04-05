@@ -655,11 +655,16 @@ namespace EffectSystem.TF2
         }
 
         private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
+        private string lastCommand = string.Empty;
         public string RunCommand(string command)
         {
             string result = string.Empty;
 
-            Aspen.Log.Info($"Run> {command}");
+            if (command != lastCommand)
+            {
+                Aspen.Log.Info($"Run> {command}");
+                lastCommand = command;
+            }
 
             bool completed =
                 tf2.SendCommand(new StringCommand(command),

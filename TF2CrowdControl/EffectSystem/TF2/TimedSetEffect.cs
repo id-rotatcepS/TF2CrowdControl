@@ -108,6 +108,7 @@
         protected BlackAndWhiteTimedEffect(string id, TimeSpan duration)
             : base(id, duration, "mat_color_projection", "4")
         {
+            Mutex.Add(nameof(BlackAndWhiteTimedEffect));//hierarchy is all mutex
             // Availability: even works in the menu
             Availability = new InApplication();
         }
@@ -322,6 +323,7 @@
                 ["cl_crosshair_scale"] = "32",
             })
         {
+            Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
@@ -362,6 +364,8 @@
             int scale = (int)(3000 * percent) + 32;
 
             TF2Effects.Instance.SetValue("cl_crosshair_scale", scale.ToString());
+            // MAYBE: ensure shape doesn't get changed
+            //TF2Effects.Instance.SetValue("cl_crosshair_file", "crosshair5");
         }
 
         public override void StopEffect()

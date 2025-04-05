@@ -58,6 +58,7 @@
         protected TauntAfterKillEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
+            Mutex.Add(nameof(TauntAfterKillEffect)); //hierarchy is all mutex
             Availability = new AliveInMap();
         }
         public override bool IsSelectableGameState => IsAvailable
@@ -155,6 +156,7 @@
         protected MeleeOnlyEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
+            Mutex.Add(nameof(MeleeOnlyEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
             Availability = new AliveInMap();
         }
