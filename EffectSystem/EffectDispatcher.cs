@@ -34,8 +34,7 @@ namespace EffectSystem
 
             if (!effect.IsClosed)
             {
-                _client.NotAppliedRetry(request,
-                    // doesn't seem to listen to this.
+                _client.NotAppliedWait(request,
                     GetRemainingTime(effect));
                 return;
             }
@@ -45,15 +44,13 @@ namespace EffectSystem
             {
                 Aspen.Log.Info($"{mutexEffects.Count()} similar effect(s) must close out before request [{request.EffectID}].");
                 TimeSpan retryTime = mutexEffects.Max(GetRemainingTime);
-                _client.NotAppliedRetry(request, retryTime);
+                _client.NotAppliedWait(request, retryTime);
                 return;
             }
 
             if (!effect.IsSelectableGameState)
             {
-                _client.NotAppliedRetry(request,
-                    //TODO arbitrary time, but doesn't seem to listen anyhow.
-                    TimeSpan.FromSeconds(10));
+                _client.NotAppliedRetry(request);
                 return;
             }
 
@@ -155,6 +152,21 @@ namespace EffectSystem
 
         public void StopEarly(EffectDispatchRequest req)
         {
+            if (req.EffectID == string.Empty)
+            {
+                try
+                {
+                    StopAll();
+
+                    // TODO AppliedInstant doesn't seem to register... same with "Finished"
+                    Responder.DurationFinished(req);
+                }
+                catch (Exception ex)
+                {
+                    Aspen.Log.ErrorException(ex, $"All Effects Stop failed. ");
+                }
+                return;
+            }
             if (req.EffectID == null
                 || !Effects.Any(e => e.ID == req.EffectID)
                 )
@@ -175,8 +187,8 @@ namespace EffectSystem
                 //}
 
                 Aspen.Log.Info($"Effect {req.EffectID} stopped.");
-                // TODO doesn't seem to register... using "Finished" didn't help, either.
-                Responder.AppliedInstant(req);
+                // TODO AppliedInstant doesn't seem to register... same with "Finished"
+                Responder.DurationFinished(req);
             }
             catch (Exception ex)
             {

@@ -119,12 +119,22 @@ namespace TF2CrowdControl
                 ViewNotification(nameof(StatusMapNameColor));
                 ViewNotification(nameof(StatusClassName));
                 ViewNotification(nameof(StatusClassNameColor));
+                ViewNotification(nameof(StatusAppColor));
+                ViewNotification(nameof(StatusCCColor));
 
                 ViewNotification(nameof(ProxyValues));
             };
         }
 
         public CrowdControlHelper CC { get; }
+
+        public Brush StatusCCColor => CC.CrowdControlConnected
+            ? new SolidColorBrush(Colors.Green)
+            : new SolidColorBrush(Colors.DarkRed);
+
+        public Brush StatusAppColor => TF2Effects.Instance.TF2Proxy?.IsOpen ?? false
+            ? new SolidColorBrush(Colors.Green)
+            : new SolidColorBrush(Colors.DarkRed);
 
         public string StatusMapName => TF2Effects.Instance.TF2Proxy?.Map ?? string.Empty;
         public Brush StatusMapNameColor => TF2Effects.Instance.TF2Proxy?.IsMapLoaded ?? false
@@ -221,13 +231,15 @@ namespace TF2CrowdControl
             catch (Exception ex)
             {
                 TF2Effects.Instance.TF2Proxy = null;
-                Aspen.Log.ErrorException(ex, "Failed Connection to TF2");
+                Aspen.Log.ErrorException(ex, "Failed Connection to TF2. Change port/password/path settings (or restart this app) to try again.");
             }
         }
 
         private TF2Proxy NewTF2Poller()
         {
+            //TODO pass a Microsoft ILogger to RCON to LogError with details when its connection fails
             TF2Instance tf2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
+            // tf2Instance might not be connected, yet, but every SendCommand will attempt to connect again.
             tf2Instance.SetOnDisconnected(RemakeConnection);
             PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(tf2Instance, TF2Config.TF2Path);
 
@@ -252,7 +264,7 @@ namespace TF2CrowdControl
         {
             (Aspen.Option as TF2SpectatorSettings).SaveConfig();
             // try to shut down effects, but this doesn't help if TF2 was shut down already.
-            this.CC?.ShutDown();
+            this.CC.ShutDown();
 
             TF2Effects.Instance.TF2Proxy?.ShutDown();
         }

@@ -20,10 +20,9 @@ namespace TF2CrowdControl
         private void log_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             // don't auto-scroll if the user was accessing the log when the new text came in.
-            //TODO disabled scroll-pause during testing
-            //double closeEnoughToEnd = 10;
-            //if ((logScroller.VerticalOffset + closeEnoughToEnd) < logScroller.ScrollableHeight)
-            //    return;
+            double closeEnoughToEnd = 15;
+            if ((logScroller.VerticalOffset + closeEnoughToEnd) < logScroller.ScrollableHeight)
+                return;
 
             // auto-scroll the log
             logScroller.ScrollToEnd();

@@ -61,6 +61,12 @@
             <Expander x:Name="Status" Header="Status" IsExpanded="True">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Width="100">
+                        <TextBlock x:Name="CC" 
+                                   Text="Crowd Control" 
+                                   Foreground="{Binding StatusCCColor}"/>
+                        <TextBlock x:Name="TF2" 
+                                   Text="TF2 connection" 
+                                   Foreground="{Binding StatusAppColor}"/>
                         <TextBlock x:Name="MapName" 
                                    Text="{Binding StatusMapName}" 
                                    Foreground="{Binding StatusMapNameColor}"/>

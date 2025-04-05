@@ -142,8 +142,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Note = "5 streak challenge",
         SortName = "Challenge: Black and White",
-        Duration = TimeSpan.FromMinutes(30),
-        //IsDurationEditable = true,
+        Duration = TimeSpan.FromMinutes(10),
+        IsDurationEditable = false,
         Description = "Stuck with TF2 in the 50s until I get a 5 kill streak.",
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Group = new EffectGrouping(G_APP),
@@ -207,7 +207,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
         Group = new EffectGrouping(G_ALIVE),
-        Price = 0
+        Price = 1
     };
     /// <summary>
     /// tf_use_min_viewmodels 0 (vs 1) and r_drawviewmodel 1
@@ -221,7 +221,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
         Group = new EffectGrouping(G_ALIVE),
-        Price = 0
+        Price = 1
     };
     /// <summary>
     /// r_drawviewmodel 0/1 toggle
@@ -263,7 +263,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
         Group = new EffectGrouping(G_ALIVE),
-        Price = 0
+        Price = 1
     };
     #endregion View Model
 
@@ -279,7 +279,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         IsDurationEditable = true,
         Category = new EffectGrouping(C_CROSSHAIR),
         Group = new EffectGrouping(G_ALIVE),
-        Price = 0
+        Price = 1
     };
 
     /// <summary>
@@ -320,7 +320,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
-        //IsDurationEditable = true,
+        IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA, C_CHALLENGES),
         Group = new EffectGrouping(G_ALIVE),
@@ -424,7 +424,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
         Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
-        Price = 0
+        Price = 1
     };
 
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
@@ -443,7 +443,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
-        //IsDurationEditable = true,
+        IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, C_CHALLENGES),
         Group = new EffectGrouping(G_ALIVE),
@@ -464,8 +464,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to next next player I kill.",
-        Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
-        //IsDurationEditable = true,
+        Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
+        IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),
@@ -475,8 +475,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to next next player I kill with a crit (including headshots).",
-        Duration = TimeSpan.FromMinutes(30), // long duration is cancelled after 1 kill
-        //IsDurationEditable = true,
+        Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
+        IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
         Group = new EffectGrouping(G_ALIVE),

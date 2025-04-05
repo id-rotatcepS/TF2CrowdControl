@@ -18,12 +18,6 @@ namespace CrowdControl
             _client = client;
         }
 
-        /*
-         * Kat [Developer] — 3/22/2025 at 7:23 PM
-         * in the should-be-unusual situation of not being ready to reply success, fail, or retry immediately, the tcp/websocket plugins should respond with status Wait with the timeRemaining field set to the maximum time the crowd control client should wait until considering the effect lost/abandoned (it's 5s by default if you don't sent a Wait) 
-         * the wait msg can be repeated to request even more time
-         */
-
         public void AppliedFor(EffectDispatchRequest request, TimeSpan duration)
             => Respond(request, EffectStatus.Success, duration).Forget();
 
@@ -74,13 +68,19 @@ namespace CrowdControl
         public void NotAppliedFailed(EffectDispatchRequest request, string message)
             => Respond(request, EffectStatus.Failure, null, message).Forget();
 
-        public void NotAppliedRetry(EffectDispatchRequest request, TimeSpan waitTime)
-            //the SDK doesn't appear to use the time value at all.
-            => Respond(request, EffectStatus.Retry, waitTime).Forget();
-
+        public void NotAppliedRetry(EffectDispatchRequest request)
+            => Respond(request, EffectStatus.Retry, null).Forget();
+        /// <summary>
+        /// Kat [Developer] — 3/22/2025 at 7:23 PM
+        /// in the should-be-unusual situation of not being ready to reply success, fail, or retry immediately, the tcp/websocket plugins should respond with status Wait with the timeRemaining field set to the maximum time the crowd control client should wait until considering the effect lost/abandoned(it's 5s by default if you don't sent a Wait)
+        /// the wait msg can be repeated to request even more time
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="waitTime"></param>
+        public void NotAppliedWait(EffectDispatchRequest request, TimeSpan waitTime)
+            => Respond(request, EffectStatus.Wait, waitTime).Forget();
         public void NotAppliedUnavailable(EffectDispatchRequest request)
             => Respond(request, EffectStatus.Unavailable, null).Forget();
-
         public void SetListed(string effectID, bool listed)
             => Status(effectID, listed ? EffectStatus.Visible : EffectStatus.NotVisible).Forget();
 

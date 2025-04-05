@@ -66,21 +66,30 @@ namespace CrowdControl
 
         private async void ConnectLoop()
         {
+            string errorMessage = string.Empty;
             while (!_quitting.IsCancellationRequested)
             {
                 try
                 {
                     await ConnectAsync();
+                    errorMessage = string.Empty;
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "Crowd Control Connect failed");
+                    // Don't log if it's a repeat message.
+                    if (errorMessage == e.Message)
+                        continue;
+                    errorMessage = e.Message;
+
+                    // we're in a loop, so this isn't a serious error, just info.
+                    Aspen.Log.InfoException(e, "Crowd Control connect failed - retrying.");
                 }
                 finally
                 {
                     await DisconnectAsync();
                 }
             }
+            Aspen.Log.Info("Crowd Control connection ended.");
             Connected = false;
         }
 
