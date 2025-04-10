@@ -273,16 +273,23 @@
     public class RainbowCrosshairEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_rainbow";
+        private enum ColorTransition { PurpleToRed, RedToYellow, YellowToGreen, GreenToBlue, BlueToPurple }
+        private ColorTransition transition;
+        private byte r, g, b;
 
         public RainbowCrosshairEffect()
             : base(EFFECT_ID, DefaultTimeSpan, new()
             {
-                // violet (but in range of the updates)
+                // purple
                 ["cl_crosshair_blue"] = "255",
-                ["cl_crosshair_green"] = "50",
-                ["cl_crosshair_red"] = "143"
+                ["cl_crosshair_green"] = "0",
+                ["cl_crosshair_red"] = "255"
             })
         {
+            transition = ColorTransition.PurpleToRed;
+            r = 255;
+            g = 0;
+            b = 255;
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
@@ -294,17 +301,49 @@
         {
             base.Update(timeSinceLastUpdate);
 
-            // factors were based on about 3 increments per second.
-            /// but that seems slow, let's try 6
-            double incrementFactor = timeSinceLastUpdate.TotalSeconds * 6.0;
-            // make each increment multipied by the timespan for a precise rainbow speed.
-            int redincrement = (int)(2 * incrementFactor);
-            int grnincrement = (int)(3 * incrementFactor);
-            int bluincrement = (int)(4 * incrementFactor);
+            // 3 seconds per transition
+            double transitionLength = 3.0;
+            byte increment = (byte)Math.Min(255,
+                (timeSinceLastUpdate.TotalSeconds / transitionLength) * 255);
+            switch (transition)
+            {
+                case ColorTransition.PurpleToRed:
+                    b = dec(b, increment);
+                    if (b == 0) transition = ColorTransition.RedToYellow;
+                    break;
+                case ColorTransition.RedToYellow:
+                    g = inc(g, increment);
+                    if (g == 255) transition = ColorTransition.YellowToGreen;
+                    break;
+                case ColorTransition.YellowToGreen:
+                    r = dec(r, increment);
+                    if (r == 0) transition = ColorTransition.GreenToBlue;
+                    break;
+                case ColorTransition.GreenToBlue:
+                    g = dec(g, increment);
+                    b = inc(b, increment);
+                    if (b == 255) transition = ColorTransition.BlueToPurple;
+                    break;
+                case ColorTransition.BlueToPurple:
+                    r = inc(r, increment);
+                    if (r == 255) transition = ColorTransition.PurpleToRed;
+                    break;
+            }
             _ = TF2Effects.Instance.RunCommand(
-                $"incrementvar cl_crosshair_red 50 255 {redincrement};" +
-                $"incrementvar cl_crosshair_green 50 255 {grnincrement};" +
-                $"incrementvar cl_crosshair_blue 50 255 {bluincrement};");
+                $"cl_crosshair_red {r};" +
+                $"cl_crosshair_green {g};" +
+                $"cl_crosshair_blue {b};");
+
+        }
+
+        private byte inc(byte g, byte incrementFactor)
+        {
+            return (byte)Math.Min(g + incrementFactor, 255);
+        }
+
+        private byte dec(byte b, byte incrementFactor)
+        {
+            return (byte)Math.Max(b - incrementFactor, 0);
         }
     }
 
