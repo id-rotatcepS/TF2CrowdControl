@@ -339,13 +339,36 @@
             // custom restore code because blank crosshair file might not restore right.
             crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
                 ?? CROSSHAIR_DEFAULT;
-            if (string.IsNullOrWhiteSpace(crosshair))
+            if (string.IsNullOrWhiteSpace(crosshair)
+                || IsInvalidCrosshair(crosshair))
                 crosshair = CROSSHAIR_DEFAULT;
 
             base.StartEffect();
 
             // "dot" crosshair, will grow
             TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", "crosshair5");
+        }
+
+        private bool IsInvalidCrosshair(string crosshair)
+        {
+            if (crosshair == null)
+                return true;
+
+            switch (crosshair)
+            {
+                case "crosshair1":
+                case "crosshair2":
+                case "crosshair3":
+                case "crosshair4":
+                case "crosshair5":
+                case "crosshair6":
+                case "crosshair7":
+                case "default":
+                case "\"\"":
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
