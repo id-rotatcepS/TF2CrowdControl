@@ -128,7 +128,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         protected string LogFilePath
             => Path.Combine(TF2Path, "tf", LogFileName);
 
-        public string SetupCommand => $"con_logfile \"{LogFileName}\";";
+        public string SetupCommand => $"con_logfile \"{LogFileName}\"; echo TF2 Spectator log started";
         // con_timestamp 1 ; Prefix console.log entries with timestamps
 
         // currently disabled/not needed:

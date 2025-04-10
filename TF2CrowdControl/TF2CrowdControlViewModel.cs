@@ -215,7 +215,17 @@ namespace TF2CrowdControl
 
         private void RemakeConnection()
         {
-            TF2Effects.Instance.TF2Proxy?.ShutDown();
+            try
+            {
+                TF2Effects.Instance.TF2Proxy?.ShutDown();
+            }
+            catch (Exception e)
+            {
+                // This is known to happen when RCON disposes and didn't have an active connection.
+                // We don't actually care. We just want to make a new connection.
+                Aspen.Log.Trace("Issue while shutting down TF2 connection. " + e.Message);
+            }
+
             try
             {
                 TF2Effects.Instance.TF2Proxy = NewTF2Poller();
@@ -237,6 +247,7 @@ namespace TF2CrowdControl
 
         private TF2Proxy NewTF2Poller()
         {
+            TF2Instance.WriteRconConfigFile(TF2Config.TF2Path, TF2Config.RCONPort, TF2Config.RCONPassword);
             //TODO pass a Microsoft ILogger to RCON to LogError with details when its connection fails
             TF2Instance tf2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
             // tf2Instance might not be connected, yet, but every SendCommand will attempt to connect again.

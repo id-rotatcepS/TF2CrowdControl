@@ -53,7 +53,7 @@
                         <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="3" TextWrapping="Wrap" Margin="5,10">
                             <Run>For the RCON connection to work with this app, TF2's Launch Options must include</Run>
                             <Run Text=" "/><Run FontFamily="Courier New" Background="LightGray">-usercon</Run><Run Text=" "/>
-                            <Run>and the configs must be installed.</Run>
+                            <Run>and the configs must be installed.  If any of the above settings are changed, TF2 must be closed and reopened.</Run>
                         </TextBlock>
                     </Grid>
                 </StackPanel>
