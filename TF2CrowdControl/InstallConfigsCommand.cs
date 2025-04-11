@@ -74,14 +74,9 @@ namespace TF2CrowdControl
         private string GetTF2CfgPath(string filename)
         {
             if (IsUsingMastercomfig())
-            {
-                string MasterComfigUserPath = Path.Combine(TF2Path, @"tf\cfg\user");
-                string AutoexecCfgPathMastercomfig = Path.Combine(MasterComfigUserPath, filename);
-                return AutoexecCfgPathMastercomfig;
-            }
+                return Path.Combine(GetMastercomfigOverridesPath(), filename);
 
-            string AutoexecCfgPath = Path.Combine(TF2Path, @"tf\cfg", filename);
-            return AutoexecCfgPath;
+            return Path.Combine(TF2Path, @"tf\cfg", filename);
         }
 
         private bool IsUsingMastercomfig()
@@ -94,6 +89,24 @@ namespace TF2CrowdControl
             return Directory.EnumerateFiles(path).Any(
                 n => Path.GetFileName(n).ToLower().StartsWith("mastercomfig")
                 && Path.GetExtension(n).ToLower() == ".vpk");
+        }
+
+        private string GetMastercomfigOverridesPath()
+        {
+            string masterComfigOverridesPath = Path.Combine(TF2Path, @"tf\cfg\overrides");
+            if (Path.Exists(masterComfigOverridesPath))
+                return masterComfigOverridesPath;
+
+            //NOTE this is not foolproof - I have no way to detect mastercomfig version,
+            //but I COULD check the .vpk date is younger than April 9, 2022 (initial deprecation)
+
+            // mastercomfig changed folder from "user" to "overrides" in 9.9.3 July 2022
+            // if that's all they've got, they probably have an old version installed.
+            string oldMasterComfigUserPath = Path.Combine(TF2Path, @"tf\cfg\user");
+            if (Path.Exists(oldMasterComfigUserPath))
+                return oldMasterComfigUserPath;
+
+            return masterComfigOverridesPath;
         }
 
         public override void Execute(object? obj)
