@@ -1,6 +1,8 @@
 ﻿using ConnectorLib.SimpleTCP;
 
 using CrowdControl.Common;
+// also uses CrowdControl.Games.dll for SimpleTCPPack<?>
+// also uses CrowdControl.Extensions.dll for e.g. SITimeSpan
 
 namespace CrowdControl.Games.Packs.TF2Spectator;
 
@@ -70,46 +72,26 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// </summary>
     public static readonly Effect blackandwhite = new("Black & White", "blackandwhite")
     {
-        //string ID (constructor);
+        #region user facing
+
         //string Name (constructor);
-        SortName = "Camera: Black and White",
+        /// ...used to distinguish identically-named effects
         //string? Note; // "subtitle" next to Name
-
-        //QuantityRange Quantity = 1;
-        //uint DefaultQuantity;
-
-        //SITimeSpan? Duration;
-        Duration = TimeSpan.FromSeconds(60),
-        //bool IsDurationEditable = true;
-        IsDurationEditable = true,
-
         Description = "TF2 in the 50s.",
-        //string? StartMessage;
-        //string? EndMessage;
-
-        // user-facing collections (can be used to disable/hide a set with an Effect Report)
-        Category = new EffectGrouping(C_CAMERA),
-
-        // internal collections (can be used to disable/hide a set with an Effect Report)
-        Group = new EffectGrouping(G_APP),
-        //List<string>? Tags;
-
-        //List<string>? Metadata;
-
-        //List<Connector>? IncompatibleConnectors;
-
+        SortName = "Camera: Black and White",
         //string? Image;
         // = "https://resources.crowdcontrol.live/images/Minecraft/Minecraft/icons/freeze.png"
 
-        //uint? QueueWarning;
-        //uint? QueueMax;
-
-        //SITimeSpan? ViewerCooldown;
-        //SITimeSpan? SessionCooldown;
-
+        // Default Price
         Price = 25,
+        //bool? NoPooling;
 
-        //ItemKind Kind (constructor, Effect or Bidwar);
+        // Default Duration (timespan seconds) Max: 600s (preferred max 180s)
+        /// The duration field is used for effects which last for a period of time. 
+        /// They specify a default length in seconds from 1s-180s and can be overridden
+        /// by the streamer.
+        Duration = TimeSpan.FromSeconds(60),
+
         //ParameterList? Parameters;
         //Parameters = new ParameterList(new ParameterDef[] {
         //    new ParameterDef("param definition", "def1",
@@ -117,31 +99,71 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //        new Parameter("param option two", "p2", 30))
         //}),
 
+        /// The quantity field accepts an object with a min integer gte 1 and a 
+        /// max integer gte 2. It allows viewers to purchase multiple of the effect
+        /// in bulk, for example to give a stack of items or other collectibles.
+        //QuantityRange Quantity = 1;
+        //uint DefaultQuantity;
+
+        // user-facing collections (can be used to disable/hide a set with an Effect Report)
+        Category = new EffectGrouping(C_CAMERA),
+
+        //bool Disabled;
+
+        #endregion user facing
+
+        #region streamer facing
+
+        // Editable Duration for CC Pro streamers?
+        IsDurationEditable = true,
+        // Default price increase percent per purchase (float)
+        //ScaleFactor = 0.5f,
+        // Default price decrease interval (timespan minutes)
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        // Default user cooldown (timespan minutes nullable)
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        // Default stream cooldown (timespan minutes nullable)
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+
+        ///The optional inactive boolean field is used to indicate whether an effect 
+        ///should be visible on a streamer's effect list by default. This is used to 
+        ///reduce clutter in packs with a lot of repetitive effects (such as spawns 
+        ///for every enemy in a game), but which certain streamers may still wish to enable.
+        //bool Inactive;
+
+        #endregion streamer facing
+
+        //string ID (constructor);
+        //ItemKind Kind (constructor, Effect or Bidwar);
+
         //SITimeSpan? ResponseTimeout;
         //uint? RetryMaxAttempts;
         //SITimeSpan? RetryMaxTime;
         //NonNumericRange<SITimeSpan>? RetryInterval;
 
-        //string? ErrorOverride;
+        //EffectGrouping? ScaleGroups;
+        //ScaleGroups = new EffectGrouping(G_MAP),
 
-        //bool Inactive;
-        //bool Disabled;
+        // internal collections (can be used to disable/hide a set with an Effect Report)
+        Group = new EffectGrouping(G_APP),
+
+        //uint? QueueWarning;
+        //uint? QueueMax;
+
+        //string? ErrorOverride;
+        //string? StartMessage;
+        //string? EndMessage;
+
+        //List<string>? Tags;
+        //List<string>? Metadata;
+        //List<Connector>? IncompatibleConnectors;
 
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-
-        //bool? NoPooling;
-
-        //EffectGrouping? ScaleGroups;
-
-        // float ScaleFactor property
-        //ScaleFactor = 2.5f,
-        // SITimeSpan ScaleDecayTime property
-        //ScaleDecayTime = TimeSpan.FromSeconds(1),
     };
-    public static readonly Effect blackandwhite_challenge_5ks = new("Black & White", "blackandwhite_challenge_5ks")
+    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge", "blackandwhite_challenge_5ks")
     {
-        Note = "5 streak challenge",
-        SortName = "Challenge: Black and White",
+        Note = "Black & White",
+        SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(10),
         IsDurationEditable = false,
         Description = "Stuck with TF2 in the 50s until I get a 5 kill streak.",
@@ -181,17 +203,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Price = 25
     };
 
-    public static readonly Effect wallhacks_grass = new("Wallhacks for Grass", "wallhacks_grass")
-    {
-        SortName = "Camera: Wallhacks for Grass",
-        Description = "At least it doesn't count as a cheat. (No effect unless player is near grass on the map)",
-        Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping(C_CAMERA),
-        Group = new EffectGrouping(G_MAP),
-        Price = 5
-    };
+    //public static readonly Effect wallhacks_grass = new("Wallhacks for Grass", "wallhacks_grass")
+    //{
+    //    SortName = "Camera: Wallhacks for Grass",
+    //    Description = "At least it doesn't count as a cheat. (No effect unless player is near grass on the map)",
+    //    Duration = TimeSpan.FromSeconds(60),
+    //    IsDurationEditable = true,
+    //    //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    //    Category = new EffectGrouping(C_CAMERA),
+    //    Group = new EffectGrouping(G_MAP),
+    //    Price = 5
+    //};
     #endregion Camera
 
     #region View Model
@@ -314,10 +336,10 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// animate dot crosshair scale until it fills up most of the screen.
     /// Affects crosshair shape and scale.
     /// </summary>
-    public static readonly Effect cataracts_challenge = new("Cataracts", "crosshair_cataracts_challenge_3k")
+    public static readonly Effect cataracts_challenge = new("3 Kill Challenge", "crosshair_cataracts_challenge_3k")
     {
-        Note = "3 kills challenge",
-        SortName = "Challenge: Cataracts",
+        Note = "Cataracts",
+        SortName = "Challenge: 3 Kill Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
         IsDurationEditable = false,
@@ -437,10 +459,10 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Price = 50 // it'll probably get you killed
     };
-    public static readonly Effect melee_only_challenge = new("Melee Only", "melee_only_challenge_3k")
+    public static readonly Effect melee_only_challenge = new("3 Kill Challenge", "melee_only_challenge_3k")
     {
-        Note = "3 kill challenge",
-        SortName = "Challenge: Melee Only",
+        Note = "Melee Only",
+        SortName = "Challenge: 3 Kill Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
         IsDurationEditable = false,
@@ -463,7 +485,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect taunt_after_single_kill = new("Taunt after next Kill", "taunt_after_kill_challenge_1k")
     {
         Note = "until 1 kill",
-        Description = "Forced to act like a jerk to next next player I kill.",
+        Description = "Forced to act like a jerk to the next player I kill.",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
         IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
@@ -474,7 +496,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect taunt_after_single_crit_kill = new("Taunt after next Crit Kill", "taunt_after_crit_kill_challenge_1k")
     {
         Note = "until 1 kill",
-        Description = "Forced to act like a jerk to next next player I kill with a crit (including headshots).",
+        Description = "Forced to act like a jerk to the next player I kill with a crit (including headshots).",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
         IsDurationEditable = false,
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
@@ -605,7 +627,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             blackandwhite,
             pixelated,
             dream,
-            wallhacks_grass,
+            //wallhacks_grass,
 
             big_guns,
             small_guns,

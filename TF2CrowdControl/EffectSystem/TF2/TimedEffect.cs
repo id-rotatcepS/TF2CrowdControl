@@ -304,7 +304,7 @@
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single kill challenge.
+    /// 30 minute Effect that cancels upon meeting the single kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterKillEffect : TauntAfterKillEffect
     {
@@ -313,12 +313,12 @@
         public SingleTauntAfterKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new KillsChallenge(1);
+            challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
         }
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single crit kill challenge.
+    /// 30 minute Effect that cancels upon meeting the single crit kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterCritKillEffect : TauntAfterCritKillEffect
     {
@@ -327,7 +327,7 @@
         public SingleTauntAfterCritKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new CritKillsChallenge(1);
+            challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
         }
     }
 

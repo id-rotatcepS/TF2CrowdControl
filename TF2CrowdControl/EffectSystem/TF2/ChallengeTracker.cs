@@ -1,4 +1,5 @@
 ﻿
+
 namespace EffectSystem.TF2
 {
     // Assume no effect until the first part of the duration is completed (ending early if challenge is met), then bad effect for the rest of the duration.
@@ -68,12 +69,19 @@ namespace EffectSystem.TF2
 
     public class KillsChallenge : ChallengeTracker
     {
-        private int killsGoal;
+        private readonly TimeSpan minimumSurvival;
+        private readonly int killsGoal;
         private int kills = 0;
 
         public KillsChallenge(int goal)
+            : this(goal, TimeSpan.Zero)
+        {
+        }
+
+        public KillsChallenge(int goal, TimeSpan minimumSurvivalTime)
         {
             this.killsGoal = goal;
+            this.minimumSurvival = minimumSurvivalTime;
         }
 
         public void Start()
@@ -83,12 +91,26 @@ namespace EffectSystem.TF2
                 throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
 
             TF2Effects.Instance.TF2Proxy.OnUserKill += IncrementStreak;
+            TF2Effects.Instance.TF2Proxy.OnUserDied += InvalidateIncrement;
+        }
+
+        private DateTime lastKill = DateTime.MinValue;
+        private void InvalidateIncrement()
+        {
+            if (kills > 0 && DateTime.Now.Subtract(lastKill) < minimumSurvival)
+            {
+                --kills;
+                lastKill = DateTime.MinValue;
+            }
         }
 
         private void IncrementStreak(string victim, string weapon, bool crit)
         {
             if (ShouldIncrement(victim, weapon, crit))
+            {
                 ++kills;
+                lastKill = DateTime.Now;
+            }
         }
 
         protected virtual bool ShouldIncrement(string victim, string weapon, bool crit)
@@ -96,7 +118,8 @@ namespace EffectSystem.TF2
             return true;
         }
 
-        public bool IsCompleted => (kills >= killsGoal);
+        public bool IsCompleted => (kills >= killsGoal
+            && DateTime.Now.Subtract(lastKill) > minimumSurvival);
 
         public void Stop()
         {
@@ -104,6 +127,7 @@ namespace EffectSystem.TF2
                 return;
 
             TF2Effects.Instance.TF2Proxy.OnUserKill -= IncrementStreak;
+            TF2Effects.Instance.TF2Proxy.OnUserDied -= InvalidateIncrement;
         }
     }
 
@@ -111,6 +135,11 @@ namespace EffectSystem.TF2
     {
         public CritKillsChallenge(int goal)
             : base(goal)
+        {
+        }
+
+        public CritKillsChallenge(int goal, TimeSpan minimumSurvivalTime)
+            : base(goal, minimumSurvivalTime)
         {
         }
 
