@@ -118,7 +118,7 @@
     {
         public static readonly string EFFECT_ID = "pixelated";
         public PixelatedTimedEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, "mat_viewportscale", "0.1")
+            : base(EFFECT_ID, TimeSpan.FromSeconds(30), "mat_viewportscale", "0.1")
         {
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
@@ -228,7 +228,7 @@
         public static readonly string EFFECT_ID = "mouse_sensitivity_high";
 
         public MouseSensitivityHighEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, new()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45), new()
             {
                 ["sensitivity"] = "20" // default 3
             })
@@ -243,7 +243,7 @@
         public static readonly string EFFECT_ID = "mouse_sensitivity_low";
 
         public MouseSensitivityLowEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, new()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45), new()
             {
                 ["sensitivity"] = "1.0" // default 3
             })

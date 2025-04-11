@@ -210,7 +210,7 @@
         public static readonly string EFFECT_ID = "spin_left";
 
         public SpinEffect()
-            : base(EFFECT_ID, DefaultTimeSpan)
+            : base(EFFECT_ID, TimeSpan.FromSeconds(30))
         {
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
             Availability = new AliveInMap();

@@ -113,7 +113,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion user facing
 
         #region streamer facing
-
         // Editable Duration for CC Pro streamers?
         IsDurationEditable = true,
         // Default price increase percent per purchase (float)
@@ -121,7 +120,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         // Default price decrease interval (timespan minutes)
         //ScaleDecayTime = TimeSpan.FromMinutes(1),
         // Default user cooldown (timespan minutes nullable)
-        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        ViewerCooldown = TimeSpan.FromMinutes(10),
         // Default stream cooldown (timespan minutes nullable)
         //SessionCooldown = TimeSpan.FromMinutes(0),
 
@@ -130,7 +129,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ///reduce clutter in packs with a lot of repetitive effects (such as spawns 
         ///for every enemy in a game), but which certain streamers may still wish to enable.
         //bool Inactive;
-
         #endregion streamer facing
 
         //string ID (constructor);
@@ -165,11 +163,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "Black & White",
         SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(10),
-        IsDurationEditable = false,
         Description = "Stuck with TF2 in the 50s until I get a 5 kill streak.",
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
-        Group = new EffectGrouping(G_APP),
         Price = 250,
+        #region streamer facing
+        IsDurationEditable = false,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(30),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     /// <summary>
@@ -180,12 +185,19 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         SortName = "Camera: Pixelated",
         Description = "TF2 in the 80s.",
-        Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Duration = TimeSpan.FromSeconds(30),
         Category = new EffectGrouping(C_CAMERA),
+        Price = 25,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(10),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 25
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
     /// mat_bloom_scalefactor_scalar 50 (vs 1) and mat_force_bloom 1
@@ -196,11 +208,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Dream Mode",
         Description = "The radiant glow of TF2 in a dream.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping(C_CAMERA),
+        Price = 25,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(10),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 25
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
     //public static readonly Effect wallhacks_grass = new("Wallhacks for Grass", "wallhacks_grass")
@@ -226,10 +245,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Big Guns",
         Description = "Force my usual weapon viewmodels to the default big ones.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 1
     };
     /// <summary>
     /// tf_use_min_viewmodels 0 (vs 1) and r_drawviewmodel 1
@@ -240,10 +266,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Small Guns",
         Description = "Force my usual weapon viewmodels to small ones.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 1
     };
     /// <summary>
     /// r_drawviewmodel 0/1 toggle
@@ -254,10 +287,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: No Guns",
         Description = "Force a change to whether my weapon viewmodels are visible.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Price = 5,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 5
     };
     /// <summary>
     /// viewmodel_fov 160
@@ -268,10 +308,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Long Arms",
         Description = "Force my viewmodels to have very long arms.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Price = 5,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 5
     };
     /// <summary>
     /// turn on cl_first_person_uses_world_model and tf_taunt_first_person
@@ -282,10 +329,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: VR Mode",
         Description = "My arms, weapons, and body are visible exactly as other players see them in game.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping("View Model"),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 1
     };
     #endregion View Model
 
@@ -298,10 +352,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "A rainbow of colors for my crosshair.",
         Duration = TimeSpan.FromSeconds(240),// max duration - the effect is subtle.
-        IsDurationEditable = true,
         Category = new EffectGrouping(C_CROSSHAIR),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 1
     };
 
     /// <summary>
@@ -312,10 +373,17 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Make my crosshair gigantic.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
         Category = new EffectGrouping(C_CROSSHAIR),
+        Price = 5,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 5
     };
 
     /// <summary>
@@ -326,11 +394,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "My vision is gradually obscured through advancing cataracts.",
         Duration = TimeSpan.FromSeconds(40),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 20
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     /// <summary>
     /// animate dot crosshair scale until it fills up most of the screen.
@@ -342,47 +417,77 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: 3 Kill Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
-        IsDurationEditable = false,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA, C_CHALLENGES),
+        Price = 100,
+        #region streamer facing
+        IsDurationEditable = false,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(30),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 100
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     #endregion Crosshair
 
     #region Game Play
-    /// <summary>
-    /// Every the user gets a kill, immediately triggers a taunt.
-    /// </summary>
-    public static readonly Effect taunt_after_kill = new("Taunt after every kill", "taunt_after_kill")
-    {
-        Description = "Forced to act like a complete jerk to everybody I kill.",
-        Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-        Category = new EffectGrouping(C_GAMEPLAY),
-        Group = new EffectGrouping(G_ALIVE),
-        Price = 50 // it'll probably get you killed
-    };
+    ///// <summary>
+    ///// Every the user gets a kill, immediately triggers a taunt.
+    ///// </summary>
+    //public static readonly Effect taunt_after_kill = new("Taunt after every kill", "taunt_after_kill")
+    //{
+    //    Description = "Forced to act like a complete jerk to everybody I kill.",
+    //    Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
+    //    Category = new EffectGrouping(C_GAMEPLAY),
+    //    Price = 50, // it'll probably get you killed
+    //    #region streamer facing
+    //    IsDurationEditable = true,
+    //    //ScaleFactor = 0.5f,
+    //    //ScaleDecayTime = TimeSpan.FromMinutes(1),
+    //    //ViewerCooldown = TimeSpan.FromMinutes(0),
+    //    SessionCooldown = TimeSpan.FromMinutes(10),
+    //    //bool Inactive;
+    //    #endregion streamer facing
+    //    Group = new EffectGrouping(G_ALIVE),
+    //    Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+    //};
 
     public static readonly Effect explode = new("Explode", "explode")
     {
         SortName = "Die: Explode",
         Description = "Instant and dramatic death.",
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 50,
+        #region streamer facing
+        //IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 50
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
     public static readonly Effect kill = new("Die", "kill")
     {
         SortName = "Die: Die",
         Description = "Instant death.",
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        #region streamer facing
+        //IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
+        Price = 50,
         Group = new EffectGrouping(G_ALIVE),
-        Price = 50
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
     private static readonly string CAUTION = "\nTAKE CARE that you know when this actually will do something.";
@@ -390,74 +495,136 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect destroybuildings = new("Destroy All My Buildings", "destroybuildings")
     {
         Description = "Instantly destroy all of Engy's buildings. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
+        Price = 50, // sort of equivalent to dying
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        ViewerCooldown = TimeSpan.FromMinutes(20),
+        SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
-        Price = 50 // sort of equivalent to dying
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
     public static readonly Effect destroysentry = new("Destroy My Sentry", "destroysentry")
     {
         Description = "Instantly destroy Engy's sentry. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
+        Price = 30,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
-        Price = 30
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
     public static readonly Effect destroydispenser = new("Destroy My Dispenser", "destroydispenser")
     {
         Description = "Instantly destroy Engy's dispenser. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
+        Price = 10,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
-        Price = 10
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
     public static readonly Effect destroyteleporters = new("Destroy My Teleporters", "destroyteleporters")
     {
         Description = "Instantly destroy both of Engy's teleporters. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Engineer"),
+        Price = 20,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        ViewerCooldown = TimeSpan.FromMinutes(5),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_ENGY),
-        Price = 20
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
     public static readonly Effect removedisguise = new("Remove My Disguise", "removedisguise")
     {
         Description = "Undisguise Spy. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Spy"),
+        Price = 20,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(3),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_SPY),
-        Price = 20
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
 
     public static readonly Effect ubernow = new("Use My Über Now", "ubernow")
     {
         Description = "Right-click Medi Gun. " + CAUTION,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
+        Price = 30,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(1),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
-        Price = 30
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
 
     public static readonly Effect medicradar = new("Medic Radar", "medicradar")
     {
         Description = "All teammates call medic to show icons over their heads.",
         Duration = TimeSpan.FromSeconds(2),
-        IsDurationEditable = false,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
         Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = false,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
-        Price = 1
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
     };
 
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
     {
         Description = "Force slot 3 (melee) weapon.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 50, // it'll probably get you killed
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(3),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 50 // it'll probably get you killed
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect melee_only_challenge = new("3 Kill Challenge", "melee_only_challenge_3k")
     {
@@ -465,44 +632,72 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: 3 Kill Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
-        IsDurationEditable = false,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
         Category = new EffectGrouping(C_GAMEPLAY, C_CHALLENGES),
+        Price = 100, // it'll probably get you killed
+        #region streamer facing
+        IsDurationEditable = false,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(30),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 100 // it'll probably get you killed
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
 
-    public static readonly Effect taunt_after_crit_kill = new("Taunt after every Crit Kill", "taunt_after_crit_kill")
-    {
-        Description = "Forced to act like a jerk to players I kill with crits (including headshots).",
-        Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-        Category = new EffectGrouping(C_GAMEPLAY),
-        Group = new EffectGrouping(G_ALIVE),
-        Price = 30 // it'll probably get you killed... if it triggers.
-    };
+    //public static readonly Effect taunt_after_crit_kill = new("Taunt after every Crit Kill", "taunt_after_crit_kill")
+    //{
+    //    Description = "Forced to act like a jerk to players I kill with crits (including headshots).",
+    //    Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
+    //    Category = new EffectGrouping(C_GAMEPLAY),
+    //    Price = 30, // it'll probably get you killed... if it triggers.
+    //    #region streamer facing
+    //    IsDurationEditable = true,
+    //    //ScaleFactor = 0.5f,
+    //    //ScaleDecayTime = TimeSpan.FromMinutes(1),
+    //    //ViewerCooldown = TimeSpan.FromMinutes(0),
+    //    SessionCooldown = TimeSpan.FromMinutes(10),
+    //    //bool Inactive;
+    //    #endregion streamer facing
+    //    Group = new EffectGrouping(G_ALIVE),
+    //    Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    //};
     public static readonly Effect taunt_after_single_kill = new("Taunt after next Kill", "taunt_after_kill_challenge_1k")
     {
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to the next player I kill.",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
-        IsDurationEditable = false,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 15,
+        #region streamer facing
+        IsDurationEditable = false,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 15
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
     public static readonly Effect taunt_after_single_crit_kill = new("Taunt after next Crit Kill", "taunt_after_crit_kill_challenge_1k")
     {
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to the next player I kill with a crit (including headshots).",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
-        IsDurationEditable = false,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 10,
+        #region streamer facing
+        IsDurationEditable = false,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 10
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
     #endregion Game Play
 
@@ -511,82 +706,140 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Hides the Heads-up Display (HUD) until I check the scoreboard or otherwise reload it",
         //Duration = TimeSpan.FromSeconds(60),
-        //IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
         Category = new EffectGrouping(C_HUD),
+        Price = 5,
+        #region streamer facing
+        //IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
-        Price = 5
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
     public static readonly Effect show_score = new("Show Scoreboard", "show_score")
     {
         Description = "Shows the scoreboard for a few seconds",
         Duration = TimeSpan.FromSeconds(6),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
         Category = new EffectGrouping(C_HUD),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
-        Price = 1
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
     public static readonly Effect mouse_sensitivity_high = new("High Sensitivity", "mouse_sensitivity_high")
     {
         SortName = "Mouse: High Sensitivity",
         Description = "My teammates will start looking at me funny.",
-        Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_MOVEMENT),
+        Price = 75, // really annoying
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_APP),
-        Price = 75 // really annoying
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     public static readonly Effect mouse_sensitivity_low = new("Low Sensitivity", "mouse_sensitivity_low")
     {
         SortName = "Mouse: Low Sensitivity",
         Description = "I need a bigger mousepad for this.",
-        Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_MOVEMENT),
+        Price = 75, // really annoying
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_APP),
-        Price = 75 // really annoying
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     public static readonly Effect retry = new("Zero-out My Score", "retry")
     {
         Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress. ",
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping(C_HUD, C_GAMEPLAY),
+        Price = 100, // worse than getting killed
+        #region streamer facing
+        //IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(30),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
-        Price = 100 // worse than getting killed
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect spin_left = new("Spinnnnnn", "spin_left")
     {
         SortName = "Mouse: Spin Left",
         Description = "I swear I'm not a spinbot.",
-        Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Duration = TimeSpan.FromSeconds(30),
         Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
+        Price = 40, // might get us kicked
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 40 // might get us kicked
+        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect wm1 = new("W+M1", "wm1")
     {
         Description = "Best strategy in the game.",
         Duration = TimeSpan.FromSeconds(60),
-        IsDurationEditable = true,
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
         Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
+        Price = 30,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(10),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 30
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
     #endregion HUD and Movement
 
     public static readonly Effect quit = new("'Quit Smoking'", "quit")
     {
         Description = "This is what happens if you type 'quit smoking' in the console. ",
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 2000,
+        #region streamer facing
+        //IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(60),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_APP),
-        Price = 2000
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
     public static readonly Effect join_class_autokill = new("Death by Class Change", "join_class_autokill")
@@ -606,10 +859,18 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("?Random?", "random")
                 )
         }),
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
         Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 70, // worse than getting killed
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        SessionCooldown = TimeSpan.FromMinutes(5),
+        //bool Inactive;
+        #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        Price = 70 // worse than getting killed
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
     public override EffectList Effects
@@ -645,8 +906,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             kill,
             explode,
             melee_only,
-            taunt_after_kill,
-            taunt_after_crit_kill,
+            //taunt_after_kill,
+            //taunt_after_crit_kill,
             destroybuildings,
             destroysentry,
             destroydispenser,
