@@ -101,19 +101,26 @@
         {
             base.Update(timeSinceLastUpdate);
 
+            if (startTime == DateTime.MinValue)
+                return;
+
             // Makes multiple attempts in case player is mid-jump.
             // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             TimeSpan longestAttempt = TimeSpan.FromSeconds(2.0);
-            if (startTime != DateTime.MinValue
-                && DateTime.Now.Subtract(startTime) <= longestAttempt)
+            if (DateTime.Now.Subtract(startTime) <= longestAttempt)
                 SendTaunt();
-            else if (startTime != DateTime.MinValue)
+            else
             {
                 // final attempt with just default taunt.
-                _ = TF2Effects.Instance.RunCommand("taunt");
+                // (may have paused and resumed, so restrict how much time may have passed to do this final attempt).
+                bool shouldMakeFinalAttempt = DateTime.Now.Subtract(startTime) <= longestAttempt * 2;
 
+                // clear this before sending command to prevent possible race condition(?)
                 startTime = DateTime.MinValue;
+
+                if (shouldMakeFinalAttempt)
+                    _ = TF2Effects.Instance.RunCommand("taunt");
             }
         }
 

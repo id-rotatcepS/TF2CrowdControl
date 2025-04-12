@@ -351,7 +351,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect crosshair_rainbow = new("Rainbow Crosshair", "crosshair_rainbow")
     {
         Description = "A rainbow of colors for my crosshair.",
-        Duration = TimeSpan.FromSeconds(240),// max duration - the effect is subtle.
+        Duration = TimeSpan.FromSeconds(120),// half max duration - the effect is subtle.
         Category = new EffectGrouping(C_CROSSHAIR),
         Price = 1,
         #region streamer facing

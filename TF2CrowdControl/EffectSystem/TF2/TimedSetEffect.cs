@@ -278,7 +278,7 @@
         private byte r, g, b;
 
         public RainbowCrosshairEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, new()
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 2, 0), new()
             {
                 // purple
                 ["cl_crosshair_blue"] = "255",
@@ -301,32 +301,33 @@
         {
             base.Update(timeSinceLastUpdate);
 
-            // 3 seconds per transition
-            double transitionLength = 3.0;
+            // 1.5 seconds per transition (current updates run every quarter second)
+            double transitionLength = 1.5;
             byte increment = (byte)Math.Min(255,
                 (timeSinceLastUpdate.TotalSeconds / transitionLength) * 255);
+
             switch (transition)
             {
                 case ColorTransition.PurpleToRed:
-                    b = dec(b, increment);
-                    if (b == 0) transition = ColorTransition.RedToYellow;
+                    b = DecrementTowardsTransition(b, increment,
+                        ColorTransition.RedToYellow);
                     break;
                 case ColorTransition.RedToYellow:
-                    g = inc(g, increment);
-                    if (g == 255) transition = ColorTransition.YellowToGreen;
+                    g = IncrementTowardsTransition(g, increment,
+                        ColorTransition.YellowToGreen);
                     break;
                 case ColorTransition.YellowToGreen:
-                    r = dec(r, increment);
-                    if (r == 0) transition = ColorTransition.GreenToBlue;
+                    r = DecrementTowardsTransition(r, increment,
+                        ColorTransition.GreenToBlue);
                     break;
                 case ColorTransition.GreenToBlue:
-                    g = dec(g, increment);
-                    b = inc(b, increment);
-                    if (b == 255) transition = ColorTransition.BlueToPurple;
+                    g = DecrementColor(g, increment);
+                    b = IncrementTowardsTransition(b, increment,
+                        ColorTransition.BlueToPurple);
                     break;
                 case ColorTransition.BlueToPurple:
-                    r = inc(r, increment);
-                    if (r == 255) transition = ColorTransition.PurpleToRed;
+                    r = IncrementTowardsTransition(r, increment,
+                        ColorTransition.PurpleToRed);
                     break;
             }
             _ = TF2Effects.Instance.RunCommand(
@@ -336,12 +337,26 @@
 
         }
 
-        private byte inc(byte g, byte incrementFactor)
+        private byte IncrementTowardsTransition(byte g, byte incrementFactor, ColorTransition transitionAtEndOfInc)
+        {
+            byte colorPart = IncrementColor(g, incrementFactor);
+            if (colorPart == 255) transition = transitionAtEndOfInc;
+            return colorPart;
+        }
+
+        private static byte IncrementColor(byte g, byte incrementFactor)
         {
             return (byte)Math.Min(g + incrementFactor, 255);
         }
 
-        private byte dec(byte b, byte incrementFactor)
+        private byte DecrementTowardsTransition(byte b, byte incrementFactor, ColorTransition transitionAtEndOfDec)
+        {
+            byte colorPart = DecrementColor(b, incrementFactor);
+            if (colorPart == 0) transition = transitionAtEndOfDec;
+            return colorPart;
+        }
+
+        private static byte DecrementColor(byte b, byte incrementFactor)
         {
             return (byte)Math.Max(b - incrementFactor, 0);
         }

@@ -13,7 +13,8 @@ namespace CrowdControl
     /// the CrowdControlHelper Instance establishes a CC connection via SimpleTCPClient,
     /// starts a CC version of EffectDispatcher and feeds it CC EffectRequests 
     /// plus triggering UpdateUnclosedEffects and RefreshEffectListings on a timer,
-    /// and adds all the Effects we are claim to support in the game pack <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/>
+    /// and adds all the Effects we claim to support in the game pack
+    /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/>
     /// </summary>
     public class CrowdControlHelper
     {
