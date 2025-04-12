@@ -223,37 +223,85 @@
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }
 
-    public class MouseSensitivityHighEffect : TimedSetEffect
+    public abstract class MouseSensitivityEffect : TimedEffect
     {
-        public static readonly string EFFECT_ID = "mouse_sensitivity_high";
-
-        public MouseSensitivityHighEffect()
-            : base(EFFECT_ID, TimeSpan.FromSeconds(45), new()
-            {
-                ["sensitivity"] = "20" // default 3
-            })
+        private const string variable = "sensitivity";
+        private int originalSensitivity;
+        protected MouseSensitivityEffect(string id)
+            : base(id, TimeSpan.FromSeconds(45))
         {
             Mutex.Add(TF2Effects.MUTEX_MOUSE);
             Availability = new AliveInMap();
+            // "register" values so they store a decent value by the time this starts.
+            // ... except the proxy probably isn't ready by the time this is constructed - so we do it once during IsSelectableGameState
+            _ = TF2Effects.Instance.GetValue(variable);
         }
-        public override bool IsSelectableGameState => base.IsSelectableGameState;
+        public override bool IsSelectableGameState => IsAvailable && IsValueRegistered();
+
+        private bool registered = false;
+        private bool IsValueRegistered()
+        {
+            if (registered) return true;
+            _ = TF2Effects.Instance.GetValue(variable);
+            registered = true;
+            return true;
+        }
+
+        private double startValue;
+        private void LoadOriginalValues()
+        {
+            startValue = GetDoubleOr(TF2Effects.Instance.GetValue(variable),
+                def: 3);
+        }
+
+        private double GetDoubleOr(string? value, double def)
+        {
+            if (value == null)
+                return def;
+
+            double result;
+            if (double.TryParse(value, out result))
+                return result;
+            return def;
+        }
+        abstract protected double Factor { get; }
+
+        public override void StartEffect()
+        {
+            LoadOriginalValues();
+
+            double newval = Factor * startValue;
+            TF2Effects.Instance.SetRequiredValue(variable, newval.ToString());
+        }
+
+        public override void StopEffect()
+        {
+            TF2Effects.Instance.SetValue(variable, startValue.ToString());
+        }
     }
-    public class MouseSensitivityLowEffect : TimedSetEffect
+    public class MouseSensitivityHighEffect : MouseSensitivityEffect
+    {
+        public static readonly string EFFECT_ID = "mouse_sensitivity_high";
+        public MouseSensitivityHighEffect()
+            : base(EFFECT_ID)
+        {
+        }
+
+        protected override double Factor => 5.0;
+    }
+    public class MouseSensitivityLowEffect : MouseSensitivityEffect
     {
         public static readonly string EFFECT_ID = "mouse_sensitivity_low";
 
         public MouseSensitivityLowEffect()
-            : base(EFFECT_ID, TimeSpan.FromSeconds(45), new()
-            {
-                ["sensitivity"] = "1.0" // default 3
-            })
+            : base(EFFECT_ID)
         {
-            Mutex.Add(TF2Effects.MUTEX_MOUSE);
-            Availability = new AliveInMap();
         }
-        public override bool IsSelectableGameState => base.IsSelectableGameState;
+
+        protected override double Factor => .25;
     }
 
+    // unreliable
     public class WallhacksForGrassEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "wallhacks_grass";
