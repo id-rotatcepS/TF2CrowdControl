@@ -222,17 +222,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
-    //public static readonly Effect wallhacks_grass = new("Wallhacks for Grass", "wallhacks_grass")
-    //{
-    //    SortName = "Camera: Wallhacks for Grass",
-    //    Description = "At least it doesn't count as a cheat. (No effect unless player is near grass on the map)",
-    //    Duration = TimeSpan.FromSeconds(60),
-    //    IsDurationEditable = true,
-    //    //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-    //    Category = new EffectGrouping(C_CAMERA),
-    //    Group = new EffectGrouping(G_MAP),
-    //    Price = 5
-    //};
     #endregion Camera
 
     #region View Model
@@ -433,27 +422,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     #endregion Crosshair
 
     #region Game Play
-    ///// <summary>
-    ///// Every the user gets a kill, immediately triggers a taunt.
-    ///// </summary>
-    //public static readonly Effect taunt_after_kill = new("Taunt after every kill", "taunt_after_kill")
-    //{
-    //    Description = "Forced to act like a complete jerk to everybody I kill.",
-    //    Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
-    //    Category = new EffectGrouping(C_GAMEPLAY),
-    //    Price = 50, // it'll probably get you killed
-    //    #region streamer facing
-    //    IsDurationEditable = true,
-    //    //ScaleFactor = 0.5f,
-    //    //ScaleDecayTime = TimeSpan.FromMinutes(1),
-    //    //ViewerCooldown = TimeSpan.FromMinutes(0),
-    //    SessionCooldown = TimeSpan.FromMinutes(2),
-    //    //bool Inactive;
-    //    #endregion streamer facing
-    //    Group = new EffectGrouping(G_ALIVE),
-    //    Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
-    //};
-
     public static readonly Effect explode = new("Explode", "explode")
     {
         SortName = "Die: Explode",
@@ -646,23 +614,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
 
-    //public static readonly Effect taunt_after_crit_kill = new("Taunt after every Crit Kill", "taunt_after_crit_kill")
-    //{
-    //    Description = "Forced to act like a jerk to players I kill with crits (including headshots).",
-    //    Duration = TimeSpan.FromSeconds(120), // long duration in case they're not good at getting kills
-    //    Category = new EffectGrouping(C_GAMEPLAY),
-    //    Price = 30, // it'll probably get you killed... if it triggers.
-    //    #region streamer facing
-    //    IsDurationEditable = true,
-    //    //ScaleFactor = 0.5f,
-    //    //ScaleDecayTime = TimeSpan.FromMinutes(1),
-    //    //ViewerCooldown = TimeSpan.FromMinutes(0),
-    //    SessionCooldown = TimeSpan.FromMinutes(2),
-    //    //bool Inactive;
-    //    #endregion streamer facing
-    //    Group = new EffectGrouping(G_ALIVE),
-    //    Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
-    //};
+    /// <summary>
+    /// Next time the user gets a kill, immediately triggers a taunt and ends the effect.
+    /// </summary>
     public static readonly Effect taunt_after_single_kill = new("Taunt after next Kill", "taunt_after_kill_challenge_1k")
     {
         Note = "until 1 kill",
@@ -888,7 +842,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             blackandwhite,
             pixelated,
             dream,
-            //wallhacks_grass,
 
             big_guns,
             small_guns,
@@ -906,8 +859,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             kill,
             explode,
             melee_only,
-            //taunt_after_kill,
-            //taunt_after_crit_kill,
+
             destroybuildings,
             destroysentry,
             destroydispenser,

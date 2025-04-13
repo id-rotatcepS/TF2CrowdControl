@@ -66,7 +66,6 @@ namespace CrowdControl
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),
 
-                new TauntAfterKillEffect(),
                 new MeleeOnlyEffect(),
 
                 // experimental
@@ -74,8 +73,6 @@ namespace CrowdControl
                 new ShowScoreboardEffect(),
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
-                new WallhacksForGrassEffect(),
-                new TauntAfterCritKillEffect(),
                 new QuitEffect(),
                 new RetryEffect(),
                 new ForcedChangeClassEffect(),

@@ -179,6 +179,7 @@
         }
     }
 
+    // FUTURE: Not currently used - CC doesn't allow raw string arguments - although we could make it work with a long list of parameters I guess?
     public class PartyChatEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "say_party";

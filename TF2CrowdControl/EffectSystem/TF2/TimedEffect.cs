@@ -46,6 +46,7 @@
         public abstract void StopEffect();
     }
 
+    // could make this abstract since this is not used directly anymore.
     public class TauntAfterKillEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_after_kill";
@@ -132,6 +133,7 @@
         }
     }
 
+    // could make this abstract since this is not used directly anymore.
     public class TauntAfterCritKillEffect : TauntAfterKillEffect
     {
         new public static readonly string EFFECT_ID = "taunt_after_crit_kill";

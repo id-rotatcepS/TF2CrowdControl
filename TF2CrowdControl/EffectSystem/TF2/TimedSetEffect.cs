@@ -301,7 +301,7 @@
         protected override double Factor => .25;
     }
 
-    // unreliable
+    // unreliable, not currently available.
     public class WallhacksForGrassEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "wallhacks_grass";
