@@ -115,6 +115,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #region streamer facing
         // Editable Duration for CC Pro streamers?
         IsDurationEditable = true,
+        //TODO: Scale defaults don't actually work in the gamepacks as of 4/12/2025 - remove them or keep them in hopes that this changes?
         // Default price increase percent per purchase (float)
         ScaleFactor = 0.5f,
         // Default price decrease interval (timespan minutes)

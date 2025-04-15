@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TF2CrowdControl"
         mc:Ignorable="d"
-        Title="TF2 Spectator for Crowd Control" 
+        Title="TF2 Spectator for Crowd Control - by id_rotatcepS" 
         Background="DarkGray"
-        Height="600" Width="800"
+        Height="450" Width="800"
         ResizeMode="CanResizeWithGrip"
         Closed="Window_Closed"
         >
@@ -58,23 +58,29 @@
                     </Grid>
                 </StackPanel>
             </Expander>
-            <Expander x:Name="Status" Header="Status" IsExpanded="True">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Width="100">
+            <Expander x:Name="Status" IsExpanded="False">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Status | "/>
                         <TextBlock x:Name="CC" 
-                                   Text="Crowd Control" 
+                                   Text="Crowd Control connection" 
                                    Foreground="{Binding StatusCCColor}"/>
+                        <TextBlock Text=" | "/>
                         <TextBlock x:Name="TF2" 
                                    Text="TF2 connection" 
                                    Foreground="{Binding StatusAppColor}"/>
+                        <TextBlock Text=" | "/>
                         <TextBlock x:Name="MapName" 
                                    Text="{Binding StatusMapName}" 
                                    Foreground="{Binding StatusMapNameColor}"/>
+                        <TextBlock Text="  "/>
                         <TextBlock x:Name="ClassName" 
                                    Text="{Binding StatusClassName}" 
                                    Foreground="{Binding StatusClassNameColor}"/>
                     </StackPanel>
-                    <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="430">
+                </Expander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="530">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Background="White"></WrapPanel>
