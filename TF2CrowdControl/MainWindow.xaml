@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:TF2CrowdControl"
         mc:Ignorable="d"
         Title="TF2 Spectator for Crowd Control - by id_rotatcepS" 
-        Background="DarkGray"
         Height="450" Width="800"
         ResizeMode="CanResizeWithGrip"
         Closed="Window_Closed"
+        Style="{StaticResource {x:Type Window}}"
         >
     <Window.DataContext>
         <!-- doing DataContext here instead of code-behind allows the visual editor to populate bindings -->
         <local:TF2CrowdControlViewModel x:Name="ccvm"/>
     </Window.DataContext>
-
-    <Grid>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Expander x:Name="TF2Settings" Header="Team Fortress 2 Settings" Background="AntiqueWhite">
                 <StackPanel>
@@ -86,7 +86,7 @@
                                 <WrapPanel Background="White"></WrapPanel>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        
+
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0" x:Name="BackgroundGrid">
@@ -112,7 +112,7 @@
 
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    
+
                     <TextBlock Text="{Binding ProxyValues}" Foreground="White" VerticalAlignment="Top" Width="200"/>
 
                 </StackPanel>
@@ -128,5 +128,5 @@
                 </ScrollViewer>
             </Expander>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Window>
