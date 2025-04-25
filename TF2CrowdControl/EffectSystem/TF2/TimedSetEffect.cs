@@ -19,8 +19,10 @@
         {
         }
 
-        public Dictionary<string, string>? OriginalValues { get; private set; }
-        public Dictionary<string, string> VariableSettings { get; }
+        private object originalValuesLock = new object();
+
+        protected Dictionary<string, string>? OriginalValues { get; private set; }
+        protected Dictionary<string, string> VariableSettings { get; }
 
         private bool isStarted = false;
 
@@ -32,10 +34,13 @@
         {
             try
             {
-                if (!isStarted)
-                    LoadOriginalValues();
+                lock (originalValuesLock)
+                {
+                    if (!isStarted)
+                        LoadOriginalValues();
 
-                return OriginalValues != null && OriginalValues.Count > 0;
+                    return (OriginalValues?.Count ?? 0) > 0;
+                }
             }
             catch (Exception)
             {
@@ -45,25 +50,31 @@
 
         private void LoadOriginalValues()
         {
-            OriginalValues = null;
-
-            foreach (string variable in VariableSettings.Keys)
+            lock (originalValuesLock)
             {
-                string activeValue = VariableSettings[variable];
+                OriginalValues = null;
 
-                string? startValue = TF2Effects.Instance.GetValue(variable);
-                if (startValue != null && startValue != activeValue)
+                foreach (string variable in VariableSettings.Keys)
                 {
-                    OriginalValues ??= new Dictionary<string, string>();
-                    OriginalValues[variable] = startValue;
+                    string activeValue = VariableSettings[variable];
+
+                    string? startValue = TF2Effects.Instance.GetValue(variable);
+                    if (startValue != null && startValue != activeValue)
+                    {
+                        OriginalValues ??= new Dictionary<string, string>();
+                        OriginalValues[variable] = startValue;
+                    }
                 }
             }
         }
 
         public override void StartEffect()
         {
-            isStarted = true;
-            LoadOriginalValues();
+            lock (originalValuesLock)
+            {
+                isStarted = true;
+                LoadOriginalValues();
+            }
             foreach (string variable in VariableSettings.Keys)
             {
                 string activeValue = VariableSettings[variable];
@@ -74,12 +85,23 @@
 
         public override void StopEffect()
         {
-            if (OriginalValues != null)
-                foreach (string variable in OriginalValues.Keys)
-                    TF2Effects.Instance.SetValue(variable, OriginalValues[variable]);
-            //TODO else
+            lock (originalValuesLock)
+            {
+                // some effects change the initial values further during updates,
+                // so we restore originals or requested values that didn't differ from originals
+                foreach (string variable in VariableSettings.Keys)
+                {
+                    string restoreValue;
+                    if (OriginalValues?.ContainsKey(variable) ?? false)
+                        restoreValue = OriginalValues[variable];
+                    else
+                        restoreValue = VariableSettings[variable];
 
-            isStarted = false;
+                    TF2Effects.Instance.SetValue(variable, restoreValue);
+                }
+
+                isStarted = false;
+            }
         }
     }
 
@@ -557,20 +579,6 @@
             TF2Effects.Instance.SetValue("cl_crosshair_scale", scale.ToString());
             // MAYBE: ensure shape doesn't get changed
             //TF2Effects.Instance.SetValue("cl_crosshair_file", "crosshair5");
-        }
-
-        public override void StopEffect()
-        {
-            // "seteffect" claims to set scale to 32, but then we changes it more.  If user already had 32 it won't get reset.
-            // So take us back to the "we set it to this" value before restore is attempted.
-            foreach (string variable in VariableSettings.Keys)
-            {
-                string activeValue = VariableSettings[variable];
-
-                TF2Effects.Instance.SetValue(variable, activeValue);
-            }
-
-            base.StopEffect();
         }
     }
 
