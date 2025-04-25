@@ -86,6 +86,9 @@ namespace CrowdControl
                 new SingleTauntAfterCritKillEffect(),
                 new ChallengeCataractsEffect(),
                 new ChallengeBlackAndWhiteTimedEffect(),
+
+                new DeathAddsPixelatedTimedEffect(),
+                new DeathAddsDreamTimedEffect(),
                 ]);
         }
 

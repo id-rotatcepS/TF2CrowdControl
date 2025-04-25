@@ -17,6 +17,8 @@
         public static readonly string MUTEX_SCOREBOARD = "scoreboard";
         public static readonly string MUTEX_MOUSE = "mouse";
         public static readonly string MUTEX_FORCE_MOVE = "force_move";
+        public static readonly string MUTEX_VIEWPORT = "viewport";
+        public static readonly string MUTEX_BLOOM = "bloom";
 
         public string RunCommand(string command)
         {

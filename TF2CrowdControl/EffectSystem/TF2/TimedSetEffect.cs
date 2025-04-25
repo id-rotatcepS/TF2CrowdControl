@@ -221,6 +221,8 @@
         public PixelatedTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromSeconds(30), "mat_viewportscale", "0.1")
         {
+            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
         }
@@ -237,6 +239,8 @@
                 ["mat_force_bloom"] = "1",
             })
         {
+            Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_BLOOM);
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
         }

@@ -219,6 +219,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
+    /// mat_viewportscale halves every death until 0.01 (vs 1)
+    /// Affects game generation - relative to primary resolution.
+    /// </summary>
+    public static readonly Effect death_adds_pixelated = new("Every death doubles pixel size", "death_adds_pixelated")
+    {
+        SortName = "Challenge: Every death doubles pixel size",
+        Description = "TF2, but every time I die the pixels double in size (for 10 minutes or about 7 deaths)",
+        Duration = TimeSpan.FromMinutes(10),
+        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
     /// mat_bloom_scalefactor_scalar 50 (vs 1) and mat_force_bloom 1
     /// Affects game generation.
     /// </summary>
@@ -238,6 +260,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
+    /// mat_bloom_scalefactor_scalar doubles every death until over 100 (vs 1)
+    /// Affects game generation.
+    /// </summary>
+    public static readonly Effect death_adds_dream = new("Every death doubles dreaminess", "death_adds_dream")
+    {
+        SortName = "Challenge: Every death doubles dreaminess",
+        Description = "TF2, but every time I die the dreamy glow doubles in intensity (for 10 minutes or about 8 deaths)",
+        Duration = TimeSpan.FromMinutes(10),
+        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
@@ -375,7 +419,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
     /// <summary>
     /// bad crosshair filename - broken texture as crosshair.
-    /// Affects crosshair shape
+    /// Affects crosshair shape, doesn't work with crosshair colors
     /// </summary>
     public static readonly Effect crosshair_brrr = new("Crosshair go BRRRRR", "crosshair_brrr")
     {
@@ -421,7 +465,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// </summary>
     public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Message", "crosshair_alien")
     {
-        Description = "⊹ ⋅ ⊤ ∘ ⨪ ⨯ (⋅)",
+        Description = "⊹ ⋅ ⊤ ∘ ⨪ ⨯ (⋅) 👁",
         Duration = TimeSpan.FromSeconds(60),
         Category = new EffectGrouping(C_CROSSHAIR),
         Price = 10,
@@ -919,6 +963,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             taunt_after_single_kill,
             taunt_after_single_crit_kill,
             blackandwhite_challenge_5ks,
+
+            death_adds_pixelated,
+            death_adds_dream,
         };
 
     public override Game Game { get; } = new(

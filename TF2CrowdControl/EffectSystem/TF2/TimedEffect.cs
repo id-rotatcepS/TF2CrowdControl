@@ -353,4 +353,107 @@
             challenge = new KillsChallenge(3);
         }
     }
+
+    public class DeathAddsPixelatedTimedEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_pixelated";
+        public DeathAddsPixelatedTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+        {
+            challenge = new DeathsChallenge(7);// 7th death halving scale would put it below 0.01
+            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
+            Availability = new InMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double currentScale = 1.0;
+        public override void StartEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            currentScale = 1.0;
+            UpdateScale();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateScale()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale.ToString());
+        }
+
+        private void OnDeath()
+        {
+            currentScale /= 2.0;
+            UpdateScale();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+
+            currentScale = 1.0;
+            UpdateScale();
+        }
+    }
+
+    public class DeathAddsDreamTimedEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_dream";
+        public DeathAddsDreamTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+        {
+            challenge = new DeathsChallenge(8);// 8th death doubling scale would put it well past 100
+            Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_BLOOM);
+            Availability = new InMap();
+            // register the variables we'll need later.
+            _ = TF2Effects.Instance.GetValue("mat_force_bloom");
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double bloomFactor = 1.0;
+        private string startBloomFactor = "1";
+        public override void StartEffect()
+        {
+            // save mat_force_bloom
+            startBloomFactor = TF2Effects.Instance.GetValue("mat_force_bloom") ?? "1";
+            // set mat_force_bloom
+            TF2Effects.Instance.SetRequiredValue("mat_force_bloom", "1");
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            bloomFactor = 1.0;
+            UpdateBloom();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateBloom()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor.ToString());
+        }
+
+        private void OnDeath()
+        {
+            bloomFactor *= 2.0;
+            UpdateBloom();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+
+            bloomFactor = 1.0;
+            UpdateBloom();
+
+            // restore mat_force_bloom
+            TF2Effects.Instance.SetValue("mat_force_bloom", startBloomFactor);
+        }
+    }
 }
