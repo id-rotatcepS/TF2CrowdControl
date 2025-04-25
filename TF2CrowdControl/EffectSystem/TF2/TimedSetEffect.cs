@@ -114,6 +114,85 @@
         }
     }
 
+    /// <summary>
+    /// Black & White, No Sound, and random Intertitles on death.
+    /// </summary>
+    public class SilentMovieTimedEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "silent_movie";
+
+        public SilentMovieTimedEffect()
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+
+        protected SilentMovieTimedEffect(string id, TimeSpan duration)
+            : base(id, duration, new Dictionary<string, string>
+            {
+                ["mat_color_projection"] = "4",
+                ["volume"] = "0"
+            })
+        {
+            Mutex.Add(nameof(BlackAndWhiteTimedEffect));//hierarchy is all mutex
+            // Availability: even works in the menu
+            Availability = new InApplication();
+        }
+        public override void StartEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("TF2 Connection invalid for effect");
+            base.StartEffect();
+
+            TF2Effects.Instance.TF2Proxy.OnUserDied += ShowRandomIntertitle;
+        }
+
+        private void ShowRandomIntertitle()
+        {
+            string intertitle = FormatRandomIntertitle();
+
+            _ = TF2Effects.Instance.RunCommand(string.Format(
+                "showinfo {0} \"{1}\" \"{2}\"",
+                0, // type (not sure of the values, but 3 doesn't show the title)
+                intertitle, // title
+                string.Empty // message - known bug in 2013 source makes this arg never work.
+                ));
+        }
+
+        private static string FormatRandomIntertitle()
+        {
+            string format = intertitles[Random.Shared.Next(intertitles.Count)];
+            return string.Format(format, TF2Effects.Instance.TF2Proxy?.GetValue("name"));
+        }
+        /// <summary>
+        /// string formats to display as intertitles on death.
+        /// Width limited.  "rotatcepS ⚙ became an Insurance age" is an example cutoff (it adds ... afterwards)
+        /// Can't contain quotes, and semicolon is probably not safe either.
+        /// arg 0: username.
+        /// </summary>
+        private static List<string> intertitles = new List<string>()
+        {
+            "      T h e   E n d",
+            "            'Gasp!'",
+            "        (Censored.)",
+            //"/Fin/",
+            "    INTERMISSION...",
+            "The End...Or Is It?",
+            "TO BE CONTINUED...",
+            "Act III: Death of {0}",
+            //"{0} was killed by a drunk driver in December 1964.",
+            //"{0} was reported missing in action inear An Loc in December 1965.",
+            //"{0} became an Insurance agent in Modesto, California.",
+            //"{0} became a writer and is living in Canada.",
+        };
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= ShowRandomIntertitle;
+            base.StopEffect();
+        }
+    }
+
     public class PixelatedTimedEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "pixelated";

@@ -199,30 +199,31 @@
         }
     }
 
-    /// <summary>
-    /// shows the scoreboard and reloads the hud and doesn't release the scoreboard thus hiding everything until the next time you hit tab.
-    /// </summary>
-    public class HideHUDEffect : SingleCommandEffect
-    {
-        public static readonly string EFFECT_ID = "hide_hud";
-        public HideHUDEffect()
-            : base(EFFECT_ID, "+showscores; hud_reloadscheme;")//internet used +score, which is also a valid command - I assume they're the same thing.
-        {
-            Availability = new InMap();
-            Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
-            // and it hides the crosshair, too.
-            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
-            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
-            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
-        }
+    //TODO disables weapon switching... perhaps +score prevents that? other options?  Also needs to be Duration and end itself.
+    ///// <summary>
+    ///// shows the scoreboard and reloads the hud and doesn't release the scoreboard thus hiding everything until the next time you hit tab.
+    ///// </summary>
+    //public class HideHUDEffect : SingleCommandEffect
+    //{
+    //    public static readonly string EFFECT_ID = "hide_hud";
+    //    public HideHUDEffect()
+    //        : base(EFFECT_ID, "+showscores; hud_reloadscheme;")//internet used +score, which is also a valid command - I assume they're the same thing.
+    //    {
+    //        Availability = new InMap();
+    //        Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
+    //        // and it hides the crosshair, too.
+    //        Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+    //        Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+    //        Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
+    //    }
 
-        protected override void CheckEffectWorked()
-        {
-            // can't really be verified.
-            if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-                throw new EffectNotVerifiedException("Left map as effect started.");
-        }
-    }
+    //    protected override void CheckEffectWorked()
+    //    {
+    //        // can't really be verified.
+    //        if (!Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+    //            throw new EffectNotVerifiedException("Left map as effect started.");
+    //    }
+    //}
 
     public class QuitEffect : SingleCommandEffect
     {

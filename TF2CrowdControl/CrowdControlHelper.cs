@@ -52,6 +52,7 @@ namespace CrowdControl
                 new MedicRadarEffect(),
 
                 new BlackAndWhiteTimedEffect(),
+                new SilentMovieTimedEffect(),
                 new PixelatedTimedEffect(),
                 new DreamTimedEffect(),
 
@@ -69,7 +70,6 @@ namespace CrowdControl
                 new MeleeOnlyEffect(),
 
                 // experimental
-                new HideHUDEffect(),
                 new ShowScoreboardEffect(),
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),

@@ -77,7 +77,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //string Name (constructor);
         /// ...used to distinguish identically-named effects
         //string? Note; // "subtitle" next to Name
-        Description = "TF2 in the 50s.",
+        Description = "TF2 in the 1950s.",
         SortName = "Camera: Black and White",
         //string? Image;
         // = "https://resources.crowdcontrol.live/images/Minecraft/Minecraft/icons/freeze.png"
@@ -164,7 +164,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "Black & White",
         SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(10),
-        Description = "Stuck with TF2 in the 50s until I get a 5 kill streak.",
+        Description = "Stuck with TF2 in the 1950s until I get a 5 kill streak.",
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 250,
         #region streamer facing
@@ -178,6 +178,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
+    public static readonly Effect silent_movie = new("Silent Movie", "silent_movie")
+    {
+        SortName = "Camera: Black and White Silent Movie",
+        Duration = TimeSpan.FromMinutes(2),
+        Description = "TF2 in the 1920s - no sound, just intertitle cards!",
+        Category = new EffectGrouping(C_CAMERA),
+        Price = 80,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
     /// <summary>
     /// mat_viewportscale 0.1 (vs 1)
     /// Affects game generation - relative to primary resolution.
@@ -185,7 +203,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect pixelated = new("Pixelated", "pixelated")
     {
         SortName = "Camera: Pixelated",
-        Description = "TF2 in the 80s.",
+        Description = "TF2 in the 1980s.",
         Duration = TimeSpan.FromSeconds(30),
         Category = new EffectGrouping(C_CAMERA),
         Price = 40,
@@ -649,7 +667,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleDecayTime = TimeSpan.FromMinutes(1),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
         //SessionCooldown = TimeSpan.FromMinutes(0),
-        //bool Inactive;
+        Inactive = true, // Disable by default - only useful for sniper/spy mains.
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
@@ -657,23 +675,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     #endregion Game Play
 
     #region HUD and Movement
-    public static readonly Effect hide_hud = new("Hide HUD", "hide_hud")
-    {
-        Description = "Hides the Heads-up Display (HUD) until I check the scoreboard or otherwise reload it",
-        //Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_HUD),
-        Price = 3,
-        #region streamer facing
-        //IsDurationEditable = true,
-        ScaleFactor = 0.5f,
-        ScaleDecayTime = TimeSpan.FromMinutes(2),
-        //ViewerCooldown = TimeSpan.FromMinutes(0),
-        //SessionCooldown = TimeSpan.FromMinutes(0),
-        //bool Inactive;
-        #endregion streamer facing
-        Group = new EffectGrouping(G_MAP),
-        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
-    };
     public static readonly Effect show_score = new("Show Scoreboard", "show_score")
     {
         Description = "Shows the scoreboard for a few seconds",
@@ -841,6 +842,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             join_class_autokill,
 
             blackandwhite,
+            silent_movie,
             pixelated,
             dream,
 
@@ -850,7 +852,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             long_arms,
             vr_mode,
 
-            hide_hud,
             show_score,
 
             crosshair_rainbow,
