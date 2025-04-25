@@ -374,6 +374,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     };
 
     /// <summary>
+    /// bad crosshair filename - broken texture as crosshair.
+    /// Affects crosshair shape
+    /// </summary>
+    public static readonly Effect crosshair_brrr = new("Crosshair go BRRRRR", "crosshair_brrr")
+    {
+        Description = "What even is a crosshair?",
+        Duration = TimeSpan.FromSeconds(40),
+        Category = new EffectGrouping(C_CROSSHAIR),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
+    /// <summary>
     /// large crosshair scale
     /// Affects crosshair size
     /// </summary>
@@ -383,6 +404,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         Category = new EffectGrouping(C_CROSSHAIR),
         Price = 7,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
+    /// <summary>
+    /// rapidly changing crosshairs
+    /// Affects crosshair shape
+    /// </summary>
+    public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Message", "crosshair_alien")
+    {
+        Description = "⊹ ⋅ ⊤ ∘ ⨪ ⨯ (⋅)",
+        Duration = TimeSpan.FromSeconds(60),
+        Category = new EffectGrouping(C_CROSSHAIR),
+        Price = 10,
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 1.0f,
@@ -857,6 +899,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             crosshair_rainbow,
             crosshair_giant,
             crosshair_cataracts,
+            crosshair_brrr,
+            crosshair_alien,
 
             kill,
             explode,

@@ -66,6 +66,8 @@ namespace CrowdControl
                 new RainbowCrosshairEffect(),
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),
+                new BrrrCrosshairEffect(),
+                new AlienCrosshairEffect(),
 
                 new MeleeOnlyEffect(),
 

@@ -302,6 +302,25 @@
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }
 
+    public class BrrrCrosshairEffect : CrosshairShapeTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_brrr";
+
+        public BrrrCrosshairEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(40), new()
+            {
+                ["cl_crosshair_file"] = "brrr"
+            })
+        {
+            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR); // can't color the broken image
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => base.IsSelectableGameState
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+    }
+
     public abstract class MouseSensitivityEffect : TimedEffect
     {
         private const string variable = "sensitivity";
@@ -489,11 +508,10 @@
         }
     }
 
-    public class CataractsCrosshairEffect : TimedSetEffect
+    public class CataractsCrosshairEffect : CrosshairShapeTimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_cataracts";
-        private static readonly string CROSSHAIR_DEFAULT = "\"\"";
-        private string crosshair;
+
         public CataractsCrosshairEffect()
             : this(EFFECT_ID, DefaultTimeSpan)
         {
@@ -506,10 +524,8 @@
         {
             Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
-            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
-
-            crosshair = CROSSHAIR_DEFAULT;
         }
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
@@ -517,39 +533,10 @@
 
         public override void StartEffect()
         {
-            // custom restore code because blank crosshair file might not restore right.
-            crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
-                ?? CROSSHAIR_DEFAULT;
-            if (string.IsNullOrWhiteSpace(crosshair)
-                || IsInvalidCrosshair(crosshair))
-                crosshair = CROSSHAIR_DEFAULT;
-
             base.StartEffect();
 
             // "dot" crosshair, will grow
             TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", "crosshair5");
-        }
-
-        private bool IsInvalidCrosshair(string crosshair)
-        {
-            if (crosshair == null)
-                return true;
-
-            switch (crosshair)
-            {
-                case "crosshair1":
-                case "crosshair2":
-                case "crosshair3":
-                case "crosshair4":
-                case "crosshair5":
-                case "crosshair6":
-                case "crosshair7":
-                case "default":
-                case "\"\"":
-                    return false;
-                default:
-                    return true;
-            }
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
@@ -584,9 +571,122 @@
             }
 
             base.StopEffect();
+        }
+    }
+
+    /// <summary>
+    /// special handling to restore crosshair shape at the end of the effect.
+    /// Also registers mutex with shape and provides a list of available shapes.
+    /// </summary>
+    public abstract class CrosshairShapeTimedSetEffect : TimedSetEffect
+    {
+        protected static readonly string CROSSHAIR_DEFAULT = "\"\"";
+        protected List<string> non_default_crosshairs = new()
+        {
+            "crosshair1",
+            "crosshair2",
+            "crosshair3",
+            "crosshair4",
+            "crosshair5",
+            "crosshair6",
+            "crosshair7",
+            "default",
+        };
+        private string crosshair;
+        protected CrosshairShapeTimedSetEffect(string id, TimeSpan span, Dictionary<string, string> variables)
+            : base(id, span, variables)
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+
+            crosshair = CROSSHAIR_DEFAULT;
+        }
+        public override void StartEffect()
+        {
+            //TODO this is used in other effects - share this.
+            // custom restore code because blank crosshair file might not restore right.
+            crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
+                ?? CROSSHAIR_DEFAULT;
+            if (string.IsNullOrWhiteSpace(crosshair)
+                || IsInvalidCrosshair(crosshair))
+                crosshair = CROSSHAIR_DEFAULT;
+
+            base.StartEffect();
+
+        }
+        private bool IsInvalidCrosshair(string crosshair)
+        {
+            if (crosshair == null)
+                return true;
+
+            switch (crosshair)
+            {
+                case "crosshair1":
+                case "crosshair2":
+                case "crosshair3":
+                case "crosshair4":
+                case "crosshair5":
+                case "crosshair6":
+                case "crosshair7":
+                case "default":
+                case "\"\"":
+                    return false;
+                default:
+                    return true;
+            }
+        }
+        public override void StopEffect()
+        {
+            base.StopEffect();
 
             //reset to default
             TF2Effects.Instance.SetValue("cl_crosshair_file", crosshair);
+        }
+    }
+
+    public class AlienCrosshairEffect : CrosshairShapeTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_alien";
+        public AlienCrosshairEffect()
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+        protected AlienCrosshairEffect(string id, TimeSpan span)
+            : base(id, span, new()
+            {
+                // none
+            })
+        {
+            Mutex.Add(nameof(AlienCrosshairEffect));
+            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", randomCrosshair());
+        }
+
+        private string randomCrosshair()
+        {
+            int i = Random.Shared.Next(non_default_crosshairs.Count);
+            return non_default_crosshairs[i];
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            TF2Effects.Instance.SetValue("cl_crosshair_file", randomCrosshair());
+        }
+
+        public override void StopEffect()
+        {
+            base.StopEffect();
         }
     }
 }
