@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:TF2CrowdControl"
         mc:Ignorable="d"
         Title="TF2 Spectator for Crowd Control - by id_rotatcepS" 
-        Height="450" Width="800"
+        Height="500" Width="800"
         ResizeMode="CanResizeWithGrip"
         Closed="Window_Closed"
         Style="{StaticResource {x:Type Window}}"
