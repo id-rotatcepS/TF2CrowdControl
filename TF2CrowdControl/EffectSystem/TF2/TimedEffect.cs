@@ -46,6 +46,7 @@
         public abstract void StopEffect();
     }
 
+    // could make this abstract since this is not used directly anymore.
     public class TauntAfterKillEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_after_kill";
@@ -101,19 +102,26 @@
         {
             base.Update(timeSinceLastUpdate);
 
+            if (startTime == DateTime.MinValue)
+                return;
+
             // Makes multiple attempts in case player is mid-jump.
             // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             TimeSpan longestAttempt = TimeSpan.FromSeconds(2.0);
-            if (startTime != DateTime.MinValue
-                && DateTime.Now.Subtract(startTime) <= longestAttempt)
+            if (DateTime.Now.Subtract(startTime) <= longestAttempt)
                 SendTaunt();
-            else if (startTime != DateTime.MinValue)
+            else
             {
                 // final attempt with just default taunt.
-                _ = TF2Effects.Instance.RunCommand("taunt");
+                // (may have paused and resumed, so restrict how much time may have passed to do this final attempt).
+                bool shouldMakeFinalAttempt = DateTime.Now.Subtract(startTime) <= longestAttempt * 2;
 
+                // clear this before sending command to prevent possible race condition(?)
                 startTime = DateTime.MinValue;
+
+                if (shouldMakeFinalAttempt)
+                    _ = TF2Effects.Instance.RunCommand("taunt");
             }
         }
 
@@ -125,6 +133,7 @@
         }
     }
 
+    // could make this abstract since this is not used directly anymore.
     public class TauntAfterCritKillEffect : TauntAfterKillEffect
     {
         new public static readonly string EFFECT_ID = "taunt_after_crit_kill";
@@ -210,7 +219,7 @@
         public static readonly string EFFECT_ID = "spin_left";
 
         public SpinEffect()
-            : base(EFFECT_ID, DefaultTimeSpan)
+            : base(EFFECT_ID, TimeSpan.FromSeconds(30))
         {
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
             Availability = new AliveInMap();
@@ -342,6 +351,109 @@
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
             challenge = new KillsChallenge(3);
+        }
+    }
+
+    public class DeathAddsPixelatedTimedEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_pixelated";
+        public DeathAddsPixelatedTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+        {
+            challenge = new DeathsChallenge(7);// 7th death halving scale would put it below 0.01
+            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
+            Availability = new InMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double currentScale = 1.0;
+        public override void StartEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            currentScale = 1.0;
+            UpdateScale();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateScale()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale.ToString());
+        }
+
+        private void OnDeath()
+        {
+            currentScale /= 2.0;
+            UpdateScale();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+
+            currentScale = 1.0;
+            UpdateScale();
+        }
+    }
+
+    public class DeathAddsDreamTimedEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_dream";
+        public DeathAddsDreamTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+        {
+            challenge = new DeathsChallenge(8);// 8th death doubling scale would put it well past 100
+            Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_BLOOM);
+            Availability = new InMap();
+            // register the variables we'll need later.
+            _ = TF2Effects.Instance.GetValue("mat_force_bloom");
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double bloomFactor = 1.0;
+        private string startBloomFactor = "1";
+        public override void StartEffect()
+        {
+            // save mat_force_bloom
+            startBloomFactor = TF2Effects.Instance.GetValue("mat_force_bloom") ?? "1";
+            // set mat_force_bloom
+            TF2Effects.Instance.SetRequiredValue("mat_force_bloom", "1");
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            bloomFactor = 1.0;
+            UpdateBloom();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateBloom()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor.ToString());
+        }
+
+        private void OnDeath()
+        {
+            bloomFactor *= 2.0;
+            UpdateBloom();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+
+            bloomFactor = 1.0;
+            UpdateBloom();
+
+            // restore mat_force_bloom
+            TF2Effects.Instance.SetValue("mat_force_bloom", startBloomFactor);
         }
     }
 }

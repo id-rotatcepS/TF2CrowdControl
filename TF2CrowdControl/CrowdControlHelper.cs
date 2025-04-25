@@ -13,7 +13,8 @@ namespace CrowdControl
     /// the CrowdControlHelper Instance establishes a CC connection via SimpleTCPClient,
     /// starts a CC version of EffectDispatcher and feeds it CC EffectRequests 
     /// plus triggering UpdateUnclosedEffects and RefreshEffectListings on a timer,
-    /// and adds all the Effects we are claim to support in the game pack <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/>
+    /// and adds all the Effects we claim to support in the game pack
+    /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/>
     /// </summary>
     public class CrowdControlHelper
     {
@@ -51,6 +52,7 @@ namespace CrowdControl
                 new MedicRadarEffect(),
 
                 new BlackAndWhiteTimedEffect(),
+                new SilentMovieTimedEffect(),
                 new PixelatedTimedEffect(),
                 new DreamTimedEffect(),
 
@@ -64,17 +66,15 @@ namespace CrowdControl
                 new RainbowCrosshairEffect(),
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),
+                new BrrrCrosshairEffect(),
+                new AlienCrosshairEffect(),
 
-                new TauntAfterKillEffect(),
                 new MeleeOnlyEffect(),
 
                 // experimental
-                new HideHUDEffect(),
                 new ShowScoreboardEffect(),
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
-                new WallhacksForGrassEffect(),
-                new TauntAfterCritKillEffect(),
                 new QuitEffect(),
                 new RetryEffect(),
                 new ForcedChangeClassEffect(),
@@ -86,6 +86,9 @@ namespace CrowdControl
                 new SingleTauntAfterCritKillEffect(),
                 new ChallengeCataractsEffect(),
                 new ChallengeBlackAndWhiteTimedEffect(),
+
+                new DeathAddsPixelatedTimedEffect(),
+                new DeathAddsDreamTimedEffect(),
                 ]);
         }
 

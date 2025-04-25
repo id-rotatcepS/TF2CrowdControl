@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TF2CrowdControl"
         mc:Ignorable="d"
-        Title="TF2 Spectator for Crowd Control" 
-        Background="DarkGray"
-        Height="600" Width="800"
+        Title="TF2 Spectator for Crowd Control - by id_rotatcepS" 
+        Height="500" Width="800"
         ResizeMode="CanResizeWithGrip"
         Closed="Window_Closed"
+        Style="{StaticResource {x:Type Window}}"
         >
     <Window.DataContext>
         <!-- doing DataContext here instead of code-behind allows the visual editor to populate bindings -->
         <local:TF2CrowdControlViewModel x:Name="ccvm"/>
     </Window.DataContext>
-
-    <Grid>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Expander x:Name="TF2Settings" Header="Team Fortress 2 Settings" Background="AntiqueWhite">
                 <StackPanel>
@@ -58,29 +58,35 @@
                     </Grid>
                 </StackPanel>
             </Expander>
-            <Expander x:Name="Status" Header="Status" IsExpanded="True">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Width="100">
+            <Expander x:Name="Status" IsExpanded="False">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Status | "/>
                         <TextBlock x:Name="CC" 
-                                   Text="Crowd Control" 
+                                   Text="Crowd Control connection" 
                                    Foreground="{Binding StatusCCColor}"/>
+                        <TextBlock Text=" | "/>
                         <TextBlock x:Name="TF2" 
                                    Text="TF2 connection" 
                                    Foreground="{Binding StatusAppColor}"/>
+                        <TextBlock Text=" | "/>
                         <TextBlock x:Name="MapName" 
                                    Text="{Binding StatusMapName}" 
                                    Foreground="{Binding StatusMapNameColor}"/>
+                        <TextBlock Text="  "/>
                         <TextBlock x:Name="ClassName" 
                                    Text="{Binding StatusClassName}" 
                                    Foreground="{Binding StatusClassNameColor}"/>
                     </StackPanel>
-                    <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="430">
+                </Expander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="530">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Background="White"></WrapPanel>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-                        
+
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Margin="0" x:Name="BackgroundGrid">
@@ -106,7 +112,7 @@
 
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    
+
                     <TextBlock Text="{Binding ProxyValues}" Foreground="White" VerticalAlignment="Top" Width="200"/>
 
                 </StackPanel>
@@ -122,5 +128,5 @@
                 </ScrollViewer>
             </Expander>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Window>
