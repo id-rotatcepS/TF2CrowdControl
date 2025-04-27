@@ -764,9 +764,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect show_score = new("Show Scoreboard", "show_score")
     {
         Description = "Shows the scoreboard for a few seconds",
+        Note = "informational",
         Duration = TimeSpan.FromSeconds(6),
         Category = new EffectGrouping(C_HUD),
         Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+    public static readonly Effect show_score_mean = new("Show Scoreboard", "show_score_mean")
+    {
+        Description = "Shows the scoreboard for a few seconds... with mouse mode on",
+        Note = "toxic",
+        Duration = TimeSpan.FromSeconds(6),
+        Category = new EffectGrouping(C_HUD),
+        Price = 15,
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 1.0f,
@@ -939,6 +958,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             vr_mode,
 
             show_score,
+            show_score_mean,
 
             crosshair_rainbow,
             crosshair_giant,

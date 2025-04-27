@@ -195,23 +195,49 @@
     {
         public static readonly string EFFECT_ID = "show_score";
         public ShowScoreboardEffect()
-            : base(EFFECT_ID, TimeSpan.FromSeconds(6))
+            : this(EFFECT_ID)
+        {
+        }
+        protected ShowScoreboardEffect(string id)
+            : base(id, TimeSpan.FromSeconds(6))
         {
             Availability = new InMap();
             Mutex.Add(TF2Effects.MUTEX_SCOREBOARD);
+            Mutex.Add(nameof(ShowScoreboardEffect)); // hierarchy mutex
+
+            _ = TF2Effects.Instance.GetValue(variable);// register the variable for current value.
         }
 
         public override bool IsSelectableGameState => IsAvailable;
 
+        protected virtual string VariableTemporaryValue => "0";
+
+        private static readonly string variable = "tf_scoreboard_mouse_mode";
+        private string? variable_original_config;
         public override void StartEffect()
         {
+            variable_original_config = TF2Effects.Instance.GetValue(variable);
+            TF2Effects.Instance.SetValue(variable, VariableTemporaryValue);
             _ = TF2Effects.Instance.RunRequiredCommand("+showscores");
         }
 
         public override void StopEffect()
         {
             _ = TF2Effects.Instance.RunCommand("-showscores");
+            if (!string.IsNullOrWhiteSpace(variable_original_config))
+                TF2Effects.Instance.SetValue(variable, variable_original_config);
         }
+    }
+
+    public class ShowScoreboardMeanEffect : ShowScoreboardEffect
+    {
+        new public static readonly string EFFECT_ID = "show_score_mean";
+        public ShowScoreboardMeanEffect()
+            : base(EFFECT_ID)
+        {
+        }
+
+        protected override string VariableTemporaryValue => "1";
     }
 
     public class SpinEffect : TimedEffect
