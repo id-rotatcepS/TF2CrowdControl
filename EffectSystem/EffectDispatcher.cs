@@ -86,6 +86,7 @@ namespace EffectSystem
                 {
                     Aspen.Log.Info($"{effect.ID} Started & Finished.");
                     _client.AppliedInstant(request);
+                    _client.DurationFinished(request);
                 }
             }
             catch (Exception ex)

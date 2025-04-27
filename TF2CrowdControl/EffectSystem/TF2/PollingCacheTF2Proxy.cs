@@ -362,6 +362,7 @@ namespace EffectSystem.TF2
             log = new TF2LogOutput(tf2Path);
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
+            log.OnUserSelectedClass += UserSelectedClass;
             log.OnMapNameChanged += MapNameChanged;
         }
 
@@ -562,6 +563,21 @@ namespace EffectSystem.TF2
         /// Last known class spawn (empty string if never spawned)
         /// </summary>
         public string ClassSelection { get; private set; } = string.Empty;
+
+        private void UserSelectedClass(string playerClass)
+        {
+            if (NextClassSelection == playerClass)
+                return;
+
+            Aspen.Log.Info($"User selected a new class {playerClass}");
+            // can't assume user is alive yet.
+
+            NextClassSelection = playerClass;
+        }
+        /// <summary>
+        /// Last known class selection (expected next spawn)
+        /// </summary>
+        public string NextClassSelection { get; private set; } = string.Empty;
 
         public static readonly TimeSpan PollPeriod = TimeSpan.FromSeconds(1);
         private static readonly TimeSpan PollPauseTime = TimeSpan.FromSeconds(15);

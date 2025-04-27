@@ -614,7 +614,6 @@
         }
         public override void StartEffect()
         {
-            //TODO this is used in other effects - share this.
             // custom restore code because blank crosshair file might not restore right.
             crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
                 ?? CROSSHAIR_DEFAULT;

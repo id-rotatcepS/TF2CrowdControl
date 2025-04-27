@@ -62,6 +62,10 @@
         /// The last class the user is believed to have spawned as
         /// </summary>
         public string ClassSelection { get; }
+        /// <summary>
+        /// The class the user last selected for their next spawn
+        /// </summary>
+        public string NextClassSelection { get; }
 
         /// <summary>
         /// User has killed another player
