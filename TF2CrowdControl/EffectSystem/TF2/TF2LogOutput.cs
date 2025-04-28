@@ -96,6 +96,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
                 new DiedMatcher(this),
 
                 new CustomClassChangeMatcher(this),
+                new NextClassChangeMatcher(this),
 
                 new DefendedMatcher(this),
                 new CapturedMatcher(this),
@@ -161,6 +162,15 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         internal void NotifyUserClassChanged(string playerClass)
         {
             OnUserChangedClass.Invoke(playerClass);
+        }
+        /// <summary>
+        /// Fires when the main player selects a different class than before.
+        /// The user likely has not spawned yet as this class.
+        /// </summary>
+        public event UserChangedClass OnUserSelectedClass;
+        internal void NotifyUserClassSelected(string playerClass)
+        {
+            OnUserSelectedClass.Invoke(playerClass);
         }
 
         /// <summary>
@@ -382,6 +392,30 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
 
             string playerClass = match.Groups["class"].Value;
             TF2LogOutput.NotifyUserClassChanged(playerClass);
+        }
+    }
+    /// <summary>
+    /// Fires when the player has selected a different class (including while dead).
+    /// </summary>
+    public class NextClassChangeMatcher : LineMatcher
+    {
+        private static readonly Regex defendedRegex = new Regex(@"^\s*\*You will respawn as (?<class>Scout|Soldier|Pyro|Demoman|Engineer|Heavy|Medic|Sniper|Spy)\s*$");
+
+        public NextClassChangeMatcher(TF2LogOutput tF2LogOutput)
+            : base(tF2LogOutput, defendedRegex)
+        {
+        }
+        public override void Handle(Match match, string line)
+        {
+            base.Handle(match, line);
+
+            string playerClass = match.Groups["class"].Value;
+            // translate
+            playerClass = playerClass.ToLower();
+            if (playerClass == "heavy")
+                playerClass = "heavyweapons";
+            // this is not the actual class change (spawn)
+            TF2LogOutput.NotifyUserClassSelected(playerClass);
         }
     }
 

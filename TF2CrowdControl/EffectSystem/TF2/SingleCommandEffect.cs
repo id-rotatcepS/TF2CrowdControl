@@ -24,12 +24,16 @@
 
         protected override void StartEffect(EffectDispatchRequest request)
         {
-            //base.StartEffect(request);
-
-            _ = TF2Effects.Instance.RunRequiredCommand(Command);
+            StartEffect();
 
             Thread.Sleep(WaitTimeToVerify);
+
             CheckEffectWorked();
+        }
+
+        protected virtual void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand(Command);
         }
 
         protected virtual TimeSpan WaitTimeToVerify { get; set; }
@@ -233,6 +237,11 @@
         {
             Availability = new InApplication();
         }
+        protected override TimeSpan WaitTimeToVerify => TimeSpan.Zero;
+        protected override void CheckEffectWorked()
+        {
+            // tf2 (going) down, can't really count on anything to verify.
+        }
     }
     public class RetryEffect : SingleCommandEffect
     {
@@ -259,22 +268,30 @@
 
         protected virtual string Autokill => "1";
 
-        // we should be able to verify within 60s that the class forcibly changed.
-        protected override TimeSpan WaitTimeToVerify => TimeSpan.FromSeconds(60);
-
         protected string classSelection = string.Empty;
+        protected string requestor = string.Empty;
         protected override void StartEffect(EffectDispatchRequest request)
         {
-            // not using base - request parameter is part of the command, also smart required variable.
+            // need to pull request parameter as part of the command
 
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
             classSelection = request.Parameter.ToLower(); // join_class supports "random" directly
-            string formattedMainCommand = string.Format(Command, request.Requestor, classSelection);
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+            string formattedMainCommand = string.Format(Command, requestor, classSelection);
+
+            // smart required variable.
             string formattedCommand = AddTempVariableChange(formattedMainCommand,
                 variable: "hud_classautokill", val: Autokill,
                 def: "0");
             _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
-
-            CheckEffectWorked();
         }
 
         private string AddTempVariableChange(string mainCommand, string variable, string val, string def)
@@ -287,6 +304,9 @@
             return string.Format("{0} {1};{2};{0} {3}", variable, val, mainCommand, prev);
         }
 
+        // give extra time to make sure we aren't switching maps.
+        protected override TimeSpan WaitTimeToVerify => TimeSpan.FromSeconds(4);
+
         protected override void CheckEffectWorked()
         {
             // availability doesn't change, but if it became unavailable it probably won't take.
@@ -294,10 +314,12 @@
                 && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
                 throw new EffectNotVerifiedException("Left the map before class applied");
 
-            // we should be able to verify within 60s that the class forcibly changed.
             if (!string.IsNullOrEmpty(classSelection)
                 && classSelection != "random"
-                && TF2Effects.Instance.TF2Proxy?.ClassSelection == classSelection)
+                && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
+                // also acceptable, although "Next" is the really relevant one.
+                && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
+                )
                 throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
         }
 

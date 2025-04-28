@@ -77,7 +77,10 @@
                         <TextBlock x:Name="ClassName" 
                                    Text="{Binding StatusClassName}" 
                                    Foreground="{Binding StatusClassNameColor}"/>
-                    </StackPanel>
+                        <TextBlock Text="  "/>
+                        <TextBlock x:Name="VerticalSpeed" 
+                                   Text="{Binding StatusVerticalSpeed}" 
+                                   Foreground="{Binding StatusVerticalSpeedColor}"/>                    </StackPanel>
                 </Expander.Header>
                 <StackPanel Orientation="Horizontal">
                     <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="530">

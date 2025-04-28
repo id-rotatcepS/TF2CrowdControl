@@ -146,13 +146,16 @@
         public SilentMovieTimedEffect()
             : this(EFFECT_ID, DefaultTimeSpan)
         {
+            _ = TF2Effects.Instance.GetValue("volume"); // register for polling
         }
 
         protected SilentMovieTimedEffect(string id, TimeSpan duration)
             : base(id, duration, new Dictionary<string, string>
             {
                 ["mat_color_projection"] = "4",
-                ["volume"] = "0"
+                ["volume"] = "0",
+                ["mat_bloom_scalefactor_scalar"] = "8", // much more subtle than Dream
+                ["mat_force_bloom"] = "1",
             })
         {
             Mutex.Add(nameof(BlackAndWhiteTimedEffect));//hierarchy is all mutex
@@ -614,7 +617,6 @@
         }
         public override void StartEffect()
         {
-            //TODO this is used in other effects - share this.
             // custom restore code because blank crosshair file might not restore right.
             crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
                 ?? CROSSHAIR_DEFAULT;

@@ -73,6 +73,7 @@ namespace CrowdControl
 
                 // experimental
                 new ShowScoreboardEffect(),
+                new ShowScoreboardMeanEffect(),
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
                 new QuitEffect(),
