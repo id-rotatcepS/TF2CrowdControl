@@ -108,9 +108,16 @@
             // Makes multiple attempts in case player is mid-jump.
             // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
-            TimeSpan longestAttempt = TimeSpan.FromSeconds(2.0);
+            // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
+            TimeSpan longestAttempt = TimeSpan.FromSeconds(1.2);
             if (DateTime.Now.Subtract(startTime) <= longestAttempt)
-                SendTaunt();
+            {
+                // reset the attempts if we're mid-jump.
+                if (TF2Effects.Instance.TF2Proxy?.IsJumping ?? false)
+                    startTime = DateTime.Now;
+                else
+                    SendTaunt();
+            }
             else
             {
                 // final attempt with just default taunt.

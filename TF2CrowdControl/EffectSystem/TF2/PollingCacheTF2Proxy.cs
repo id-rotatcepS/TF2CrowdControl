@@ -364,7 +364,11 @@ namespace EffectSystem.TF2
             log.OnUserChangedClass += UserChangedClass;
             log.OnUserSelectedClass += UserSelectedClass;
             log.OnMapNameChanged += MapNameChanged;
+
+            motionTracker = new MotionTracker(this);
         }
+
+        private MotionTracker motionTracker;
 
         private string ConfigFilepath { get; }
         private string BackupConfigFilepath { get; }
@@ -595,6 +599,9 @@ namespace EffectSystem.TF2
                     InitializeLogWhenNeeded();
 
                     PollCommandsAndVariables();
+
+                    // use getpos and time to calculate motion for other features.
+                    motionTracker.RecordUserMotion();
                 }
 
                 tickRepeatedExceptionMessage = string.Empty;
@@ -613,6 +620,17 @@ namespace EffectSystem.TF2
                 _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
         }
+
+        public double VerticalSpeed => motionTracker.GetVerticalSpeed();
+
+        /// <summary>
+        /// 300 Hu/s is normal walk speed. 400 for scout, but nobody walks straight up.
+        /// Seems to work OK - pyro going up the tr_walkway ramp goes just under 200 vertically. 
+        /// scout went up to 225
+        /// </summary>
+        public static double MAX_VERTICAL_WALK_SPEED = 300;
+
+        public bool IsJumping => Math.Abs(motionTracker.GetVerticalSpeed()) > MAX_VERTICAL_WALK_SPEED;
 
         /// <summary>
         /// One-time command has successfully run?
@@ -786,5 +804,4 @@ namespace EffectSystem.TF2
         // tf_party_debug: includes "associated_lobby_id: 0"
 
     }
-
 }

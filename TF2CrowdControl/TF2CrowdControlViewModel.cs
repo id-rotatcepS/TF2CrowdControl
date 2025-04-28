@@ -119,6 +119,8 @@ namespace TF2CrowdControl
                 ViewNotification(nameof(StatusMapNameColor));
                 ViewNotification(nameof(StatusClassName));
                 ViewNotification(nameof(StatusClassNameColor));
+                ViewNotification(nameof(StatusVerticalSpeed));
+                ViewNotification(nameof(StatusVerticalSpeedColor));
                 ViewNotification(nameof(StatusAppColor));
                 ViewNotification(nameof(StatusCCColor));
 
@@ -145,6 +147,25 @@ namespace TF2CrowdControl
         public Brush StatusClassNameColor => TF2Effects.Instance.TF2Proxy?.IsUserAlive ?? false
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.Gray);
+
+        public string StatusVerticalSpeed
+        {
+            get
+            {
+                if (TF2Effects.Instance.TF2Proxy == null)
+                    return string.Empty;
+
+                double speed = TF2Effects.Instance.TF2Proxy.VerticalSpeed;
+                if (double.IsNaN(speed)
+                    || speed == 0.0)
+                    return string.Empty;
+
+                return speed.ToString();
+            }
+        }
+        public Brush StatusVerticalSpeedColor => TF2Effects.Instance.TF2Proxy?.IsJumping ?? false
+            ? new SolidColorBrush(Colors.Red)
+            : new SolidColorBrush(Colors.Black);
 
         public IEnumerable<EffectState> StatusEffects
         {

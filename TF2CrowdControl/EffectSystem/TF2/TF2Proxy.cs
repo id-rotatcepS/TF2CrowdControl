@@ -66,6 +66,8 @@
         /// The class the user last selected for their next spawn
         /// </summary>
         public string NextClassSelection { get; }
+        bool IsJumping { get; }
+        double VerticalSpeed { get; }
 
         /// <summary>
         /// User has killed another player

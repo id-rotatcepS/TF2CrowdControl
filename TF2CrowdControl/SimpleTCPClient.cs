@@ -242,7 +242,9 @@ namespace CrowdControl
             string json = JsonConvert.SerializeObject(responseObject, JSON_SETTINGS);
 
             byte[] buffer = Encoding.UTF8.GetBytes(json + '\0');
-            Socket socket = _client.Client; // TODO tiny null pointer risk
+            Socket socket = _client.Client;
+            if (socket == null) // on shutdown this can be null
+                return false;
             await _client_lock.WaitAsync();
             try
             {
