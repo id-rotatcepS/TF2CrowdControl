@@ -120,7 +120,7 @@ namespace CrowdControl
             {
                 //TODO need to stop trying when TF2Instance is no good.  have to move control of that out of the viewmodel, and even then it may not be smart enough to help.
                 //TODO however, refresh should close things down when the instance is no good.  Mode is bad - hide everything.
-                _effectDispatcher.UpdateUnclosedEffects();
+                _effectDispatcher.UpdateUnclosedDurationEffects();
                 _effectDispatcher.RefreshEffectListings();
                 //TODO make this more granular - dispatcher should invoke when there's actually a change.
                 OnEffectStatesUpdated?.Invoke(this);

@@ -86,7 +86,6 @@ namespace EffectSystem
                 {
                     Aspen.Log.Info($"{effect.ID} Started & Finished.");
                     _client.AppliedInstant(request);
-                    _client.DurationFinished(request);
                 }
             }
             catch (Exception ex)
@@ -115,9 +114,11 @@ namespace EffectSystem
             return result;
         }
 
-        public void UpdateUnclosedEffects()
+        public void UpdateUnclosedDurationEffects()
         {
-            foreach (Effect openEffect in Effects.Where(e => !e.IsClosed))
+            foreach (Effect openEffect in Effects.Where(e
+                => !e.IsClosed
+                && e.HasDuration))
             {
                 //Aspen.Log.Trace($"Updating effect [{openEffect.ID}].");
 
