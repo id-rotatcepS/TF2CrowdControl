@@ -37,7 +37,7 @@ namespace EffectSystem
         public EffectDispatchRequest? CurrentRequest { get; private set; }
 
         /// <summary>
-        /// Whether the effect has been completed (request cleared or (Elapsed >= Duration))
+        /// Whether the effect has been completed (request cleared ...when Elapsed >= Duration)
         /// </summary>
         public bool IsClosed => CurrentRequest == null;
 
@@ -67,6 +67,10 @@ namespace EffectSystem
                 CurrentRequest = request;
 
                 StartEffect(request);
+
+                // immediately clear non-duration requests
+                if (!HasDuration)
+                    CurrentRequest = null;
             }
         }
 
