@@ -219,13 +219,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
-    /// mat_viewportscale halves every death until 0.01 (vs 1)
+    /// mat_viewportscale halves every death until under 0.02 (vs 1)
     /// Affects game generation - relative to primary resolution.
     /// </summary>
     public static readonly Effect death_adds_pixelated = new("Every death doubles pixel size", "death_adds_pixelated")
     {
         SortName = "Challenge: Every death doubles pixel size",
-        Description = "TF2, but every time I die the pixels double in size (for 10 minutes or about 7 deaths)",
+        Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
@@ -263,13 +263,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
-    /// mat_bloom_scalefactor_scalar doubles every death until over 100 (vs 1)
+    /// mat_bloom_scalefactor_scalar doubles (2.25 actually) every death until over 100 (vs 1)
     /// Affects game generation.
     /// </summary>
     public static readonly Effect death_adds_dream = new("Every death doubles dreaminess", "death_adds_dream")
     {
         SortName = "Challenge: Every death doubles dreaminess",
-        Description = "TF2, but every time I die the dreamy glow doubles in intensity (for 10 minutes or about 8 deaths)",
+        Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,

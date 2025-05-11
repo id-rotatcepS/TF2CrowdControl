@@ -393,7 +393,7 @@
         public DeathAddsPixelatedTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromMinutes(10))
         {
-            challenge = new DeathsChallenge(7);// 7th death halving scale would put it below 0.01
+            challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
             Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             Availability = new InMap();
@@ -439,7 +439,7 @@
         public DeathAddsDreamTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromMinutes(10))
         {
-            challenge = new DeathsChallenge(8);// 8th death doubling scale would put it well past 100
+            challenge = new DeathsChallenge(6);// 6th death 2.25x scale would put it well past 100
             Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_BLOOM);
             Availability = new InMap();
@@ -473,7 +473,7 @@
 
         private void OnDeath()
         {
-            bloomFactor *= 2.0;
+            bloomFactor *= 2.25;
             UpdateBloom();
         }
 
