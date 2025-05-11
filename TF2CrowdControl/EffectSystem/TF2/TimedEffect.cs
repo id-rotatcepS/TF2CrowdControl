@@ -114,7 +114,7 @@
             {
                 // reset the attempts if we're mid-jump.
                 if (TF2Effects.Instance.TF2Proxy?.IsJumping ?? false)
-                    startTime = DateTime.Now;
+                    JumpedDuringUpdate();
                 else
                     SendTaunt();
             }
@@ -130,6 +130,11 @@
                 if (shouldMakeFinalAttempt)
                     _ = TF2Effects.Instance.RunCommand("taunt");
             }
+        }
+
+        protected virtual void JumpedDuringUpdate()
+        {
+            startTime = DateTime.Now;
         }
 
         public override void StopEffect()
@@ -355,7 +360,14 @@
         public SingleTauntAfterKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
+            challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
+        }
+
+        protected override void JumpedDuringUpdate()
+        {
+            base.JumpedDuringUpdate();
+
+            (challenge as KillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 
@@ -369,7 +381,15 @@
         public SingleTauntAfterCritKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
+            challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
+        }
+
+        protected override void JumpedDuringUpdate()
+        {
+            base.JumpedDuringUpdate();
+
+            // can't start taunt - they need to survive til landing and taunt started.
+            (challenge as CritKillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 

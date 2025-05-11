@@ -66,9 +66,11 @@ namespace CrowdControl
             => Respond(request, EffectStatus.Resumed, remainingTime).Forget();
 
         public void NotAppliedFailed(EffectDispatchRequest request, string message)
+            // StandardErrors.ExceptionThrown (rename method?) (accept exception and use message as string)
             => Respond(request, EffectStatus.Failure, null, message).Forget();
 
         public void NotAppliedRetry(EffectDispatchRequest request)
+            // StandardErrors.EffectDisabled (rename method?)
             => Respond(request, EffectStatus.Retry, null).Forget();
         /// <summary>
         /// Kat [Developer] — 3/22/2025 at 7:23 PM
@@ -78,9 +80,12 @@ namespace CrowdControl
         /// <param name="request"></param>
         /// <param name="waitTime"></param>
         public void NotAppliedWait(EffectDispatchRequest request, TimeSpan waitTime)
+            // StandardErrors.ConflictingEffectRunning (rename method?)
             => Respond(request, EffectStatus.Wait, waitTime).Forget();
         public void NotAppliedUnavailable(EffectDispatchRequest request)
+            // StandardErrors.EffectUnknown (rename method?)
             => Respond(request, EffectStatus.Unavailable, null).Forget();
+
         public void SetListed(string effectID, bool listed)
             => Status(effectID, listed ? EffectStatus.Visible : EffectStatus.NotVisible).Forget();
 

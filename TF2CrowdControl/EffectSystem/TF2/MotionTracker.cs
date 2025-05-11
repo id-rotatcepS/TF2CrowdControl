@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Windows.Media.Media3D;
 
 namespace EffectSystem.TF2
 {
@@ -55,10 +56,11 @@ namespace EffectSystem.TF2
 
         private DateTime lastMotionTime = DateTime.MinValue;
         private TimeSpan lastTimePeriod = TimeSpan.Zero;
-        private static readonly System.Windows.Media.Media3D.Point3D zzz = new System.Windows.Media.Media3D.Point3D();
-        private static readonly System.Windows.Media.Media3D.Vector3D stopped = new System.Windows.Media.Media3D.Vector3D(0.0, 0.0, 0.0);
-        private System.Windows.Media.Media3D.Point3D lastPosition = zzz;
-        private System.Windows.Media.Media3D.Vector3D lastDistance = stopped;
+        private static readonly Point3D zzz = new Point3D();
+        private static readonly Vector3D stopped = new Vector3D(0.0, 0.0, 0.0);
+        private Point3D lastPosition = zzz;
+        private Vector3D lastDistance = stopped;
+
         public void RecordUserMotion()
         {
             string? getpos;
@@ -109,21 +111,31 @@ namespace EffectSystem.TF2
 
         private void UpdateDistanceAndPosition(string spx, string spy, string spz)
         {
-            System.Windows.Media.Media3D.Point3D currentposition = new System.Windows.Media.Media3D
-                .Point3D(double.Parse(spx), double.Parse(spy), double.Parse(spz));
+            Point3D currentposition = new Point3D(double.Parse(spx), double.Parse(spy), double.Parse(spz));
 
-            if (lastMotionTime != DateTime.MinValue && !lastPosition.Equals(zzz))
-            {
-                System.Windows.Media.Media3D.Vector3D distance = System.Windows.Media.Media3D.Point3D
-                    // start + distance = end  therefore  distance = end - start
-                    .Subtract(currentposition, lastPosition);
-                lastDistance = distance;
-            }
+            lastDistance = GetLastDistance(currentposition);
+
             lastPosition = currentposition;
+        }
+
+        private Vector3D GetLastDistance(Point3D currentposition)
+        {
+            if (lastMotionTime == DateTime.MinValue
+                || lastPosition.Equals(zzz)
+                || currentposition.Equals(zzz))
+                return stopped;
+
+            // start + distance = end  therefore  distance = end - start
+            Vector3D distance = Point3D.Subtract(currentposition, lastPosition);
+
+            return distance;
         }
 
         public double GetVerticalSpeed()
         {
+            if (lastTimePeriod.TotalSeconds == 0)
+                return 0;
+
             double speed = lastDistance.Z / lastTimePeriod.TotalSeconds;
             return speed;
         }
