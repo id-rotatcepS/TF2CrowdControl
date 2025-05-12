@@ -152,13 +152,14 @@
         protected SilentMovieTimedEffect(string id, TimeSpan duration)
             : base(id, duration, new Dictionary<string, string>
             {
-                ["mat_color_projection"] = "4",
-                ["volume"] = "0",
+                ["mat_color_projection"] = "4", // black & white
+                ["volume"] = "0", // mute
                 ["mat_bloom_scalefactor_scalar"] = "8", // much more subtle than Dream
-                ["mat_force_bloom"] = "1",
+                ["mat_force_bloom"] = "1", // "required" for bloom - except setting it to 0 doesn't force it off
             })
         {
             Mutex.Add(nameof(BlackAndWhiteTimedEffect));//hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_BLOOM);
             // Availability: even works in the menu
             Availability = new InApplication();
         }
