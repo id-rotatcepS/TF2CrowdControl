@@ -71,7 +71,6 @@ namespace CrowdControl
 
                 new MeleeOnlyEffect(),
 
-                // experimental
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
                 new MouseSensitivityHighEffect(),
@@ -81,6 +80,8 @@ namespace CrowdControl
                 new ForcedChangeClassEffect(),
                 new SpinEffect(),
                 new WM1Effect(),
+                new TauntEffect(),
+                new TauntContinouslyEffect(),
 
                 new ChallengeMeleeTimedEffect(),
                 new SingleTauntAfterKillEffect(),

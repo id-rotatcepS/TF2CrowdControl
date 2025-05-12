@@ -39,6 +39,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly string C_GAMEPLAY = "Gameplay";
     public static readonly string C_HUD = "HUD";
     public static readonly string C_MOVEMENT = "Movement";
+    public static readonly string C_TAUNT = "Taunts";
 
     public static readonly string CROWD_CONTROL_HOST = "127.0.0.1";//TODO share with my SimpleTCPClient instance
     public static readonly ushort APP_CROWD_CONTROL_PORT = 58430;//TODO share with my SimpleTCPClient instance
@@ -727,7 +728,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to the next player I kill.",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
-        Category = new EffectGrouping(C_GAMEPLAY),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 10,
         #region streamer facing
         IsDurationEditable = false,
@@ -745,7 +746,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "until 1 kill",
         Description = "Forced to act like a jerk to the next player I kill with a crit (including headshots).",
         Duration = TimeSpan.FromMinutes(10), // long duration is cancelled after 1 kill
-        Category = new EffectGrouping(C_GAMEPLAY),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 5,
         #region streamer facing
         IsDurationEditable = false,
@@ -757,6 +758,47 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+    };
+    /// <summary>
+    /// keep taunting randomly for 20 seconds
+    /// </summary>
+    public static readonly Effect taunt_continuously = new("Taunt Continuously", "taunt_continuously")
+    {
+        Description = "Random taunts for the full duration.",
+        Duration = TimeSpan.FromSeconds(20),
+        Category = new EffectGrouping(C_TAUNT),
+        Price = 100,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+    };
+    /// <summary>
+    /// taunt randomly
+    /// </summary>
+    public static readonly Effect taunt_now = new("Taunt", "taunt_now")
+    {
+        Description = "Do one equipped or weapon taunt immediately.",
+        Note = "random", // planning to add specific taunts (disabled by default so streamer can enable if they equip it)
+        Duration = TimeSpan.FromSeconds(5),
+        Category = new EffectGrouping(C_TAUNT),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = false,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     #endregion Game Play
 
@@ -980,9 +1022,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             cataracts_challenge,
             melee_only_challenge,
+            blackandwhite_challenge_5ks,
+
+            taunt_now,
+            taunt_continuously,
             taunt_after_single_kill,
             taunt_after_single_crit_kill,
-            blackandwhite_challenge_5ks,
 
             death_adds_pixelated,
             death_adds_dream,
