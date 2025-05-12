@@ -668,11 +668,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect medicradar = new("Medic Radar", "medicradar")
     {
         Description = "All teammates call medic to show icons over their heads.",
-        Duration = TimeSpan.FromSeconds(2),
+        Duration = TimeSpan.FromSeconds(6),
         Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
         Price = 1,
         #region streamer facing
-        IsDurationEditable = false,
+        IsDurationEditable = true,
         //ScaleFactor = 0.5f,
         //ScaleDecayTime = TimeSpan.FromMinutes(1),
         //ViewerCooldown = TimeSpan.FromMinutes(0),

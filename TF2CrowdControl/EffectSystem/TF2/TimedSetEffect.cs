@@ -109,7 +109,7 @@
     {
         public static readonly string EFFECT_ID = "medicradar";
         public MedicRadarEffect()
-            : base(EFFECT_ID, new TimeSpan(0, 0, seconds: 2), new()
+            : base(EFFECT_ID, new TimeSpan(0, 0, seconds: 6), new()
             {
                 ["hud_medicautocallers"] = "1",
                 ["Hud_MedicAutocallersThreshold"] = "150",
