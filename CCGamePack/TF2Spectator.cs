@@ -35,6 +35,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
     public static readonly string C_CHALLENGES = "Challenges";
     public static readonly string C_CAMERA = "Camera";
+    public static readonly string C_VIEWMODEL = "View Model";
     public static readonly string C_CROSSHAIR = "Crosshair";
     public static readonly string C_GAMEPLAY = "Gameplay";
     public static readonly string C_HUD = "HUD";
@@ -298,7 +299,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Big Guns",
         Description = "Force my usual weapon viewmodels to the default big ones.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -319,7 +320,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Small Guns",
         Description = "Force my usual weapon viewmodels to small ones.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -340,7 +341,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: No Guns",
         Description = "Force a change to whether my weapon viewmodels are visible.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL),
         Price = 10,
         #region streamer facing
         IsDurationEditable = true,
@@ -361,7 +362,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Long Arms",
         Description = "Force my viewmodels to have very long arms.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL),
         Price = 10,
         #region streamer facing
         IsDurationEditable = true,
@@ -382,7 +383,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: VR Mode",
         Description = "My arms, weapons, and body are visible exactly as other players see them in game.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -404,7 +405,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Plastered",
         Description = "Good eveninging ofischer... I don' feel sho good",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping("View Model"),
+        Category = new EffectGrouping(C_VIEWMODEL, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
