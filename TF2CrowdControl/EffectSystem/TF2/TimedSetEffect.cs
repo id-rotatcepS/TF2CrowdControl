@@ -187,7 +187,7 @@
         private static string FormatRandomIntertitle()
         {
             string format = intertitles[Random.Shared.Next(intertitles.Count)];
-            return string.Format(format, TF2Effects.Instance.TF2Proxy?.GetValue("name"));
+            return string.Format(format, TF2Effects.Instance.GetValue("name"));
         }
         /// <summary>
         /// string formats to display as intertitles on death.
@@ -446,6 +446,104 @@
         public override bool IsSelectableGameState => base.IsSelectableGameState;
     }
 
+    /// <summary>
+    /// Animate fov and viewmodel fov back and forth at different rates
+    /// </summary>
+    public class DrunkEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "drunk";
+
+        private byte fov;
+        private bool fov_up;
+        private byte vm;
+        private bool vm_up;
+
+        public DrunkEffect()
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 1, 0), new()
+            {
+                ["fov_desired"] = "75",//fov_desired 20 to 90 (def 75) // in practice only 75-90 are visible changes - probably due to default_fov 75 (cheats required)
+                ["viewmodel_fov"] = "54",//viewmodel_fov .1 to 179.9 (def 54)
+                ["r_drawviewmodel"] = "1"
+            })
+        {
+            fov = 75;
+            fov_up = false;
+            vm = 54;
+            vm_up = true;
+
+            Mutex.Add(TF2Effects.MUTEX_VIEWMODEL);
+            Mutex.Add(TF2Effects.MUTEX_FOV);
+            Availability = new AliveInMap();
+        }
+
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            calculateFOV(timeSinceLastUpdate);
+
+            calculateVM(timeSinceLastUpdate);
+
+            _ = TF2Effects.Instance.RunCommand(
+                $"fov_desired {fov};" +
+                $"viewmodel_fov {vm};"
+                );
+        }
+
+        private void calculateFOV(TimeSpan timeSinceLastUpdate)
+        {
+            // seconds per transition (current updates run every quarter second)
+            double transitionLengthFOV = 2.0;
+            // in practice only 75-90 are visible changes - probably due to default_fov 75 (cheats required)
+            byte maxFOV = 90;
+            byte minFOV = 75;// 20; 
+            byte rangeFOV = (byte)(maxFOV - minFOV);
+            byte incrementFOV = (byte)Math.Min(rangeFOV,
+                (timeSinceLastUpdate.TotalSeconds / transitionLengthFOV) * rangeFOV);
+
+            if (fov_up)
+            {
+                fov = (byte)Math.Min(maxFOV, fov + incrementFOV);
+                if (fov == maxFOV)
+                    fov_up = false;
+            }
+            else
+            {
+                fov = (byte)Math.Max(minFOV, fov - incrementFOV);
+                if (fov == minFOV)
+                    fov_up = true;
+            }
+        }
+
+        private void calculateVM(TimeSpan timeSinceLastUpdate)
+        {
+            // seconds per transition (current updates run every quarter second)
+            double transitionLengthVM = 3.5;
+            // not using full range, we want to feel drunk, not insane.
+            byte maxVM = 100;// 179;
+            byte minVM = 40;// 1;
+            byte rangeVM = (byte)(maxVM - minVM);
+            byte incrementVM = (byte)Math.Min(rangeVM,
+                (timeSinceLastUpdate.TotalSeconds / transitionLengthVM) * rangeVM);
+
+            if (vm_up)
+            {
+                vm = (byte)Math.Min(maxVM, vm + incrementVM);
+                if (vm == maxVM)
+                    vm_up = false;
+            }
+            else
+            {
+                vm = (byte)Math.Max(minVM, vm - incrementVM);
+                if (vm == minVM)
+                    vm_up = true;
+            }
+        }
+    }
+
     public class RainbowCrosshairEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_rainbow";
@@ -469,6 +567,7 @@
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
+        // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
@@ -557,6 +656,7 @@
             //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
+        // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
@@ -675,6 +775,7 @@
             //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
+        // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");

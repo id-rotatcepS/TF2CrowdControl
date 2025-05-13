@@ -10,6 +10,7 @@
         public TF2Proxy? TF2Proxy { get; internal set; }
 
         public static readonly string MUTEX_VIEWMODEL = "viewmodel";
+        public static readonly string MUTEX_FOV = "fov";
         public static readonly string MUTEX_WEAPONSLOT = "weaponslot";
         public static readonly string MUTEX_CROSSHAIR_COLOR = "crosshair_color";
         public static readonly string MUTEX_CROSSHAIR_SIZE = "crosshair_size";

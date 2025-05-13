@@ -394,6 +394,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
     };
+
+    /// <summary>
+    /// animate fov_desired and viewmodel_fov
+    /// Affects game viewmodel (First-person arms/weapons) and fov
+    /// </summary>
+    public static readonly Effect drunk = new("Plastered", "drunk")
+    {
+        SortName = "View Model: Plastered",
+        Description = "Good eveninging ofischer... I don' feel sho good",
+        Duration = TimeSpan.FromSeconds(60),
+        Category = new EffectGrouping("View Model"),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
     #endregion View Model
 
     #region Crosshair
@@ -992,6 +1014,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             silent_movie,
             pixelated,
             dream,
+            drunk,
 
             big_guns,
             small_guns,
