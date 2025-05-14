@@ -10,13 +10,18 @@
         public TF2Proxy? TF2Proxy { get; internal set; }
 
         public static readonly string MUTEX_VIEWMODEL = "viewmodel";
+        public static readonly string MUTEX_FOV = "fov";
         public static readonly string MUTEX_WEAPONSLOT = "weaponslot";
         public static readonly string MUTEX_CROSSHAIR_COLOR = "crosshair_color";
         public static readonly string MUTEX_CROSSHAIR_SIZE = "crosshair_size";
         public static readonly string MUTEX_CROSSHAIR_SHAPE = "crosshair_shape";
         public static readonly string MUTEX_SCOREBOARD = "scoreboard";
         public static readonly string MUTEX_MOUSE = "mouse";
-        public static readonly string MUTEX_FORCE_MOVE = "force_move";
+        public static readonly string MUTEX_FORCE_MOVE_ROTATE = "force_move_rotate";
+        public static readonly string MUTEX_FORCE_MOVE_STRAFE = "force_move_strafe";
+        public static readonly string MUTEX_FORCE_MOVE_ATTACK = "force_move_attack";
+        public static readonly string MUTEX_FORCE_MOVE_FORWARD = "force_move_forward";
+        public static readonly string MUTEX_FORCE_MOVE_JUMP = "force_move_jump";
         public static readonly string MUTEX_VIEWPORT = "viewport";
         public static readonly string MUTEX_BLOOM = "bloom";
 

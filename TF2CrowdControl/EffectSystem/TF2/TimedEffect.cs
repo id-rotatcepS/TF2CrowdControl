@@ -46,49 +46,84 @@
         public abstract void StopEffect();
     }
 
-    // could make this abstract since this is not used directly anymore.
-    public class TauntAfterKillEffect : TimedEffect
+    public class JumpingEffect : TimedEffect
     {
-        public static readonly string EFFECT_ID = "taunt_after_kill";
-        private DateTime startTime = DateTime.MinValue;
+        public static readonly string EFFECT_ID = "jumping";
 
-        public TauntAfterKillEffect()
-            : this(EFFECT_ID, DefaultTimeSpan)
+        public JumpingEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_JUMP);
+            // don't try to taunt at the same time.
+            Mutex.Add(nameof(TauntEffect));
+            Mutex.Add(nameof(TauntAfterKillEffect));
         }
-        protected TauntAfterKillEffect(string id, TimeSpan duration)
+        protected JumpingEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
-            Mutex.Add(nameof(TauntAfterKillEffect)); //hierarchy is all mutex
             Availability = new AliveInMap();
         }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("+jump");
+        }
+
+        private bool plusjump = true;
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            if (plusjump)
+                _ = TF2Effects.Instance.RunCommand("+jump");
+            else
+                _ = TF2Effects.Instance.RunCommand("-jump");
+            plusjump = !plusjump;
+
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-jump");
+        }
+    }
+
+    public class TauntEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "taunt_now";
+        private DateTime startTime = DateTime.MinValue;
+
+        public TauntEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(5)) // enough time to finish jump and taunt.
+        {
+            Mutex.Add(nameof(TauntEffect)); // just mutex with itself.
+        }
+        protected TauntEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
         public override bool IsSelectableGameState => IsAvailable
             && null != TF2Effects.Instance.TF2Proxy;
 
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
-                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+                throw new EffectNotAppliedException("Unexpected error - unable to watch status right now.");
 
-            TF2Effects.Instance.TF2Proxy.OnUserKill += TauntAfterKillEffect_OnUserKill;
+            StartTaunt();
         }
 
-        private void TauntAfterKillEffect_OnUserKill(string victim, string weapon, bool crit)
+        protected void StartTaunt()
         {
-            if (ShouldTaunt(victim, weapon, crit))
-            {
-                startTime = DateTime.Now;
-                SendTaunt();
-            }
-            //FUTURE tempting to add "say ha ha I killed you, {victim}"
+            startTime = DateTime.Now;
+            SendTaunt();
         }
 
-        virtual protected bool ShouldTaunt(string victim, string weapon, bool crit)
-        {
-            return true;
-        }
-
-        private void SendTaunt()
+        protected virtual void SendTaunt()
         {
             // choose a random taunt AND default taunt in case nothing was equipped there.
             // slot 0 is held-weapon taunt, equippable slots are 1-8
@@ -106,15 +141,12 @@
                 return;
 
             // Makes multiple attempts in case player is mid-jump.
-            // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
-            // ... but we're often mid-air longer than that, so it's worth the risk I think.
-            // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
-            TimeSpan longestAttempt = TimeSpan.FromSeconds(1.2);
+            TimeSpan longestAttempt = GetLongestAttemptSpan();
             if (DateTime.Now.Subtract(startTime) <= longestAttempt)
             {
                 // reset the attempts if we're mid-jump.
                 if (TF2Effects.Instance.TF2Proxy?.IsJumping ?? false)
-                    startTime = DateTime.Now;
+                    JumpedDuringUpdate();
                 else
                     SendTaunt();
             }
@@ -132,9 +164,95 @@
             }
         }
 
+        /// <summary>
+        /// How long taunt commands should be attempted (since they stopped jumping).
+        /// Override for e.g. "taunt for the next 60 seconds"
+        /// </summary>
+        /// <returns></returns>
+        protected virtual TimeSpan GetLongestAttemptSpan()
+        {
+            // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
+            // ... but we're often mid-air longer than that, so it's worth the risk I think.
+            // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
+            return TimeSpan.FromSeconds(1.2);
+        }
+
+        protected virtual void JumpedDuringUpdate()
+        {
+            startTime = DateTime.Now;
+        }
+
         public override void StopEffect()
         {
             startTime = DateTime.MinValue;
+        }
+    }
+
+    /// <summary>
+    /// keep taunting for a long duration continuously
+    /// </summary>
+    public class TauntContinouslyEffect : TauntEffect
+    {
+        new public static readonly string EFFECT_ID = "taunt_continuously";
+
+        public TauntContinouslyEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+        }
+        protected TauntContinouslyEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Mutex.Add(nameof(TauntEffect)); //mutex with parent
+        }
+
+        protected override TimeSpan GetLongestAttemptSpan()
+        {
+            return base.Duration;
+        }
+    }
+
+    // could make this abstract since this is not used directly anymore.
+    public class TauntAfterKillEffect : TauntEffect
+    {
+        new public static readonly string EFFECT_ID = "taunt_after_kill";
+
+        public TauntAfterKillEffect()
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+        protected TauntAfterKillEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Mutex.Add(nameof(TauntAfterKillEffect)); //hierarchy is all mutex
+            // specifically not mutex with a basic taunt - they can do that while waiting for these,
+            // and they can queue these while an immediate taunt is in progress.
+        }
+
+        public override void StartEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            TF2Effects.Instance.TF2Proxy.OnUserKill += TauntAfterKillEffect_OnUserKill;
+        }
+
+        private void TauntAfterKillEffect_OnUserKill(string victim, string weapon, bool crit)
+        {
+            if (ShouldTaunt(victim, weapon, crit))
+                StartTaunt();
+
+            //FUTURE tempting to add "say ha ha I killed you, {victim}"
+        }
+
+        virtual protected bool ShouldTaunt(string victim, string weapon, bool crit)
+        {
+            return true;
+        }
+
+        public override void StopEffect()
+        {
+            base.StopEffect();
+
             if (TF2Effects.Instance.TF2Proxy != null)
                 TF2Effects.Instance.TF2Proxy.OnUserKill -= TauntAfterKillEffect_OnUserKill;
         }
@@ -254,7 +372,7 @@
         public SpinEffect()
             : base(EFFECT_ID, TimeSpan.FromSeconds(30))
         {
-            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ROTATE);
             Availability = new AliveInMap();
         }
 
@@ -281,7 +399,8 @@
         public WM1Effect()
             : base(EFFECT_ID, DefaultTimeSpan)
         {
-            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_FORWARD);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ATTACK);
             Availability = new AliveInMap();
         }
 
@@ -355,7 +474,14 @@
         public SingleTauntAfterKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
+            challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
+        }
+
+        protected override void JumpedDuringUpdate()
+        {
+            base.JumpedDuringUpdate();
+
+            (challenge as KillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 
@@ -369,7 +495,15 @@
         public SingleTauntAfterCritKillEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
         {
-            challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(2));
+            challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
+        }
+
+        protected override void JumpedDuringUpdate()
+        {
+            base.JumpedDuringUpdate();
+
+            // can't start taunt - they need to survive til landing and taunt started.
+            (challenge as CritKillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 
@@ -393,7 +527,7 @@
         public DeathAddsPixelatedTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromMinutes(10))
         {
-            challenge = new DeathsChallenge(7);// 7th death halving scale would put it below 0.01
+            challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
             Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             Availability = new InMap();
@@ -439,7 +573,7 @@
         public DeathAddsDreamTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromMinutes(10))
         {
-            challenge = new DeathsChallenge(8);// 8th death doubling scale would put it well past 100
+            challenge = new DeathsChallenge(6);// 6th death 2.25x scale would put it well past 100
             Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_BLOOM);
             Availability = new InMap();
@@ -473,7 +607,7 @@
 
         private void OnDeath()
         {
-            bloomFactor *= 2.0;
+            bloomFactor *= 2.25;
             UpdateBloom();
         }
 

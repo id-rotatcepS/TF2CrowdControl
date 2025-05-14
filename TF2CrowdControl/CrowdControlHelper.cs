@@ -18,6 +18,12 @@ namespace CrowdControl
     /// </summary>
     public class CrowdControlHelper
     {
+        /// <summary>
+        /// the request code sent when a hype train event happens.
+        /// request will include a sourceDetails instance of class HypeTrainSourceDetails
+        /// </summary>
+        public static readonly string CC_HYPETRAIN_CODE = "event-hype-train";
+
         private static CrowdControlHelper? _Instance;
         public static CrowdControlHelper Instance
             => _Instance
@@ -68,19 +74,25 @@ namespace CrowdControl
                 new GiantCrosshairEffect(),
                 new BrrrCrosshairEffect(),
                 new AlienCrosshairEffect(),
+                new DrunkEffect(),
 
                 new MeleeOnlyEffect(),
 
-                // experimental
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
+
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
+
                 new QuitEffect(),
                 new RetryEffect(),
                 new ForcedChangeClassEffect(),
+
                 new SpinEffect(),
                 new WM1Effect(),
+                new TauntEffect(),
+                new TauntContinouslyEffect(),
+                new JumpingEffect(),
 
                 new ChallengeMeleeTimedEffect(),
                 new SingleTauntAfterKillEffect(),
@@ -178,16 +190,21 @@ namespace CrowdControl
 
             Aspen.Log.Trace($"Got an effect test request [{request.id}:{request.code}].");
 
-            if (request.code == null
-                || !_effectDispatcher.Effects.Any(e => e.ID == request.code)
+            string effectID =
+                req.EffectID == CC_HYPETRAIN_CODE ? "taunt_now"
+                : req.EffectID;
+
+            if (effectID == null
+                || !_effectDispatcher.Effects.Any(e => e.ID == effectID)
                 )
             {
-                Aspen.Log.Error($"Effect {request.code} not found. ");// Available effects: {string.Join(", ", Effects.Keys)}");
+                Aspen.Log.Error($"Effect {effectID} not found. ");// Available effects: {string.Join(", ", Effects.Keys)}");
                 //could not find the effect
                 _effectDispatcher.Responder.NotAppliedUnavailable(req);
                 return;
             }
-            Effect effect = _effectDispatcher.Effects.First(e => e.ID == request.code);//Effects[request.code];
+
+            Effect effect = _effectDispatcher.Effects.First(e => e.ID == effectID);//Effects[request.code];
 
             //if (((request.parameters as JArray)?.Count ?? 0) < effect.ParameterTypes.Length)
             //{
@@ -198,12 +215,12 @@ namespace CrowdControl
 
             if (!effect.IsSelectableGameState)
             {
-                //Log.Debug($"Effect {request.code} was not ready.");
+                //Log.Debug($"Effect {effectID} was not ready.");
                 _effectDispatcher.Responder.NotAppliedRetry(req);
                 return;
             }
 
-            Aspen.Log.Trace($"Effect {request.code} is ready.");
+            Aspen.Log.Trace($"Effect {effectID} is ready.");
             if (effect.HasDuration)
                 _effectDispatcher.Responder.AppliedFor(req, effect.Duration);
             else

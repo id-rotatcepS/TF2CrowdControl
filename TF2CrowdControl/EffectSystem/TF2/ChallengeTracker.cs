@@ -100,6 +100,7 @@ namespace EffectSystem.TF2
             if (kills > 0 && DateTime.Now.Subtract(lastKill) < minimumSurvival)
             {
                 --kills;
+                //TODO really needs to restore previous time when goal is more than 1.
                 lastKill = DateTime.MinValue;
             }
         }
@@ -119,6 +120,7 @@ namespace EffectSystem.TF2
         }
 
         public bool IsCompleted => (kills >= killsGoal
+            // yes, if lastKill is MinValue this will pass - weird case, let's call it completed to make sure we finish the effect.
             && DateTime.Now.Subtract(lastKill) > minimumSurvival);
 
         public void Stop()
@@ -128,6 +130,17 @@ namespace EffectSystem.TF2
 
             TF2Effects.Instance.TF2Proxy.OnUserKill -= IncrementStreak;
             TF2Effects.Instance.TF2Proxy.OnUserDied -= InvalidateIncrement;
+        }
+
+        /// <summary>
+        /// External influence on what surviving for minimumSurvivalTime is based on.
+        /// Only updates the value if it already is set.
+        /// </summary>
+        /// <param name="survivalStart"></param>
+        public void SurvivedSince(DateTime survivalStart)
+        {
+            if (lastKill != DateTime.MinValue)
+                lastKill = survivalStart;
         }
     }
 
