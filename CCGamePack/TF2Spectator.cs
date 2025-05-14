@@ -788,7 +788,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect taunt_continuously = new("Taunt Continuously", "taunt_continuously")
     {
         Description = "Random taunts for the full duration.",
-        Duration = TimeSpan.FromSeconds(20),
+        Duration = TimeSpan.FromSeconds(30),
         Category = new EffectGrouping(C_TAUNT),
         Price = 100,
         #region streamer facing
@@ -930,7 +930,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
-        //Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect wm1 = new("W+M1", "wm1")
     {
@@ -938,6 +938,23 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Duration = TimeSpan.FromSeconds(60),
         Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
         Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+    public static readonly Effect jumping = new("JumpJumpJump", "jumping")
+    {
+        Description = "It's like part-time zero-gravity",
+        Duration = TimeSpan.FromSeconds(45),
+        Category = new EffectGrouping(C_MOVEMENT),
+        Price = 40,
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 0.5f,
@@ -1003,6 +1020,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         => new Effect[]{
             spin_left,
             wm1,
+            jumping,
             mouse_sensitivity_high,
             mouse_sensitivity_low,
 

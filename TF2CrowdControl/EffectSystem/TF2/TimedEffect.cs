@@ -46,6 +46,50 @@
         public abstract void StopEffect();
     }
 
+    public class JumpingEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "jumping";
+
+        public JumpingEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_JUMP);
+            // don't try to taunt at the same time.
+            Mutex.Add(nameof(TauntEffect));
+            Mutex.Add(nameof(TauntAfterKillEffect));
+        }
+        protected JumpingEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("+jump");
+        }
+
+        private bool plusjump = true;
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            if (plusjump)
+                _ = TF2Effects.Instance.RunCommand("+jump");
+            else
+                _ = TF2Effects.Instance.RunCommand("-jump");
+            plusjump = !plusjump;
+
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-jump");
+        }
+    }
+
     public class TauntEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_now";
@@ -152,7 +196,7 @@
         new public static readonly string EFFECT_ID = "taunt_continuously";
 
         public TauntContinouslyEffect()
-            : this(EFFECT_ID, TimeSpan.FromSeconds(20))
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
         {
         }
         protected TauntContinouslyEffect(string id, TimeSpan duration)
@@ -328,7 +372,7 @@
         public SpinEffect()
             : base(EFFECT_ID, TimeSpan.FromSeconds(30))
         {
-            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ROTATE);
             Availability = new AliveInMap();
         }
 
@@ -355,7 +399,8 @@
         public WM1Effect()
             : base(EFFECT_ID, DefaultTimeSpan)
         {
-            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_FORWARD);
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ATTACK);
             Availability = new AliveInMap();
         }
 

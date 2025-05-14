@@ -80,15 +80,19 @@ namespace CrowdControl
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
+
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
+
                 new QuitEffect(),
                 new RetryEffect(),
                 new ForcedChangeClassEffect(),
+
                 new SpinEffect(),
                 new WM1Effect(),
                 new TauntEffect(),
                 new TauntContinouslyEffect(),
+                new JumpingEffect(),
 
                 new ChallengeMeleeTimedEffect(),
                 new SingleTauntAfterKillEffect(),
