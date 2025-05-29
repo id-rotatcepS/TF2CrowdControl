@@ -252,7 +252,23 @@
             Availability = new InMap();
         }
     }
-
+    /// <summary>
+    /// Fades to like 50% blue then resets. 
+    /// I think it's used by the game when drowning.
+    /// </summary>
+    public class UnderwaterFadeEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "fade";
+        public UnderwaterFadeEffect()
+            : base(EFFECT_ID, "fade")
+        {
+            Availability = new InMap();
+        }
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
     public class ForcedChangeClassEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "join_class_autokill";

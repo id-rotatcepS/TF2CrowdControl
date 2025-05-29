@@ -61,6 +61,7 @@ namespace EffectSystem.TF2
                 new BrrrCrosshairEffect(),
                 new AlienCrosshairEffect(),
                 new DrunkEffect(),
+                new UnderwaterFadeEffect(),
 
                 new MeleeOnlyEffect(),
 
@@ -73,6 +74,7 @@ namespace EffectSystem.TF2
                 new QuitEffect(),
                 new RetryEffect(),
                 new ForcedChangeClassEffect(),
+                new ChangeClassEffect(),
 
                 new SpinEffect(),
                 new WM1Effect(),
@@ -120,7 +122,7 @@ namespace EffectSystem.TF2
                 return;
             }
 
-            TF2Proxy?.SetInfo(variable, value);
+            TF2Proxy.SetInfo(variable, value);
         }
 
         public void SetValue(string variable, string value)
@@ -146,7 +148,7 @@ namespace EffectSystem.TF2
             if (TF2Proxy == null)
                 throw new EffectNotAppliedException(string.Format("No connection available to set value: {0} = {1}", variable, value));
 
-            TF2Proxy?.SetValue(variable, value);
+            TF2Proxy.SetValue(variable, value);
         }
 
         public string? GetValue(string variable)
