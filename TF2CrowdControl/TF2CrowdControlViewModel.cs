@@ -106,13 +106,13 @@ namespace TF2CrowdControl
             //Aspen.Text
             //Aspen.Show
 
-            CC = CrowdControlHelper.Instance;
+            CCDispatcher = CrowdControlHelper.Instance;
             InstallConfigsCommand = new InstallConfigsCommand(this);
             CommandLog = string.Empty;
 
-            StartTF2Connection();
+            StartTF2ConnectionAndEffectHandlers();
 
-            CC.OnEffectStatesUpdated += (c) =>
+            CCDispatcher.OnEffectStatesUpdated += (c) =>
             {
                 ViewNotification(nameof(StatusEffects));
                 ViewNotification(nameof(StatusMapName));
@@ -128,12 +128,16 @@ namespace TF2CrowdControl
             };
         }
 
-        public CrowdControlHelper CC { get; }
+        private CrowdControlHelper CCDispatcher { get; }
 
-        public Brush StatusCCColor => CC.CrowdControlConnected
+        public Brush StatusCCColor => CCDispatcher.CrowdControlConnected
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.DarkRed);
 
+        public IEnumerable<EffectState> StatusEffects
+            => CCDispatcher.EffectStates;
+
+        #region TF2Status
         public Brush StatusAppColor => TF2Effects.Instance.TF2Proxy?.IsOpen ?? false
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.DarkRed);
@@ -167,13 +171,10 @@ namespace TF2CrowdControl
             ? new SolidColorBrush(Colors.Red)
             : new SolidColorBrush(Colors.Black);
 
-        public IEnumerable<EffectState> StatusEffects
-        {
-            get => CC.EffectStates;
-        }
-
         public string ProxyValues => (TF2Effects.Instance.TF2Proxy as PollingCacheTF2Proxy)?.AllValues ?? string.Empty;
+        #endregion TF2Status
 
+        #region TF2Config
         private static TF2Config TF2Config => Aspen.Option.Get<TF2Config>(nameof(TF2Config));
 
         /// <summary>
@@ -214,12 +215,15 @@ namespace TF2CrowdControl
                 RemakeConnection();
             }
         }
+        #endregion TF2Config
 
         public ICommand InstallConfigsCommand { get; }
 
         public string CommandLog { get; set; }
 
-        public void StartTF2Connection()
+        //TODO move all the below into a single new class that instantiates TF2Proxy (using TF2Config)
+        //& TF2 Effects and loads them into an Effects List (CCDispatcher.Effects => EffectDispatcher.Effects)
+        private void StartTF2ConnectionAndEffectHandlers()
         {
             RemakeConnection();
 
@@ -250,6 +254,11 @@ namespace TF2CrowdControl
             try
             {
                 TF2Effects.Instance.TF2Proxy = NewTF2Poller();
+                // (re)establish Effect instances in the dispatcher via CC instance so they can register variables for proxy to poll.
+                //TODO need to stop helper/dispatcher trying when TF2Instance is no good.  have to move control of instance out of the viewmodel, and even then it may not be smart enough to help.
+                //TODO however, dispatcher refresh should close things down when the instance is no good.  Mode is bad - hide everything.
+                CCDispatcher.Effects.Clear();
+                CCDispatcher.Effects.AddRange(TF2Effects.Instance.CreateAllEffects());
 
                 TF2Effects.Instance.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
                 TF2Effects.Instance.TF2Proxy.OnUserSpawned += () =>
@@ -269,23 +278,12 @@ namespace TF2CrowdControl
         private TF2Proxy NewTF2Poller()
         {
             TF2Instance.WriteRconConfigFile(TF2Config.TF2Path, TF2Config.RCONPort, TF2Config.RCONPassword);
-            //TODO pass a Microsoft ILogger to RCON to LogError with details when its connection fails
+            //FUTURE pass a Microsoft ILogger to RCON to LogError with details when its connection fails
             TF2Instance tf2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
             // tf2Instance might not be connected, yet, but every SendCommand will attempt to connect again.
             tf2Instance.SetOnDisconnected(RemakeConnection);
+
             PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(tf2Instance, TF2Config.TF2Path);
-
-            //// subtle indicator of "app thinks you're dead/alive"
-            ////TODO delete this or get a better indicator.
-            //string DeadCommand =
-            //    "cl_hud_playerclass_use_playermodel 0";
-            //string AliveCommand =
-            //    "cl_hud_playerclass_use_playermodel 1";
-            //tf2.OnUserDied += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
-            //    DeadCommand), (r) => { });
-            //tf2.OnUserSpawned += () => _tf2Instance?.SendCommand(new TF2FrameworkInterface.StringCommand(
-            //    AliveCommand), (r) => { });
-
             return tf2;
         }
 
@@ -296,7 +294,7 @@ namespace TF2CrowdControl
         {
             (Aspen.Option as TF2SpectatorSettings).SaveConfig();
             // try to shut down effects, but this doesn't help if TF2 was shut down already.
-            this.CC.ShutDown();
+            this.CCDispatcher.ShutDown();
 
             TF2Effects.Instance.TF2Proxy?.ShutDown();
         }

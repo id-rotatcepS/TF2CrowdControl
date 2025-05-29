@@ -19,13 +19,19 @@
         {
         }
 
-        private object originalValuesLock = new object();
+        private Dictionary<string, string> VariableSettings { get; }
 
-        protected Dictionary<string, string>? OriginalValues { get; private set; }
-        protected Dictionary<string, string> VariableSettings { get; }
+        private readonly object originalValuesLock = new object();
+
+        private Dictionary<string, string> OriginalValues { get; set; }
+            = new Dictionary<string, string>();
 
         private bool isStarted = false;
 
+        /// <summary>
+        /// IsAvailable and not every variableSetting is already set.  
+        /// Override this if effect has more to it than just the variableSettings.
+        /// </summary>
         public override bool IsSelectableGameState
             => IsAvailable
             && IsOriginalValuesDifferentFromEffectValues();
@@ -39,7 +45,7 @@
                     if (!isStarted)
                         LoadOriginalValues();
 
-                    return (OriginalValues?.Count ?? 0) > 0;
+                    return OriginalValues.Count > 0;
                 }
             }
             catch (Exception)
@@ -52,7 +58,7 @@
         {
             lock (originalValuesLock)
             {
-                OriginalValues = null;
+                OriginalValues = new Dictionary<string, string>();
 
                 foreach (string variable in VariableSettings.Keys)
                 {
@@ -61,13 +67,15 @@
                     string? startValue = TF2Effects.Instance.GetValue(variable);
                     if (startValue != null && startValue != activeValue)
                     {
-                        OriginalValues ??= new Dictionary<string, string>();
                         OriginalValues[variable] = startValue;
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Loads <see cref="OriginalValues"/>, then <see cref="SetRequiredVariableSettings"/>
+        /// </summary>
         public override void StartEffect()
         {
             lock (originalValuesLock)
@@ -75,11 +83,20 @@
                 isStarted = true;
                 LoadOriginalValues();
             }
+
+            SetRequiredVariableSettings();
+        }
+
+        /// <summary>
+        /// By default, sets every single variablesetting (unless it is empty) or throws an exception.
+        /// </summary>
+        protected virtual void SetRequiredVariableSettings()
+        {
             foreach (string variable in VariableSettings.Keys)
             {
                 string activeValue = VariableSettings[variable];
-
-                TF2Effects.Instance.SetRequiredValue(variable, activeValue);
+                if (!string.IsNullOrEmpty(activeValue))
+                    TF2Effects.Instance.SetRequiredValue(variable, activeValue);
             }
         }
 
@@ -87,20 +104,26 @@
         {
             lock (originalValuesLock)
             {
-                // some effects change the initial values further during updates,
-                // so we restore originals or requested values that didn't differ from originals
-                foreach (string variable in VariableSettings.Keys)
-                {
-                    string restoreValue;
-                    if (OriginalValues?.ContainsKey(variable) ?? false)
-                        restoreValue = OriginalValues[variable];
-                    else
-                        restoreValue = VariableSettings[variable];
-
-                    TF2Effects.Instance.SetValue(variable, restoreValue);
-                }
+                SetValuesFromOriginal();
 
                 isStarted = false;
+            }
+        }
+
+        private void SetValuesFromOriginal()
+        {
+            // some effects change the initial values further during updates,
+            // so we restore originals or requested values that didn't differ from originals
+            foreach (string variable in VariableSettings.Keys)
+            {
+                string restoreValue;
+                if (OriginalValues.ContainsKey(variable))
+                    restoreValue = OriginalValues[variable];
+                else
+                    restoreValue = VariableSettings[variable];
+
+                if (!string.IsNullOrEmpty(restoreValue))
+                    TF2Effects.Instance.SetValue(variable, restoreValue);
             }
         }
     }
@@ -154,8 +177,11 @@
             {
                 ["mat_color_projection"] = "4", // black & white
                 ["volume"] = "0", // mute
+
+                // bloom - note, not setting all the other stuff from Dream Mode... if this subtle bloom doesn't work, no big deal.
                 ["mat_bloom_scalefactor_scalar"] = "8", // much more subtle than Dream
-                ["mat_force_bloom"] = "1", // "required" for bloom - except setting it to 0 doesn't force it off
+                // HDR disabled maps use this value.
+                ["mat_non_hdr_bloom_scalefactor"] = "8",
             })
         {
             Mutex.Add(nameof(BlackAndWhiteTimedEffect));//hierarchy is all mutex
@@ -239,14 +265,104 @@
         public DreamTimedEffect()
             : base(EFFECT_ID, DefaultTimeSpan, new()
             {
+                // HDR disabled maps use this value.
+                ["mat_non_hdr_bloom_scalefactor"] = "50",
+                // HDR enabled maps use this value.
                 ["mat_bloom_scalefactor_scalar"] = "50",
-                ["mat_force_bloom"] = "1",
+
+                // ensure none of these settings are changed - they could cancel out or reduce the bloom
+                // 1 disables bloom, duh.
+                ["mat_disable_bloom"] = "0",
+                // 0 disables bloom, 1 is LDR+bloom, 2 is HDR
+                ["mat_hdr_level"] = "2",
+                // still not sure what this does, but let's set it in case it prevents success.
+                ["mat_bloomscale"] = "1",
+                // tint color and exponent affect scale as well - unlikely somebody set them but they could disable the effect, too.
+                ["r_bloomtintexponent"] = "2.2",
+                ["r_bloomtintr"] = ".3",
+                ["r_bloomtintg"] = ".59",
+                ["r_bloomtintb"] = ".11",
+
+                // turns out this is a cheat, and we don't need it anyhow.
+                //["mat_force_bloom"] = "1",
             })
         {
             Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_BLOOM);
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
+        }
+    }
+
+    public class DeathAddsDreamTimedEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_dream";
+        public DeathAddsDreamTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            {
+                // HDR enabled maps use this value.
+                ["mat_bloom_scalefactor_scalar"] = string.Empty,//"50",
+                // HDR disabled maps use this value.
+                ["mat_non_hdr_bloom_scalefactor"] = string.Empty,//"50",
+
+                // ensure none of these settings are changed - they could cancel out or reduce the bloom
+                // 1 disables bloom, duh.
+                ["mat_disable_bloom"] = "0",
+                // 0 disables bloom, 1 is LDR+bloom, 2 is HDR
+                ["mat_hdr_level"] = "2",
+                // still not sure what this does, but let's set it in case it prevents success.
+                ["mat_bloomscale"] = "1",
+                // tint color and exponent affect scale as well - unlikely somebody set them but they could disable the effect, too.
+                ["r_bloomtintexponent"] = "2.2",
+                ["r_bloomtintr"] = ".3",
+                ["r_bloomtintg"] = ".59",
+                ["r_bloomtintb"] = ".11",
+
+                // turns out this is a cheat, and we don't need it anyhow.
+                //["mat_force_bloom"] = "1",
+            })
+        {
+            challenge = new DeathsChallenge(6);// 6th death 2.25x scale would put it well past 100
+            Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_BLOOM);
+            Availability = new InMap();
+        }
+
+        // don't go disabled when effects aren't set yet.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double bloomFactor = 1.0;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            bloomFactor = 1.0;
+            UpdateBloom();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateBloom()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor.ToString());
+            TF2Effects.Instance.SetRequiredValue("mat_non_hdr_bloom_scalefactor", bloomFactor.ToString());
+        }
+
+        private void OnDeath()
+        {
+            bloomFactor *= 2.25;
+            UpdateBloom();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+            bloomFactor = 1.0;
+
+            base.StopEffect();
         }
     }
 
@@ -342,7 +458,7 @@
                 ["cl_crosshair_file"] = "brrr"
             })
         {
-            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR); // can't color the broken image
             Availability = new AliveInMap();
         }
@@ -554,13 +670,13 @@
         public RainbowCrosshairEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 2, 0), new()
             {
-                // purple
-                ["cl_crosshair_blue"] = "255",
-                ["cl_crosshair_green"] = "0",
-                ["cl_crosshair_red"] = "255"
+                ["cl_crosshair_blue"] = string.Empty,
+                ["cl_crosshair_green"] = string.Empty,
+                ["cl_crosshair_red"] = string.Empty
             })
         {
             transition = ColorTransition.PurpleToRed;
+            // purple (magenta)
             r = 255;
             g = 0;
             b = 255;
@@ -653,7 +769,7 @@
         {
             Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
-            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
         // doesn't disable just because starting state matches current state.
@@ -719,15 +835,20 @@
         public override void StartEffect()
         {
             // custom restore code because blank crosshair file might not restore right.
+            SaveCrosshair();
+
+            base.StartEffect();
+        }
+
+        private void SaveCrosshair()
+        {
             crosshair = TF2Effects.Instance.GetValue("cl_crosshair_file")
                 ?? CROSSHAIR_DEFAULT;
             if (string.IsNullOrWhiteSpace(crosshair)
                 || IsInvalidCrosshair(crosshair))
                 crosshair = CROSSHAIR_DEFAULT;
-
-            base.StartEffect();
-
         }
+
         private bool IsInvalidCrosshair(string crosshair)
         {
             if (crosshair == null)
@@ -754,6 +875,11 @@
             base.StopEffect();
 
             //reset to default
+            RestoreCrosshair();
+        }
+
+        private void RestoreCrosshair()
+        {
             TF2Effects.Instance.SetValue("cl_crosshair_file", crosshair);
         }
     }
@@ -768,11 +894,11 @@
         protected AlienCrosshairEffect(string id, TimeSpan span)
             : base(id, span, new()
             {
-                // none
+                // nothing more than shapes
             })
         {
             Mutex.Add(nameof(AlienCrosshairEffect));
-            //Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
         // doesn't disable just because starting state matches current state.
@@ -798,11 +924,6 @@
             base.Update(timeSinceLastUpdate);
 
             TF2Effects.Instance.SetValue("cl_crosshair_file", randomCrosshair());
-        }
-
-        public override void StopEffect()
-        {
-            base.StopEffect();
         }
     }
 }

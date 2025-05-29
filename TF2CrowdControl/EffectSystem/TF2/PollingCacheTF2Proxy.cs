@@ -19,11 +19,17 @@ namespace EffectSystem.TF2
         private readonly TF2LogOutput log;
         private readonly Dictionary<TF2Command, Action<string?>> commands;
         private readonly Dictionary<string, string?> Values;
+        private readonly object valuesLock = new object();
         /// <summary>
         /// add a variable/command to this list if you don't want its GetValue to ever be reset by a null/blank value.  
         /// Sometimes they just don't load properly when polled, and sometimes that's hazardous to logic.
         /// </summary>
         public List<string> ClearValues { get; } = new();
+        /// <summary>
+        /// add a variable/command to this list if you don't want its GetValue to be restricted to only numeric result. 
+        /// Sometimes they just don't load properly when polled.
+        /// </summary>
+        public List<string> StringValues { get; } = new();
 
 
 
@@ -345,6 +351,15 @@ namespace EffectSystem.TF2
                 //"net_channels",//TODO not sure about this
                 "cl_crosshair_file",//"" is a valid value and is the true default (vs. "default")
             };
+            // values are assumed to be numeric for any key not in this list
+            StringValues = new()
+            {
+                "getpos",
+                "name",
+                "info_class",
+                "net_channels",
+                "cl_crosshair_file",
+            };
             // If you have a custom command to run and want to cache its result, then use this.
             // May have to use this for SetInfo calls as well.
             commands = new()
@@ -440,7 +455,10 @@ namespace EffectSystem.TF2
             RecordUserDeath();
 
             SetInfo("info_class", string.Empty);
-            Values["info_class"] = string.Empty;
+            lock (valuesLock)
+            {
+                Values["info_class"] = string.Empty;
+            }
             ClassSelection = string.Empty;
         }
 
@@ -600,6 +618,8 @@ namespace EffectSystem.TF2
 
                     PollCommandsAndVariables();
 
+                    PollForUserClassChangeNotification();
+
                     // use getpos and time to calculate motion for other features.
                     motionTracker.RecordUserMotion();
                 }
@@ -652,32 +672,42 @@ namespace EffectSystem.TF2
 
         private void PollCommandsAndVariables()
         {
-            lock (this)
+            // Note: I kind of want to only lock during direct setting/querying of Values,
+            // but one point here is to clear (one variable, and one dummy command) entries and fill them again
+            lock (valuesLock)
             {
-                // reset results in case we're timing out
-                foreach (string name in Values.Keys
-                    .Intersect(ClearValues))
-                    Values[name] = null;
-                foreach ((TF2Command _, Action<string?> response) in commands)
-                    response?.Invoke(null);
+                // in case we're timing out
+                ResetResults();
 
-                foreach (string name in Values.Keys)
-                    PollValueNow(name);
-                foreach ((TF2Command command, Action<string?> response) in commands)
-                    _ = tf2.SendCommand(command, response
-                        ).Wait(MaxCommandRunTime);
-
-                string? playerClass = Values["info_class"];
-                if (playerClass != null
-                    // before first set_info, returns 'Unknown command "info_class"'
-                    && !playerClass.Contains("info_class"))
-                    UserChangedClass(playerClass);
+                SetResults();
             }
         }
 
-        private void PollValueNow(string name)
+        private void ResetResults()
         {
-            bool completed = tf2.SendCommand(new StringCommand(name),
+            foreach (string name in Values.Keys
+                .Intersect(ClearValues))
+                Values[name] = null;
+            foreach ((TF2Command _, Action<string?> response) in commands)
+                response?.Invoke(null);
+        }
+
+        private void SetResults()
+        {
+            foreach (string name in Values.Keys)
+                if (StringValues.Contains(name))
+                    PollStringNow(name);
+                else
+                    PollNumberNow(name);
+
+            foreach ((TF2Command command, Action<string?> response) in commands)
+                _ = tf2.SendCommand(command, response
+                    ).Wait(MaxCommandRunTime);
+        }
+
+        private void PollStringNow(string name)
+        {
+            Task task = tf2.SendCommand(new StringCommand(name),
                 (s) =>
                 {
                     // never clear "NeverClear" values.
@@ -685,7 +715,44 @@ namespace EffectSystem.TF2
                         return;
                     Values[name] = s;
                 }
-                ).Wait(MaxCommandRunTime);
+                );
+            lock (valuesLock)
+            {
+                bool completed = task.Wait(MaxCommandRunTime);
+            }
+        }
+
+        // numer format examples: 0 0. .0 0.0 -0.0 0.05f 300.f
+        private readonly Regex cvarNumeric = new Regex(@"^\s*\-?(:?\d*\.?\d+|\d+\.?\d*)f?\s*$");
+        private void PollNumberNow(string name)
+        {
+            Task task = tf2.SendCommand(new StringCommand(name),
+                (s) =>
+                {
+                    if (cvarNumeric.IsMatch(s))
+                        Values[name] = s;
+                    //else
+                    // just leave the last-known number.  We need good numbers.
+                    //;
+                }
+                );
+            lock (valuesLock)
+            {
+                bool completed = task.Wait(MaxCommandRunTime);
+            }
+        }
+
+        private void PollForUserClassChangeNotification()
+        {
+            string? playerClass;
+            lock (valuesLock)
+            {
+                playerClass = Values["info_class"];
+            }
+            if (playerClass != null
+                // before first set_info, returns 'Unknown command "info_class"'
+                && !playerClass.Contains("info_class"))
+                UserChangedClass(playerClass);
         }
 
         private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
@@ -726,7 +793,7 @@ namespace EffectSystem.TF2
 
         public string? GetValue(string key)
         {
-            lock (this)
+            lock (valuesLock)
             {
                 if (!Values.ContainsKey(key))
                     Values[key] = null;
@@ -769,11 +836,7 @@ namespace EffectSystem.TF2
         {
             //new System.Windows.Media.Media3D.Point3D(0.0, 0.0, 0.0);
             //new System.Windows.Media.Media3D.Vector3D(0.0, 0.0, 0.0);
-            string? getpos;
-            lock (this)
-            {
-                getpos = GetValue("getpos");
-            }
+            string? getpos = GetValue("getpos");
 
             if (string.IsNullOrWhiteSpace(getpos))
                 return false;
@@ -786,11 +849,7 @@ namespace EffectSystem.TF2
         // net_channels: "No active net channels."
         private bool IsNoActiveNetChannels()
         {
-            string? net_channels;
-            lock (this)
-            {
-                net_channels = GetValue("net_channels");
-            }
+            string? net_channels = GetValue("net_channels");
 
             //NOTE net_channels=no active returns true while still loading into the map.
             if (string.IsNullOrWhiteSpace(net_channels))

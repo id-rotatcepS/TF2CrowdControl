@@ -1,4 +1,5 @@
-﻿namespace EffectSystem.TF2
+﻿
+namespace EffectSystem.TF2
 {
     public class TF2Effects
     {
@@ -24,6 +25,71 @@
         public static readonly string MUTEX_FORCE_MOVE_JUMP = "force_move_jump";
         public static readonly string MUTEX_VIEWPORT = "viewport";
         public static readonly string MUTEX_BLOOM = "bloom";
+
+        /// <summary>
+        /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Effect> CreateAllEffects()
+        {
+            return [
+                new KillEffect(),
+                new ExplodeEffect(),
+                new EngineerDestroyBuildingsEffect(),
+                new EngineerDestroySentryEffect(),
+                new EngineerDestroyDispenserEffect(),
+                new EngineerDestroyTeleportersEffect(),
+                new SpyRemoveDisguiseEffect(),
+                new MedicUberNowEffect(),
+                new MedicRadarEffect(),
+
+                new BlackAndWhiteTimedEffect(),
+                new SilentMovieTimedEffect(),
+                new PixelatedTimedEffect(),
+                new DreamTimedEffect(),
+
+                // big and small depending on what they usually use.
+                new BigGunsTimedEffect(),
+                new SmallGunsTimedEffect(),
+                new NoGunsToggleEffect(),
+                new LongArmsTimedEffect(),
+                new VRModeTimedEffect(),
+
+                new RainbowCrosshairEffect(),
+                new CataractsCrosshairEffect(),
+                new GiantCrosshairEffect(),
+                new BrrrCrosshairEffect(),
+                new AlienCrosshairEffect(),
+                new DrunkEffect(),
+
+                new MeleeOnlyEffect(),
+
+                new ShowScoreboardEffect(),
+                new ShowScoreboardMeanEffect(),
+
+                new MouseSensitivityHighEffect(),
+                new MouseSensitivityLowEffect(),
+
+                new QuitEffect(),
+                new RetryEffect(),
+                new ForcedChangeClassEffect(),
+
+                new SpinEffect(),
+                new WM1Effect(),
+                new TauntEffect(),
+                new TauntContinouslyEffect(),
+                new JumpingEffect(),
+
+                new ChallengeMeleeTimedEffect(),
+                new SingleTauntAfterKillEffect(),
+                new SingleTauntAfterCritKillEffect(),
+                new ChallengeCataractsEffect(),
+                new ChallengeBlackAndWhiteTimedEffect(),
+
+                new DeathAddsPixelatedTimedEffect(),
+                new DeathAddsDreamTimedEffect(),
+                ];
+        }
 
         public string RunCommand(string command)
         {
