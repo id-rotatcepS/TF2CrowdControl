@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="TF2CrowdControl.TF2CrowdControlViewModel">
+    <Position X="0.5" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAFAAABAQAAAAAgAEAAIAQAIgQAAKQAEBgAAAEKAgEA=</HashCode>
+      <FileName>TF2CrowdControlViewModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="CCDispatcher" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="CrowdControl.CrowdControlHelper">
+    <Position X="4.75" Y="0.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="CrowdControl.CrowdControlHelper.EffectStatesUpdated" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>CrowdControlHelper.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>KABAAAAAAAAgQEIAAAQEAAAAAAYAAIAARhCAAQAAQAA=</HashCode>
+      <FileName>CrowdControlHelper.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_client" />
+      <Field Name="_effectDispatcher" />
+      <Property Name="Instance" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="EffectStates" />
+      <Property Name="Effects" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="EffectSystem.EffectState" Collapsed="true">
+    <Position X="5.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="CrowdControl.SimpleTCPClient" Collapsed="true">
+    <Position X="8" Y="0.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAQFAAhAAiAAQEAAAACAAAAAAKwBIAIACAQAAABAAAA=</HashCode>
+      <FileName>SimpleTCPClient.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EffectSystem.EffectDispatcher">
+    <Position X="10.5" Y="2.75" Width="2.75" />
+    <TypeIdentifier />
+    <ShowAsAssociation>
+      <Property Name="Responder" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="EffectSystem.TF2.TF2Effects">
+    <Position X="7.25" Y="4.25" Width="3" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAEUIBAKAAABgEACAAAAIAAggAARQAAQCAgAAIJIAA=</HashCode>
+      <FileName>EffectSystem\TF2\TF2Effects.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Instance" />
+      <Property Name="TF2Proxy" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CrowdControl.CCEffectResponder" Collapsed="true">
+    <Position X="11" Y="1" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAVAAAAAEAAAQAACAAAKAQAAAAAAAAAAQBABAA=</HashCode>
+      <FileName>CCEffectResponder.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_client" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="EffectSystem.TF2.PollingCacheTF2Proxy" Collapsed="true">
+    <Position X="5" Y="5.25" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>sIcXEGAgIrIJRgAAhICCCgBDlAAaBAIgISBgOQALAAA=</HashCode>
+      <FileName>EffectSystem\TF2\PollingCacheTF2Proxy.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="tf2" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TF2FrameworkInterface.TF2Instance" Collapsed="true">
+    <Position X="3.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="EffectSystem.EffectResponder" Collapsed="true">
+    <Position X="11.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="EffectSystem.Effect" Collapsed="true">
+    <Position X="8.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="EffectSystem.TF2.TF2Proxy" Collapsed="true">
+    <Position X="5" Y="4.25" Width="1.25" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="EffectSystem.TF2.TF2Proxy.UserKill" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EffectSystem\TF2\TF2Proxy.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="EffectSystem.TF2.TF2Proxy.UserSpawn" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EffectSystem\TF2\TF2Proxy.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+      <Delegate Name="EffectSystem.TF2.TF2Proxy.UserDeath" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>EffectSystem\TF2\TF2Proxy.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IAAEAAAAIJIAAgAAhAAAAAAAgAAQBAAAACBAAQABAAA=</HashCode>
+      <FileName>EffectSystem\TF2\TF2Proxy.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -252,7 +252,74 @@
             Availability = new InMap();
         }
     }
+    /// <summary>
+    /// Fades to like 50% blue then resets. 
+    /// I think it's used by the game when drowning.
+    /// </summary>
+    public class UnderwaterFadeEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "fade";
+        public UnderwaterFadeEffect()
+            : base(EFFECT_ID, "fade")
+        {
+            Availability = new InMap();
+        }
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
+    public class ContrackerEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "show_quest_log";
+        public ContrackerEffect()
+            : base(EFFECT_ID, "show_quest_log")
+        {
+            Availability = new InApplication();
+        }
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
+    public class PopupUIEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "popup_ui";
+        public PopupUIEffect()
+            : base(EFFECT_ID, string.Empty)
+        {
+            Availability = new InApplication();
+        }
+        protected override void StartEffect()
+        {
+            string command = Choose(
+                    "fogui", // anytime (& doesn't go to main menu!)
+                    "bug", // anytime
+                    "showschemevisualizer", // anytime
+                    "training_showdlg;gameui_activate", // anytime (sometimes "hidden" on main menu? so show it)
+                    "showconsole" // anytime
+                    );
+            // the minor additions here are not that interesting for the effect
+            // TF2Effects.Instance.TF2Proxy?.IsUserAlive
+            //        //"gameui_activate", // go to main menu - so require them to be in a map.
+            //        "show_motd", // requires a map
+            //        "showmapinfo" // requires a map...and alive?
+            //        //,"+vgui_drawtree" // worried about not hitting - command
 
+            _ = TF2Effects.Instance.RunRequiredCommand(command);
+        }
+
+        private string Choose(params string[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
     public class ForcedChangeClassEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "join_class_autokill";
@@ -322,33 +389,51 @@
                 )
                 throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
         }
-
     }
-    ///// <summary>
-    ///// This version can't positively verify itself - the user might not respawn before CC verification timeout.
-    ///// ... even worse, in cases where we must restore the autokill value to 1 IMMEDIATELY invokes the autokill.
-    ///// Could only be an option for users that have autokill set to 0.
-    ///// </summary>
-    //public class ChangeClassEffect : ForcedChangeClassEffect
-    //{
-    //    new public static readonly string EFFECT_ID = "join_class";
-    //    public ChangeClassEffect()
-    //        : base(EFFECT_ID)
-    //    {
-    //        //TODO add "autokill set to 0" to availability.
-    //    }
 
-    //    protected override string Autokill => "0";
+    public class VoiceMenuEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "voicemenu";
+        public VoiceMenuEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected VoiceMenuEffect(string id)
+            : base(id, "voicemenu {1}")
+        {
+            Availability = new AliveInMap();
+        }
 
-    //    protected override void CheckEffectWorked()
-    //    {
-    //        // availability doesn't change, but if it became unavailable it probably won't take.
-    //        if (Availability != null
-    //            && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-    //            throw new EffectNotVerifiedException("Left the map before class applied");
-    //        // but we can't guarantee a POSITIVE verification within the CC timeout - the user might not die.
-    //        //    if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
-    //    }
-    //}
+        protected string selection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            selection = request.Parameter.ToLower();
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+            string formattedCommand = string.Format(Command, requestor, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not alive before command applied");
+        }
+    }
+
 
 }

@@ -33,12 +33,15 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public TF2Spectator(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler)
         : base(player, responseHandler, statusUpdateHandler) { }
 
+    public static readonly string C_NEW = "Newest";
+    public static readonly string C_LOW_IMPACT = "Less Annoying";
     public static readonly string C_CHALLENGES = "Challenges";
     public static readonly string C_CAMERA = "Camera";
     public static readonly string C_VIEWMODEL = "View Model";
     public static readonly string C_CROSSHAIR = "Crosshair";
     public static readonly string C_GAMEPLAY = "Gameplay";
     public static readonly string C_HUD = "HUD";
+    public static readonly string C_POPUP = "Pop-ups";
     public static readonly string C_MOVEMENT = "Movement";
     public static readonly string C_TAUNT = "Taunts";
 
@@ -161,9 +164,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge", "blackandwhite_challenge_5ks")
+    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge with Black & White", "blackandwhite_challenge_5ks")
     {
-        Note = "Black & White",
         SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(10),
         Description = "Stuck with TF2 in the 1950s until I get a 5 kill streak.",
@@ -185,7 +187,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Black and White Silent Movie",
         Duration = TimeSpan.FromMinutes(2),
         Description = "TF2 in the 1920s - no sound, just intertitle cards!",
-        Category = new EffectGrouping(C_CAMERA),
+        Category = new EffectGrouping(C_CAMERA, C_POPUP),
         Price = 80,
         #region streamer facing
         IsDurationEditable = true,
@@ -227,6 +229,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect death_adds_pixelated = new("Every death doubles pixel size", "death_adds_pixelated")
     {
         SortName = "Challenge: Every death doubles pixel size",
+        Note = "6 deaths",
         Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
@@ -271,6 +274,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect death_adds_dream = new("Every death doubles dreaminess", "death_adds_dream")
     {
         SortName = "Challenge: Every death doubles dreaminess",
+        Note = "6 deaths",
         Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
@@ -286,7 +290,25 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-
+    /// <summary>
+    /// fade command - fades to blue temporarily
+    /// </summary>
+    public static readonly Effect fade = new("Hydrate", "fade")
+    {
+        Description = "Drench me in cool blue waters",
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_CAMERA),
+        Price = 15,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(3),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
     #endregion Camera
 
     #region View Model
@@ -299,7 +321,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Big Guns",
         Description = "Force my usual weapon viewmodels to the default big ones.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_VIEWMODEL),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -320,7 +342,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Small Guns",
         Description = "Force my usual weapon viewmodels to small ones.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_VIEWMODEL),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -383,7 +405,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: VR Mode",
         Description = "My arms, weapons, and body are visible exactly as other players see them in game.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_VIEWMODEL),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_VIEWMODEL),
         Price = 5,
         #region streamer facing
         IsDurationEditable = true,
@@ -405,7 +427,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Plastered",
         Description = "Good eveninging ofischer... I don' feel sho good",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_VIEWMODEL, C_CAMERA),
+        Category = new EffectGrouping(C_NEW, C_VIEWMODEL, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -428,7 +450,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "A rainbow of colors for my crosshair.",
         Duration = TimeSpan.FromSeconds(120),// half max duration - the effect is subtle.
-        Category = new EffectGrouping(C_CROSSHAIR),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_CROSSHAIR),
         Price = 1,
         #region streamer facing
         IsDurationEditable = true,
@@ -487,11 +509,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// rapidly changing crosshairs
     /// Affects crosshair shape
     /// </summary>
-    public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Message", "crosshair_alien")
+    public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Crosshair", "crosshair_alien")
     {
         Description = "⊹ ⋅ ⊤ ∘ ⨪ ⨯ (⋅) 👁",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_CROSSHAIR),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_CROSSHAIR),
         Price = 10,
         #region streamer facing
         IsDurationEditable = true,
@@ -529,9 +551,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// animate dot crosshair scale until it fills up most of the screen.
     /// Affects crosshair shape and scale.
     /// </summary>
-    public static readonly Effect cataracts_challenge = new("3 Kill Challenge", "crosshair_cataracts_challenge_3k")
+    public static readonly Effect cataracts_challenge = new("3 Kill Challenge with Cataracts", "crosshair_cataracts_challenge_3k")
     {
-        Note = "Cataracts",
         SortName = "Challenge: 3 Kill Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
@@ -598,7 +619,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromMinutes(2),
+        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
@@ -614,7 +635,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromMinutes(2),
+        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -630,7 +651,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromMinutes(2),
+        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -646,7 +667,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromMinutes(2),
+        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -681,7 +702,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromMinutes(1),
+        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(1),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
@@ -692,7 +713,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "All teammates call medic to show icons over their heads.",
         Duration = TimeSpan.FromSeconds(6),
-        Category = new EffectGrouping(C_GAMEPLAY, "Medic"),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_GAMEPLAY, "Medic"),
         Price = 1,
         #region streamer facing
         IsDurationEditable = true,
@@ -723,9 +744,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect melee_only_challenge = new("3 Kill Challenge", "melee_only_challenge_3k")
+    public static readonly Effect melee_only_challenge = new("3 Kill Challenge with Melee Only", "melee_only_challenge_3k")
     {
-        Note = "Melee Only",
         SortName = "Challenge: 3 Kill Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
@@ -789,7 +809,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Random taunts for the full duration.",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_TAUNT),
+        Category = new EffectGrouping(C_NEW, C_TAUNT),
         Price = 100,
         #region streamer facing
         IsDurationEditable = true,
@@ -810,7 +830,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "Do one equipped or weapon taunt immediately.",
         Note = "random", // planning to add specific taunts (disabled by default so streamer can enable if they equip it)
         Duration = TimeSpan.FromSeconds(5),
-        Category = new EffectGrouping(C_TAUNT),
+        Category = new EffectGrouping(C_NEW, C_TAUNT),
         Price = 20,
         #region streamer facing
         IsDurationEditable = false,
@@ -844,12 +864,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
-    public static readonly Effect show_score_mean = new("Show Scoreboard", "show_score_mean")
+    public static readonly Effect show_score_mean = new("Show Scoreboard (toxic)", "show_score_mean")
     {
         Description = "Shows the scoreboard for a few seconds... with mouse mode on",
-        Note = "toxic",
         Duration = TimeSpan.FromSeconds(6),
-        Category = new EffectGrouping(C_HUD),
+        Category = new EffectGrouping(C_HUD, C_POPUP),
         Price = 15,
         #region streamer facing
         IsDurationEditable = true,
@@ -861,6 +880,38 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+    public static readonly Effect show_quest_log = new("Show Contracker", "show_quest_log")
+    {
+        Description = "Let's check the Contracker",
+        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    public static readonly Effect popup_ui = new("Random Pop-up", "popup_ui")
+    {
+        Description = "A random in-game UI appears!",
+        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect mouse_sensitivity_high = new("High Sensitivity", "mouse_sensitivity_high")
     {
@@ -898,9 +949,26 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
+    public static readonly Effect hacker_hud = new("Hacker HUD", "hacker_hud")
+    {
+        Description = "TF2 from the POV of hacker/robot/terminator/predator/robocop/iron man/westworld",
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_HUD),
+        Price = 30,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(3),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
     public static readonly Effect retry = new("Zero-out My Score", "retry")
     {
-        Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress. ",
+        Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress.",
         Category = new EffectGrouping(C_HUD, C_GAMEPLAY),
         Price = 100, // worse than getting killed
         #region streamer facing
@@ -908,7 +976,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromMinutes(2),
+        // nah, no cooldown - InMap restriction and price scale up is enough
+        //SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
@@ -953,7 +1022,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "It's like part-time zero-gravity",
         Duration = TimeSpan.FromSeconds(45),
-        Category = new EffectGrouping(C_MOVEMENT),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -985,8 +1054,42 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
+    public static readonly Effect join_class_eventually = new("Next Class Change", "join_class_eventually")
+    {
+        SortName = "Class Change: Next Class Change",
+        Description = "Change to this class on next spawn. (Guaranteed if spawned within duration)",
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Class", id:"class",
+                new Parameter("Scout", "scout"),
+                new Parameter("Soldier", "soldier"),
+                new Parameter("Pyro", "pyro"),
+                new Parameter("Demo", "demoman"),
+                new Parameter("Heavy", "heavyweapons"),
+                new Parameter("Engy", "engineer"),
+                new Parameter("Medic", "medic"),
+                new Parameter("Sniper", "sniper"),
+                new Parameter("Spy", "spy")
+                //new Parameter("?Random?", "random") // would keep changing while we wait for spawn which is weird.
+                )
+        }),
+        Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn.
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
+        Price = 50, // almost same as destroyallbuildings since it will.
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+
     public static readonly Effect join_class_autokill = new("Death by Class Change", "join_class_autokill")
     {
+        SortName = "Class Change: Death by Class Change",
         Description = "Change to this class NOW, kills me if I'm out of spawn.",
         Parameters = new ParameterList(new[] {
             new ParameterDef(name:"Class", id:"class",
@@ -1009,11 +1112,64 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromMinutes(2),
+        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+
+    public static readonly Effect voicemenu = new("Voice Command", "voicemenu")
+    {
+        //SortName = "",
+        Description = "Say an in-game voice line.",
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Command", id:"command",
+                // Voice Menu 1 Default key: Z
+                new Parameter("MEDIC!", "0 0"),
+                new Parameter("Thanks!", "0 1"),
+                new Parameter("Go Go Go!", "0 2"),
+                new Parameter("Move Up!", "0 3"),
+                new Parameter("Go Left", "0 4"),
+                new Parameter("Go Right", "0 5"),
+                new Parameter("Yes", "0 6"),
+                new Parameter("No", "0 7"),
+                //new Parameter("Pass to me!", "0 8"),
+
+                // Voice Menu 2 Default key: X
+                new Parameter("Incoming", "1 0"),
+                new Parameter("Spy!", "1 1"),
+                new Parameter("Sentry Ahead!", "1 2"),
+                new Parameter("Teleporter Here", "1 3"),
+                new Parameter("Dispenser Here", "1 4"),
+                new Parameter("Sentry Here", "1 5"),
+                new Parameter("Activate ÜberCharge!", "1 6"),
+                //new Parameter("MEDIC: ÜberCharge Ready", "1 7"),
+                //new Parameter("Pass to me!", "1 8"),
+
+                // Voice Menu 3 Default key: C
+                new Parameter("Help!", "2 0"),
+                new Parameter("Battle Cry", "2 1"),
+                new Parameter("Cheers", "2 2"),
+                new Parameter("Jeers", "2 3"),
+                new Parameter("Positive", "2 4"),
+                new Parameter("Negative", "2 5"),
+                new Parameter("Nice Shot", "2 6"),
+                new Parameter("Good Job", "2 7")
+                )
+        }),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
+        Price = 2,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan
+        //SessionCooldown = TimeSpan
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
     };
 
     public override EffectList Effects
@@ -1028,12 +1184,14 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             retry,
 
             join_class_autokill,
+            join_class_eventually,
 
             blackandwhite,
             silent_movie,
             pixelated,
             dream,
             drunk,
+            fade,
 
             big_guns,
             small_guns,
@@ -1043,6 +1201,10 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             show_score,
             show_score_mean,
+            voicemenu,
+            hacker_hud,
+            show_quest_log,
+            popup_ui,
 
             crosshair_rainbow,
             crosshair_giant,

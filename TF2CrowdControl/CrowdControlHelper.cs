@@ -3,7 +3,6 @@
 using ConnectorLib.JSON;
 
 using EffectSystem;
-using EffectSystem.TF2;
 
 namespace CrowdControl
 {
@@ -13,8 +12,7 @@ namespace CrowdControl
     /// the CrowdControlHelper Instance establishes a CC connection via SimpleTCPClient,
     /// starts a CC version of EffectDispatcher and feeds it CC EffectRequests 
     /// plus triggering UpdateUnclosedEffects and RefreshEffectListings on a timer,
-    /// and adds all the Effects we claim to support in the game pack
-    /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/>
+    /// and exposes all the Effects we claim to support in the game pack
     /// </summary>
     public class CrowdControlHelper
     {
@@ -37,6 +35,15 @@ namespace CrowdControl
 
         private bool _connected_once = false;
 
+        /// <summary>
+        /// Establishes the Crowd Control TCP connection and establishes an EffectDispatcher using it.
+        /// The TCP connection starts a 250ms timer to trigger 
+        /// <see cref="EffectDispatcher.UpdateUnclosedDurationEffects"/>/<see cref="EffectDispatcher.RefreshEffectListings"/> calls 
+        /// and <see cref="OnEffectStatesUpdated"/> events.
+        /// TCP requests trigger 
+        /// <see cref="EffectDispatcher.Apply(EffectDispatchRequest)"/>/<see cref="EffectDispatcher.StopEarly(EffectDispatchRequest)"/> calls
+        /// (and locally processes Tests).
+        /// </summary>
         private CrowdControlHelper()
         {
             _client = new SimpleTCPClient();
@@ -45,70 +52,22 @@ namespace CrowdControl
 
             _effectDispatcher = new EffectDispatcher(
                 new CCEffectResponder(_client));
-
-            _effectDispatcher.Effects.AddRange([
-                new KillEffect(),
-                new ExplodeEffect(),
-                new EngineerDestroyBuildingsEffect(),
-                new EngineerDestroySentryEffect(),
-                new EngineerDestroyDispenserEffect(),
-                new EngineerDestroyTeleportersEffect(),
-                new SpyRemoveDisguiseEffect(),
-                new MedicUberNowEffect(),
-                new MedicRadarEffect(),
-
-                new BlackAndWhiteTimedEffect(),
-                new SilentMovieTimedEffect(),
-                new PixelatedTimedEffect(),
-                new DreamTimedEffect(),
-
-                // big and small depending on what they usually use.
-                new BigGunsTimedEffect(),
-                new SmallGunsTimedEffect(),
-                new NoGunsToggleEffect(),
-                new LongArmsTimedEffect(),
-                new VRModeTimedEffect(),
-
-                new RainbowCrosshairEffect(),
-                new CataractsCrosshairEffect(),
-                new GiantCrosshairEffect(),
-                new BrrrCrosshairEffect(),
-                new AlienCrosshairEffect(),
-                new DrunkEffect(),
-
-                new MeleeOnlyEffect(),
-
-                new ShowScoreboardEffect(),
-                new ShowScoreboardMeanEffect(),
-
-                new MouseSensitivityHighEffect(),
-                new MouseSensitivityLowEffect(),
-
-                new QuitEffect(),
-                new RetryEffect(),
-                new ForcedChangeClassEffect(),
-
-                new SpinEffect(),
-                new WM1Effect(),
-                new TauntEffect(),
-                new TauntContinouslyEffect(),
-                new JumpingEffect(),
-
-                new ChallengeMeleeTimedEffect(),
-                new SingleTauntAfterKillEffect(),
-                new SingleTauntAfterCritKillEffect(),
-                new ChallengeCataractsEffect(),
-                new ChallengeBlackAndWhiteTimedEffect(),
-
-                new DeathAddsPixelatedTimedEffect(),
-                new DeathAddsDreamTimedEffect(),
-                ]);
         }
 
+        /// <summary>
+        /// Exposes <see cref="EffectDispatcher.Effects"/>
+        /// </summary>
+        public List<Effect> Effects => _effectDispatcher.Effects;
+
+        /// <summary>
+        /// Stops all Effects in the EffectDispatcher and Disposes local resources.
+        /// </summary>
         public void ShutDown()
         {
             _effectDispatcher.StopAll();
             _client.Dispose();
+            _timer?.Dispose();
+            // probably should set _Instance to null.
         }
 
         private void ClientConnected()
@@ -119,7 +78,6 @@ namespace CrowdControl
 
             // start the Update timer.
             _timer = new Timer(Tick, null, TickIntervalInMillis, Timeout.Infinite);
-            // normally need to dispose timer using await _timer.DisposeAsync(); or _timer.Dispose();
         }
 
         private Timer? _timer;
@@ -130,8 +88,7 @@ namespace CrowdControl
         {
             try
             {
-                //TODO need to stop trying when TF2Instance is no good.  have to move control of that out of the viewmodel, and even then it may not be smart enough to help.
-                //TODO however, refresh should close things down when the instance is no good.  Mode is bad - hide everything.
+                //TODO merge these into one interface call on Dispatcher?
                 _effectDispatcher.UpdateUnclosedDurationEffects();
                 _effectDispatcher.RefreshEffectListings();
                 //TODO make this more granular - dispatcher should invoke when there's actually a change.
@@ -228,8 +185,12 @@ namespace CrowdControl
         }
 
         public delegate void EffectStatesUpdated(CrowdControlHelper cc);
-        public event EffectStatesUpdated OnEffectStatesUpdated;
+        public event EffectStatesUpdated? OnEffectStatesUpdated;
 
+        /// <summary>
+        /// Summarizes the effects and what's currently going on with them.
+        /// <see cref="EffectDispatcher.GetEffectsStatus"/>
+        /// </summary>
         public IEnumerable<EffectState> EffectStates => _effectDispatcher.GetEffectsStatus();
     }
 }

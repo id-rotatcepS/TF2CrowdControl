@@ -46,6 +46,111 @@
         public abstract void StopEffect();
     }
 
+    /// <summary>
+    /// no-kill class change that tries to verify you eventually spawn as the class.
+    /// Not a subclass of ForcedChangeClassEffect because we need a Duration to keep forcing the class change.
+    /// </summary>
+    public class ChangeClassEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "join_class_eventually";
+        public ChangeClassEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        private string commandFormat = "join_class {1}";
+        protected ChangeClassEffect(string id)
+            : base(id, TimeSpan.FromMinutes(7))
+        {
+            Availability = new InMap();
+            // register needed variable
+            _ = TF2Effects.Instance.GetValue(variable);
+        }
+        public override bool IsSelectableGameState => IsAvailable;
+
+        protected string classSelection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            classSelection = request.Parameter.ToLower(); // join_class supports "random" directly
+
+            base.StartEffect(request);
+        }
+
+        private string variable = "hud_classautokill";
+        private string prev = "0";
+        public override void StartEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for spawn right now.");
+
+            string formattedMainCommand = string.Format(commandFormat, requestor, classSelection);
+
+            prev = TF2Effects.Instance.GetValue(variable)
+                ?? "0";
+            if (prev != "0")
+                _ = TF2Effects.Instance.RunRequiredCommand(
+                    // extra insurance - we don't want to get this one wrong.
+                    string.Format("{0} {1}; wait 10; {2}", variable, "0", formattedMainCommand));
+            else
+                _ = TF2Effects.Instance.RunRequiredCommand(formattedMainCommand);
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                return; // hopefully next update it'll be set.
+
+            // keep joining the requested class until we spawn as that class (or time is up)
+            // - better: only do it if we detect a different class requested.
+            if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
+                // NOTE not via OnUserSpawned because this exception needs to be during update's thread.
+                throw new EffectFinishedEarlyException(string.Format("User spawned as {0}", classSelection));
+
+            // Run this always - user could swap classes in spawn and it wouldn't output "next" info, so we can't rely on that value unless we also check Current class when it's different that the starting class.
+            // Lots of work, when we could just spam the selected class which doesn't output if it's not new value.
+            _ = TF2Effects.Instance.RunCommand(string.Format(commandFormat, requestor, classSelection));
+
+            // - need to account for X minutes before they die/respawn as class
+            // - should probably pause when dead even though it can be redeemed while dead.
+            // TODO we would do that ^, but pausing prevents us from updating currently, and we need updates to correct user class changes.
+            // - would like to account for Y minutes minimum time as class
+            //
+            // maybe 5 minutes to die and 2 minutes minimum?
+            // Then shows 7 minutes they feel like they're stuck with class which isn't too bad.
+            // maybe just 5 total if it pauses while dead.
+            // FUTURE: Manually track 2 minute minimum as class and finish early.
+        }
+
+        public override void StopEffect()
+        {
+            if (prev != "0")
+                TF2Effects.Instance.SetRequiredValue(variable, prev);
+        }
+
+        //protected override void CheckEffectWorked()
+        //{
+        //    // availability doesn't change, but if it became unavailable it probably won't take.
+        //    if (Availability != null
+        //        && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+        //        throw new EffectNotVerifiedException("Left the map before class applied");
+
+        //    if (!string.IsNullOrEmpty(classSelection)
+        //        && classSelection != "random" // although we're not offering this currently.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
+        //        // also acceptable, although "Next" is the really relevant one.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
+        //        )
+        //        throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
+        //}
+    }
+
     public class JumpingEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "jumping";
@@ -567,60 +672,4 @@
         }
     }
 
-    public class DeathAddsDreamTimedEffect : TimedEffect
-    {
-        public static readonly string EFFECT_ID = "death_adds_dream";
-        public DeathAddsDreamTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
-        {
-            challenge = new DeathsChallenge(6);// 6th death 2.25x scale would put it well past 100
-            Mutex.Add(nameof(DreamTimedEffect)); //hierarchy is all mutex
-            Mutex.Add(TF2Effects.MUTEX_BLOOM);
-            Availability = new InMap();
-            // register the variables we'll need later.
-            _ = TF2Effects.Instance.GetValue("mat_force_bloom");
-        }
-
-        public override bool IsSelectableGameState => IsAvailable;
-
-        private double bloomFactor = 1.0;
-        private string startBloomFactor = "1";
-        public override void StartEffect()
-        {
-            // save mat_force_bloom
-            startBloomFactor = TF2Effects.Instance.GetValue("mat_force_bloom") ?? "1";
-            // set mat_force_bloom
-            TF2Effects.Instance.SetRequiredValue("mat_force_bloom", "1");
-
-            if (TF2Effects.Instance.TF2Proxy == null)
-                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
-
-            bloomFactor = 1.0;
-            UpdateBloom();
-            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
-        }
-
-        private void UpdateBloom()
-        {
-            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor.ToString());
-        }
-
-        private void OnDeath()
-        {
-            bloomFactor *= 2.25;
-            UpdateBloom();
-        }
-
-        public override void StopEffect()
-        {
-            if (TF2Effects.Instance.TF2Proxy != null)
-                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
-
-            bloomFactor = 1.0;
-            UpdateBloom();
-
-            // restore mat_force_bloom
-            TF2Effects.Instance.SetValue("mat_force_bloom", startBloomFactor);
-        }
-    }
 }
