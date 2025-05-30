@@ -41,6 +41,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly string C_CROSSHAIR = "Crosshair";
     public static readonly string C_GAMEPLAY = "Gameplay";
     public static readonly string C_HUD = "HUD";
+    public static readonly string C_POPUP = "Pop-ups";
     public static readonly string C_MOVEMENT = "Movement";
     public static readonly string C_TAUNT = "Taunts";
 
@@ -163,9 +164,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge", "blackandwhite_challenge_5ks")
+    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge with Black & White", "blackandwhite_challenge_5ks")
     {
-        Note = "Black & White",
         SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(10),
         Description = "Stuck with TF2 in the 1950s until I get a 5 kill streak.",
@@ -187,7 +187,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Black and White Silent Movie",
         Duration = TimeSpan.FromMinutes(2),
         Description = "TF2 in the 1920s - no sound, just intertitle cards!",
-        Category = new EffectGrouping(C_CAMERA),
+        Category = new EffectGrouping(C_CAMERA, C_POPUP),
         Price = 80,
         #region streamer facing
         IsDurationEditable = true,
@@ -229,6 +229,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect death_adds_pixelated = new("Every death doubles pixel size", "death_adds_pixelated")
     {
         SortName = "Challenge: Every death doubles pixel size",
+        Note = "6 deaths",
         Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
@@ -273,6 +274,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect death_adds_dream = new("Every death doubles dreaminess", "death_adds_dream")
     {
         SortName = "Challenge: Every death doubles dreaminess",
+        Note = "6 deaths",
         Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to 10 minutes)",
         Duration = TimeSpan.FromMinutes(10),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
@@ -549,9 +551,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// animate dot crosshair scale until it fills up most of the screen.
     /// Affects crosshair shape and scale.
     /// </summary>
-    public static readonly Effect cataracts_challenge = new("3 Kill Challenge", "crosshair_cataracts_challenge_3k")
+    public static readonly Effect cataracts_challenge = new("3 Kill Challenge with Cataracts", "crosshair_cataracts_challenge_3k")
     {
-        Note = "Cataracts",
         SortName = "Challenge: 3 Kill Cataracts",
         Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
@@ -743,9 +744,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect melee_only_challenge = new("3 Kill Challenge", "melee_only_challenge_3k")
+    public static readonly Effect melee_only_challenge = new("3 Kill Challenge with Melee Only", "melee_only_challenge_3k")
     {
-        Note = "Melee Only",
         SortName = "Challenge: 3 Kill Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
         Duration = TimeSpan.FromMinutes(10),
@@ -864,12 +864,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
-    public static readonly Effect show_score_mean = new("Show Scoreboard", "show_score_mean")
+    public static readonly Effect show_score_mean = new("Show Scoreboard (toxic)", "show_score_mean")
     {
         Description = "Shows the scoreboard for a few seconds... with mouse mode on",
-        Note = "toxic",
         Duration = TimeSpan.FromSeconds(6),
-        Category = new EffectGrouping(C_HUD),
+        Category = new EffectGrouping(C_HUD, C_POPUP),
         Price = 15,
         #region streamer facing
         IsDurationEditable = true,
@@ -881,6 +880,38 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+    public static readonly Effect show_quest_log = new("Show Contracker", "show_quest_log")
+    {
+        Description = "Let's check the Contracker",
+        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    public static readonly Effect popup_ui = new("Random Pop-up", "popup_ui")
+    {
+        Description = "A random in-game UI appears!",
+        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     public static readonly Effect mouse_sensitivity_high = new("High Sensitivity", "mouse_sensitivity_high")
     {
@@ -1026,7 +1057,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect join_class_eventually = new("Next Class Change", "join_class_eventually")
     {
         SortName = "Class Change: Next Class Change",
-        Description = "Change to this class on next spawn.",
+        Description = "Change to this class on next spawn. (Guaranteed if spawned within duration)",
         Parameters = new ParameterList(new[] {
             new ParameterDef(name:"Class", id:"class",
                 new Parameter("Scout", "scout"),
@@ -1172,6 +1203,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             show_score_mean,
             voicemenu,
             hacker_hud,
+            show_quest_log,
+            popup_ui,
 
             crosshair_rainbow,
             crosshair_giant,

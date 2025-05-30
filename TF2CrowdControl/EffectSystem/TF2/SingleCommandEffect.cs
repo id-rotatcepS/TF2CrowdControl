@@ -269,6 +269,57 @@
             // no verification possible or necessary
         }
     }
+    public class ContrackerEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "show_quest_log";
+        public ContrackerEffect()
+            : base(EFFECT_ID, "show_quest_log")
+        {
+            Availability = new InApplication();
+        }
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
+    public class PopupUIEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "popup_ui";
+        public PopupUIEffect()
+            : base(EFFECT_ID, string.Empty)
+        {
+            Availability = new InApplication();
+        }
+        protected override void StartEffect()
+        {
+            string command = Choose(
+                    "fogui", // anytime (& doesn't go to main menu!)
+                    "bug", // anytime
+                    "showschemevisualizer", // anytime
+                    "training_showdlg;gameui_activate", // anytime (sometimes "hidden" on main menu? so show it)
+                    "showconsole" // anytime
+                    );
+            // the minor additions here are not that interesting for the effect
+            // TF2Effects.Instance.TF2Proxy?.IsUserAlive
+            //        //"gameui_activate", // go to main menu - so require them to be in a map.
+            //        "show_motd", // requires a map
+            //        "showmapinfo" // requires a map...and alive?
+            //        //,"+vgui_drawtree" // worried about not hitting - command
+
+            _ = TF2Effects.Instance.RunRequiredCommand(command);
+        }
+
+        private string Choose(params string[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // no verification possible or necessary
+        }
+    }
     public class ForcedChangeClassEffect : SingleCommandEffect
     {
         public static readonly string EFFECT_ID = "join_class_autokill";
