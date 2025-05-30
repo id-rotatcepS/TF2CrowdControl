@@ -918,6 +918,23 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
+    public static readonly Effect hacker_hud = new("Hacker HUD", "hacker_hud")
+    {
+        Description = "TF2 from the POV of hacker/robot/terminator/predator/robocop/iron man/westworld",
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_HUD),
+        Price = 30,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(3),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
     public static readonly Effect retry = new("Zero-out My Score", "retry")
     {
         Description = "Reload the ongoing match, zeroing out my score - also preventing any autobalance in progress.",
@@ -1154,6 +1171,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             show_score,
             show_score_mean,
             voicemenu,
+            hacker_hud,
 
             crosshair_rainbow,
             crosshair_giant,

@@ -68,6 +68,7 @@ namespace EffectSystem.TF2
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
                 new VoiceMenuEffect(),
+                new HackerHUDEffect(),
 
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),

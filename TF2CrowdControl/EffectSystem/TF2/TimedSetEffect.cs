@@ -562,6 +562,35 @@
         public override bool IsSelectableGameState => base.IsSelectableGameState;
     }
 
+    public class HackerHUDEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "hacker_hud";
+
+        public HackerHUDEffect()
+            : base(EFFECT_ID, DefaultTimeSpan, new()
+            {
+                ["mat_drawTitleSafe"] = "1", // frame rectangles
+                ["cl_showfps"] = "1", // green text top right corner
+                ["vprof_graph"] = "1",
+                ["snd_showmixer"] = "1", // flickery side text and green/yellow/red sound graph
+                ["cl_showpos"] = "1", // position and velocity in white top right corner
+                //;(cl_showbattery 1 overlaps - could alternate between this and showpos?) // usually "Battery: On AC" top right corner
+            })
+        {
+            Availability = new InMap();
+        }
+        public override void StartEffect()
+        {
+            base.StartEffect();
+            _ = TF2Effects.Instance.RunCommand("+graph");
+        }
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-graph");
+            base.StopEffect();
+        }
+    }
+
     /// <summary>
     /// Animate fov and viewmodel fov back and forth at different rates
     /// </summary>
