@@ -1071,6 +1071,59 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
+    public static readonly Effect voicemenu = new("Voice Command", "voicemenu")
+    {
+        //SortName = "",
+        Description = "Say an in-game voice line.",
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Command", id:"command",
+                // Voice Menu 1 Default key: Z
+                new Parameter("MEDIC!", "0 0"),
+                new Parameter("Thanks!", "0 1"),
+                new Parameter("Go Go Go!", "0 2"),
+                new Parameter("Move Up!", "0 3"),
+                new Parameter("Go Left", "0 4"),
+                new Parameter("Go Right", "0 5"),
+                new Parameter("Yes", "0 6"),
+                new Parameter("No", "0 7"),
+                //new Parameter("Pass to me!", "0 8"),
+
+                // Voice Menu 2 Default key: X
+                new Parameter("Incoming", "1 0"),
+                new Parameter("Spy!", "1 1"),
+                new Parameter("Sentry Ahead!", "1 2"),
+                new Parameter("Teleporter Here", "1 3"),
+                new Parameter("Dispenser Here", "1 4"),
+                new Parameter("Sentry Here", "1 5"),
+                new Parameter("Activate ÜberCharge!", "1 6"),
+                //new Parameter("MEDIC: ÜberCharge Ready", "1 7"),
+                //new Parameter("Pass to me!", "1 8"),
+
+                // Voice Menu 3 Default key: C
+                new Parameter("Help!", "2 0"),
+                new Parameter("Battle Cry", "2 1"),
+                new Parameter("Cheers", "2 2"),
+                new Parameter("Jeers", "2 3"),
+                new Parameter("Positive", "2 4"),
+                new Parameter("Negative", "2 5"),
+                new Parameter("Nice Shot", "2 6"),
+                new Parameter("Good Job", "2 7")
+                )
+        }),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
+        Price = 2,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan
+        //SessionCooldown = TimeSpan
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
+    };
+
     public override EffectList Effects
         => new Effect[]{
             spin_left,
@@ -1100,6 +1153,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             show_score,
             show_score_mean,
+            voicemenu,
 
             crosshair_rainbow,
             crosshair_giant,
