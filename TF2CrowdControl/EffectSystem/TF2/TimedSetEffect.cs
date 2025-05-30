@@ -531,7 +531,7 @@
         {
         }
 
-        protected override double Factor => 5.0;
+        protected override double Factor => 4.5;
     }
     public class MouseSensitivityLowEffect : MouseSensitivityEffect
     {

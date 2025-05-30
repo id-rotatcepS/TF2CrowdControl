@@ -509,7 +509,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     /// rapidly changing crosshairs
     /// Affects crosshair shape
     /// </summary>
-    public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Message", "crosshair_alien")
+    public static readonly Effect crosshair_alien = new("Ancient Aliens Illuminati Crosshair", "crosshair_alien")
     {
         Description = "⊹ ⋅ ⊤ ∘ ⨪ ⨯ (⋅) 👁",
         Duration = TimeSpan.FromSeconds(60),
