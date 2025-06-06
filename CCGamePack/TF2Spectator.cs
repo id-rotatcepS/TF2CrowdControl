@@ -427,7 +427,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Plastered",
         Description = "Good eveninging ofischer... I don' feel sho good",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_NEW, C_VIEWMODEL, C_CAMERA),
+        Category = new EffectGrouping(C_VIEWMODEL, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -730,7 +730,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
     {
         Description = "Force slot 3 (melee) weapon.",
-        Duration = TimeSpan.FromSeconds(60),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_GAMEPLAY),
         Price = 50, // it'll probably get you killed
         #region streamer facing
@@ -809,7 +809,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Random taunts for the full duration.",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_NEW, C_TAUNT),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 100,
         #region streamer facing
         IsDurationEditable = true,
@@ -830,7 +830,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "Do one equipped or weapon taunt immediately.",
         Note = "random", // planning to add specific taunts (disabled by default so streamer can enable if they equip it)
         Duration = TimeSpan.FromSeconds(5),
-        Category = new EffectGrouping(C_NEW, C_TAUNT),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 20,
         #region streamer facing
         IsDurationEditable = false,
@@ -1004,7 +1004,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect wm1 = new("W+M1", "wm1")
     {
         Description = "Best strategy in the game.",
-        Duration = TimeSpan.FromSeconds(60),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
         Price = 50,
         #region streamer facing
@@ -1022,7 +1022,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "It's like part-time zero-gravity",
         Duration = TimeSpan.FromSeconds(45),
-        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Category = new EffectGrouping(C_MOVEMENT),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,

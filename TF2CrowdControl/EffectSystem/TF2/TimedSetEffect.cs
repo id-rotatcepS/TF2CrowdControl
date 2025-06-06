@@ -213,13 +213,16 @@
         private static string FormatRandomIntertitle()
         {
             string format = intertitles[Random.Shared.Next(intertitles.Count)];
-            return string.Format(format, TF2Effects.Instance.GetValue("name"));
+            return string.Format(format,
+                TF2Effects.Instance.GetValue("name"),
+                TF2Effects.Instance.TF2Proxy?.Map ?? "this map");
         }
         /// <summary>
         /// string formats to display as intertitles on death.
         /// Width limited.  "rotatcepS ⚙ became an Insurance age" is an example cutoff (it adds ... afterwards)
         /// Can't contain quotes, and semicolon is probably not safe either.
         /// arg 0: username.
+        /// arg 1: map name (e.g. pl_upward - default: "this map")
         /// </summary>
         private static List<string> intertitles = new List<string>()
         {
@@ -231,6 +234,7 @@
             "The End...Or Is It?",
             "TO BE CONTINUED...",
             "Act III: Death of {0}",
+            "A Fine Day on {1}",
             //"{0} was killed by a drunk driver in December 1964.",
             //"{0} was reported missing in action inear An Loc in December 1965.",
             //"{0} became an Insurance agent in Modesto, California.",
@@ -266,9 +270,9 @@
             : base(EFFECT_ID, DefaultTimeSpan, new()
             {
                 // HDR disabled maps use this value.
-                ["mat_non_hdr_bloom_scalefactor"] = "50",
+                ["mat_non_hdr_bloom_scalefactor"] = "40",
                 // HDR enabled maps use this value.
-                ["mat_bloom_scalefactor_scalar"] = "50",
+                ["mat_bloom_scalefactor_scalar"] = "40",
 
                 // ensure none of these settings are changed - they could cancel out or reduce the bloom
                 // 1 disables bloom, duh.
@@ -301,9 +305,9 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
             {
                 // HDR enabled maps use this value.
-                ["mat_bloom_scalefactor_scalar"] = string.Empty,//"50",
+                ["mat_bloom_scalefactor_scalar"] = string.Empty,
                 // HDR disabled maps use this value.
-                ["mat_non_hdr_bloom_scalefactor"] = string.Empty,//"50",
+                ["mat_non_hdr_bloom_scalefactor"] = string.Empty,
 
                 // ensure none of these settings are changed - they could cancel out or reduce the bloom
                 // 1 disables bloom, duh.

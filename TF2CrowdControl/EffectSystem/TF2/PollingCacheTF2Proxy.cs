@@ -642,15 +642,22 @@ namespace EffectSystem.TF2
         }
 
         public double VerticalSpeed => motionTracker.GetVerticalSpeed();
+        public double HorizontalSpeed => motionTracker.GetHorizontalSpeed();
 
         /// <summary>
         /// 300 Hu/s is normal walk speed. 400 for scout, but nobody walks straight up.
         /// Seems to work OK - pyro going up the tr_walkway ramp goes just under 200 vertically. 
         /// scout went up to 225
         /// </summary>
-        public static double MAX_VERTICAL_WALK_SPEED = 300;
+        public static readonly double MAX_VERTICAL_WALK_SPEED = 300;
+        /// <summary>
+        /// 76(.67) HU/s crouched heavy walk speed
+        /// </summary>
+        public static readonly double MIN_HORIZONTAL_WALK_SPEED = 76;
+        public static readonly double CONGA_SPEED = 50;
 
         public bool IsJumping => Math.Abs(motionTracker.GetVerticalSpeed()) > MAX_VERTICAL_WALK_SPEED;
+        public bool IsWalking => Math.Abs(motionTracker.GetHorizontalSpeed()) > MIN_HORIZONTAL_WALK_SPEED;
 
         /// <summary>
         /// One-time command has successfully run?

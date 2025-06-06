@@ -230,12 +230,15 @@
 
         protected virtual void SendTaunt()
         {
-            // choose a random taunt AND default taunt in case nothing was equipped there.
-            // slot 0 is held-weapon taunt, equippable slots are 1-8
-            int tauntSlot = Random.Shared.Next(0, 9);// max is EXclusive.
+            // do 3 rapid random taunts for people who have very little equipped
+            for (int i = 0; i < 3; ++i)
+            {
+                // slot 0 is held-weapon taunt, equippable slots are 1-8
+                int tauntSlot = Random.Shared.Next(0, 9);// max is EXclusive.
 
-            _ = TF2Effects.Instance.RunCommand(string.Format("taunt {0}", tauntSlot));
-            //FUTURE user-selected taunt by name?
+                _ = TF2Effects.Instance.RunCommand(string.Format("taunt {0}", tauntSlot));
+                //FUTURE user-selected taunt by name?
+            }
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
@@ -249,9 +252,11 @@
             TimeSpan longestAttempt = GetLongestAttemptSpan();
             if (DateTime.Now.Subtract(startTime) <= longestAttempt)
             {
-                // reset the attempts if we're mid-jump.
-                if (TF2Effects.Instance.TF2Proxy?.IsJumping ?? false)
-                    JumpedDuringUpdate();
+                // reset the attempts if we're mid-jump or still walking.
+                if (TF2Effects.Instance.TF2Proxy != null &&
+                    (TF2Effects.Instance.TF2Proxy.IsJumping
+                    || TF2Effects.Instance.TF2Proxy.IsWalking))
+                    MovedTooMuchDuringUpdate();
                 else
                     SendTaunt();
             }
@@ -279,10 +284,11 @@
             // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
-            return TimeSpan.FromSeconds(1.2);
+            // ... but not foolproof - better to overtaunt than not deliver
+            return TimeSpan.FromSeconds(1.8);
         }
 
-        protected virtual void JumpedDuringUpdate()
+        protected virtual void MovedTooMuchDuringUpdate()
         {
             startTime = DateTime.Now;
         }
@@ -389,7 +395,7 @@
         public static readonly string EFFECT_ID = "melee_only";
 
         public MeleeOnlyEffect()
-            : this(EFFECT_ID, DefaultTimeSpan)
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
         }
         protected MeleeOnlyEffect(string id, TimeSpan duration)
@@ -502,7 +508,7 @@
         public static readonly string EFFECT_ID = "wm1";
 
         public WM1Effect()
-            : base(EFFECT_ID, DefaultTimeSpan)
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_FORWARD);
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ATTACK);
@@ -524,7 +530,7 @@
 
     // A TimedEffect that ends early when a challenge is met.
     // Assume a bad effect at the start with a very long duration but it ends early if challenge is met.
-    // "Challenge: Black & White killing spree (5ks)" (30m)
+    // "Challenge: Black & White killing spree (5ks)" (10m)
     // "Challenge: W+M1 3 kill" (10m)
     // "Challenge: Melee Only 3 kill" (10m)
     // 
@@ -542,7 +548,7 @@
     // TimedSetEffect until...
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the 5 kill streak challenge.
+    /// 10 minute Effect that cancels upon meeting the 5 kill streak challenge.
     /// </summary>
     public class ChallengeBlackAndWhiteTimedEffect : BlackAndWhiteTimedEffect
     {
@@ -570,7 +576,7 @@
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single kill (and survive) challenge.
+    /// 10 minute Effect that cancels upon meeting the single kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterKillEffect : TauntAfterKillEffect
     {
@@ -582,16 +588,16 @@
             challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
         }
 
-        protected override void JumpedDuringUpdate()
+        protected override void MovedTooMuchDuringUpdate()
         {
-            base.JumpedDuringUpdate();
+            base.MovedTooMuchDuringUpdate();
 
             (challenge as KillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single crit kill (and survive) challenge.
+    /// 10 minute Effect that cancels upon meeting the single crit kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterCritKillEffect : TauntAfterCritKillEffect
     {
@@ -603,9 +609,9 @@
             challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
         }
 
-        protected override void JumpedDuringUpdate()
+        protected override void MovedTooMuchDuringUpdate()
         {
-            base.JumpedDuringUpdate();
+            base.MovedTooMuchDuringUpdate();
 
             // can't start taunt - they need to survive til landing and taunt started.
             (challenge as CritKillsChallenge)?.SurvivedSince(DateTime.Now);
@@ -613,7 +619,7 @@
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single kill challenge.
+    /// 10 minute Effect that cancels upon meeting the single kill challenge.
     /// </summary>
     public class ChallengeCataractsEffect : CataractsCrosshairEffect
     {
