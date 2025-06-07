@@ -443,6 +443,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
     #region Crosshair
     /// <summary>
+    /// Turn off the crosshair.  Not available if that's their default, along with the other crosshair effects.
+    /// Affects all other crosshair effects
+    /// </summary>
+    public static readonly Effect crosshair_none = new("No Crosshair", "crosshair_none")
+    {
+        Description = "Dude, just point your screen at them - is it really so tough?",
+        Duration = TimeSpan.FromSeconds(60),
+        Category = new EffectGrouping(C_NEW, C_CROSSHAIR),
+        Price = 15,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
+    /// <summary>
     /// animate a rainbow effect on the crosshair's color.
     /// Affects crosshair color
     /// </summary>
@@ -1207,6 +1228,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             show_quest_log,
             popup_ui,
 
+            crosshair_none,
             crosshair_rainbow,
             crosshair_giant,
             crosshair_cataracts,

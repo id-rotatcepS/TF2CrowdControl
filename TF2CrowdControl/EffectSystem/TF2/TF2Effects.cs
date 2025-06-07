@@ -56,6 +56,7 @@ namespace EffectSystem.TF2
                 new LongArmsTimedEffect(),
                 new VRModeTimedEffect(),
 
+                new NoCrosshairEffect(),
                 new RainbowCrosshairEffect(),
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),

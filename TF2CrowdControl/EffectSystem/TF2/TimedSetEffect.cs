@@ -471,6 +471,24 @@
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }
 
+    public class NoCrosshairEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_none";
+
+        public NoCrosshairEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(40), new()
+            {
+                ["crosshair"] = "0"
+                // related: "tf_hud_no_crosshair_on_scope_zoom" defaults to 0
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE); // can't shape the missing crosshair
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR); // can't color the missing crosshair
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE); // can't size the missing crosshair
+            Availability = new AliveInMap();
+        }
+    }
+
     public abstract class MouseSensitivityEffect : TimedEffect
     {
         private const string variable = "sensitivity";
