@@ -1072,7 +1072,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 //new Parameter("?Random?", "random") // would keep changing while we wait for spawn which is weird.
                 )
         }),
-        Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn.
+        Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn and stay in class a minute.
         Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
         Price = 50, // almost same as destroyallbuildings since it will.
         #region streamer facing
@@ -1080,7 +1080,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 0.5f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(2), // no guarantee they'll ever die - somebody else can have a chance if we passed guarantee time.
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
@@ -1090,7 +1090,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect join_class_autokill = new("Death by Class Change", "join_class_autokill")
     {
         SortName = "Class Change: Death by Class Change",
-        Description = "Change to this class NOW, kills me if I'm out of spawn.",
+        Description = "Change to this class NOW, kills me to force the respawn.",
         Parameters = new ParameterList(new[] {
             new ParameterDef(name:"Class", id:"class",
                 new Parameter("Scout", "scout"),
@@ -1105,14 +1105,15 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("?Random?", "random")
                 )
         }),
+        Duration = TimeSpan.FromMinutes(2), // "enough" time to respawn and stay in class a minute.
         Category = new EffectGrouping(C_GAMEPLAY),
         Price = 75, // worse than getting killed
         #region streamer facing
-        //IsDurationEditable = true,
+        IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2), // let viewer get a couple minutes of their selection before another contradicts it.
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),

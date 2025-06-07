@@ -25,6 +25,7 @@ namespace EffectSystem.TF2
         public static readonly string MUTEX_FORCE_MOVE_JUMP = "force_move_jump";
         public static readonly string MUTEX_VIEWPORT = "viewport";
         public static readonly string MUTEX_BLOOM = "bloom";
+        public static readonly string MUTEX_CLASS_CHANGE = "join_class";
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
@@ -77,7 +78,8 @@ namespace EffectSystem.TF2
 
                 new QuitEffect(),
                 new RetryEffect(),
-                new ForcedChangeClassEffect(),
+                //new ForcedChangeClassEffect(),
+                new ChangeClassAndDieEffect(),
                 new ChangeClassEffect(),
 
                 new SpinEffect(),

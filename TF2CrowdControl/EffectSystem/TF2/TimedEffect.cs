@@ -12,8 +12,17 @@
         {
         }
 
+        /// <summary>
+        /// Whether Elapsed time of Duration can continue counting - <see cref="IsAvailable"/> by default.
+        /// </summary>
         override protected bool CanElapse => IsAvailable;
+        /// <summary>
+        /// Whether <see cref="Availability"/> returns true given <see cref="TF2Proxy"/> (for duration to elapse).
+        /// </summary>
         protected bool IsAvailable => Availability?.IsAvailable(TF2Effects.Instance.TF2Proxy) ?? true;
+        /// <summary>
+        /// The strategy for determining if this effect is currently available (for duration to elapse).
+        /// </summary>
         public TF2Availability? Availability { get; set; }
 
         /// <summary>
@@ -46,24 +55,65 @@
         public abstract void StopEffect();
     }
 
+    public class ChangeClassAndDieEffect : ChangeClassEffect
+    {
+        new public static readonly string EFFECT_ID = "join_class_autokill";
+        public ChangeClassAndDieEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(2))
+        {
+        }
+
+        protected override string AutoKillMode => "1";
+
+        /// <summary>
+        /// User is alive (so they can die) in addition to IsAvailable.
+        /// </summary>
+        public override bool IsSelectableGameState => IsAvailable
+            && (TF2Effects.Instance.TF2Proxy?.IsUserAlive ?? false);
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+            // in case they were in spawn and the join_class happened instantly without granting the effect's promised death:
+            _ = TF2Effects.Instance.RunCommand("kill");
+        }
+
+        // could do this like SingleCommandEffect, but our IsAvailable and duration Updates should be enough of a guarantee
+        //protected override void CheckEffectWorked()
+        //{
+        //    // availability doesn't change, but if it became unavailable it probably won't take.
+        //    if (Availability != null
+        //        && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+        //        throw new EffectNotVerifiedException("Left the map before class applied");
+
+        //    if (!string.IsNullOrEmpty(classSelection)
+        //        && classSelection != "random" // although we're not offering this currently.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
+        //        // also acceptable, although "Next" is the really relevant one.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
+        //        )
+        //        throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
+        //}
+    }
+
     /// <summary>
     /// no-kill class change that tries to verify you eventually spawn as the class.
-    /// Not a subclass of ForcedChangeClassEffect because we need a Duration to keep forcing the class change.
     /// </summary>
     public class ChangeClassEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "join_class_eventually";
         public ChangeClassEffect()
-            : this(EFFECT_ID)
+            : this(EFFECT_ID, TimeSpan.FromMinutes(7))
         {
         }
         private string commandFormat = "join_class {1}";
-        protected ChangeClassEffect(string id)
-            : base(id, TimeSpan.FromMinutes(7))
+        protected ChangeClassEffect(string id, TimeSpan duration)
+            : base(id, duration)
         {
             Availability = new InMap();
+            Mutex.Add(TF2Effects.MUTEX_CLASS_CHANGE); // including subclasses
             // register needed variable
-            _ = TF2Effects.Instance.GetValue(variable);
+            _ = TF2Effects.Instance.GetValue(autoKillVariable);
         }
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -81,21 +131,25 @@
             base.StartEffect(request);
         }
 
-        private string variable = "hud_classautokill";
-        private string prev = "0";
+        protected virtual string AutoKillMode => "0";
+        private DateTime classLongEnough = DateTime.MaxValue;
+        private string autoKillVariable = "hud_classautokill";
+        private string autoKillPrev = "0";
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
-                throw new EffectNotAppliedException("Unexpected error - unable to watch for spawn right now.");
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for class change right now.");
+
+            classLongEnough = DateTime.MaxValue;
 
             string formattedMainCommand = string.Format(commandFormat, requestor, classSelection);
 
-            prev = TF2Effects.Instance.GetValue(variable)
-                ?? "0";
-            if (prev != "0")
+            autoKillPrev = TF2Effects.Instance.GetValue(autoKillVariable)
+                ?? AutoKillMode;
+            if (autoKillPrev != AutoKillMode)
                 _ = TF2Effects.Instance.RunRequiredCommand(
                     // extra insurance - we don't want to get this one wrong.
-                    string.Format("{0} {1}; wait 10; {2}", variable, "0", formattedMainCommand));
+                    string.Format("{0} {1}; wait 10; {2}", autoKillVariable, AutoKillMode, formattedMainCommand));
             else
                 _ = TF2Effects.Instance.RunRequiredCommand(formattedMainCommand);
         }
@@ -107,48 +161,41 @@
             if (TF2Effects.Instance.TF2Proxy == null)
                 return; // hopefully next update it'll be set.
 
-            // keep joining the requested class until we spawn as that class (or time is up)
-            // - better: only do it if we detect a different class requested.
-            if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
-                // NOTE not via OnUserSpawned because this exception needs to be during update's thread.
-                throw new EffectFinishedEarlyException(string.Format("User spawned as {0}", classSelection));
+            FinishEarlyWhenPlayedClassLongEnough(TF2Effects.Instance.TF2Proxy.ClassSelection);
 
-            // Run this always - user could swap classes in spawn and it wouldn't output "next" info, so we can't rely on that value unless we also check Current class when it's different that the starting class.
+            // Run this always - user could swap classes in spawn and it wouldn't output "next" info,
+            // so we can't rely on that value unless we also check Current class when it's different that the starting class.
             // Lots of work, when we could just spam the selected class which doesn't output if it's not new value.
             _ = TF2Effects.Instance.RunCommand(string.Format(commandFormat, requestor, classSelection));
 
             // - need to account for X minutes before they die/respawn as class
             // - should probably pause when dead even though it can be redeemed while dead.
             // TODO we would do that ^, but pausing prevents us from updating currently, and we need updates to correct user class changes.
-            // - would like to account for Y minutes minimum time as class
             //
             // maybe 5 minutes to die and 2 minutes minimum?
             // Then shows 7 minutes they feel like they're stuck with class which isn't too bad.
             // maybe just 5 total if it pauses while dead.
-            // FUTURE: Manually track 2 minute minimum as class and finish early.
+        }
+
+        private void FinishEarlyWhenPlayedClassLongEnough(string currentClass)
+        {
+            // keep joining the requested class until we spawn as that class (or time is up)
+            if (DateTime.Now > classLongEnough)
+                // NOTE not via OnUserSpawned because this exception needs to be during update's thread.
+                throw new EffectFinishedEarlyException(string.Format("User spawned as {0}", classSelection));
+
+            // only do it if we detect a different class requested
+            // but give it a minute longer so they don't "accidentally" change class as soon as it takes effect.
+            if (classLongEnough == DateTime.MaxValue
+                && currentClass == classSelection)
+                classLongEnough = DateTime.Now.Add(TimeSpan.FromMinutes(1));
         }
 
         public override void StopEffect()
         {
-            if (prev != "0")
-                TF2Effects.Instance.SetRequiredValue(variable, prev);
+            if (autoKillPrev != AutoKillMode)
+                TF2Effects.Instance.SetRequiredValue(autoKillVariable, autoKillPrev);
         }
-
-        //protected override void CheckEffectWorked()
-        //{
-        //    // availability doesn't change, but if it became unavailable it probably won't take.
-        //    if (Availability != null
-        //        && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-        //        throw new EffectNotVerifiedException("Left the map before class applied");
-
-        //    if (!string.IsNullOrEmpty(classSelection)
-        //        && classSelection != "random" // although we're not offering this currently.
-        //        && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
-        //        // also acceptable, although "Next" is the really relevant one.
-        //        && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
-        //        )
-        //        throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
-        //}
     }
 
     public class JumpingEffect : TimedEffect
