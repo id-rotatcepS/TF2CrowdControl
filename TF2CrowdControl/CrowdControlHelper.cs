@@ -143,13 +143,11 @@ namespace CrowdControl
 
         private void HandleEffectTest(EffectRequest request)
         {
-            CCEffectDispatchRequest req = new CCEffectDispatchRequest(request);
+            CCEffectDispatchRequest req = CreateCCEffectDispatchRequest(request);
 
             Aspen.Log.Trace($"Got an effect test request [{request.id}:{request.code}].");
 
-            string effectID =
-                req.EffectID == CC_HYPETRAIN_CODE ? "taunt_now"
-                : req.EffectID;
+            string effectID = req.EffectID;
 
             if (effectID == null
                 || !_effectDispatcher.Effects.Any(e => e.ID == effectID)
@@ -182,6 +180,27 @@ namespace CrowdControl
                 _effectDispatcher.Responder.AppliedFor(req, effect.Duration);
             else
                 _effectDispatcher.Responder.AppliedInstant(req);
+        }
+
+        private static CCEffectDispatchRequest CreateCCEffectDispatchRequest(EffectRequest request)
+        {
+            if (request.code != CC_HYPETRAIN_CODE)
+                return new CCEffectDispatchRequest(request);
+
+            HypeTrainSourceDetails? hype = request.sourceDetails as HypeTrainSourceDetails;
+            if (hype == null)
+                return new CCEffectDispatchRequest(request);
+
+            //hype.Type == req.EffectID;
+            string train = $"Level {hype.Level} Hype Train!";
+            string progress = $"{hype.Total} bits makes {hype.Progress} towards {hype.Goal}.";
+            IEnumerable<string> contributions =
+                hype.TopContributions.Select(
+                    contrib => $"{contrib.UserName} ({contrib.Total} {contrib.Type})");
+            //$"{hype.LastContribution.Total} {hype.LastContribution.Type} from {hype.LastContribution.UserName}";
+
+            Aspen.Log.Info("Hype Train Event: " + train + " " + progress + " " + string.Join(", ", contributions));
+            return new CCHypeTrainEffectDispatchRequest(request, train, progress, contributions);
         }
 
         public delegate void EffectStatesUpdated(CrowdControlHelper cc);

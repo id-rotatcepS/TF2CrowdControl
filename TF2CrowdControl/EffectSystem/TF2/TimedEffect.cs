@@ -725,4 +725,87 @@
         }
     }
 
+
+    /// <summary>
+    /// colorblind rave, keep taunting for a long duration continuously & spin
+    /// </summary>
+    public class RaveEffect : TauntEffect
+    {
+        private const string RaveVariableName = "mat_color_projection";
+        new public static readonly string EFFECT_ID = "rave";
+
+        public RaveEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(15))
+        {
+            Mutex.Add(nameof(TauntEffect)); //mutex with parent
+            Mutex.Add(nameof(BlackAndWhiteTimedEffect));
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ROTATE);
+        }
+        protected RaveEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+            // register value to track
+            _ = TF2Effects.Instance.GetValue(RaveVariableName);
+        }
+
+        private string? restoreValue = null;
+        public override void StartEffect()
+        {
+            restoreValue = TF2Effects.Instance.GetValue(RaveVariableName);
+            base.StartEffect();
+            // spin camera around the taunts
+            _ = TF2Effects.Instance.RunCommand("+right");
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            // the taunting:
+            base.Update(timeSinceLastUpdate);
+
+            // rave flashing
+            _ = TF2Effects.Instance.RunCommand(string.Format("{0} {1}", RaveVariableName, Random.Shared.Next(0, 10)));
+        }
+
+        public override void StopEffect()
+        {
+            if (restoreValue != null)
+                TF2Effects.Instance.SetValue(RaveVariableName, restoreValue);
+
+            base.StopEffect();
+
+            _ = TF2Effects.Instance.RunCommand("-right");
+        }
+
+        protected override TimeSpan GetLongestAttemptSpan()
+        {
+            return base.Duration;
+        }
+    }
+
+    /// <summary>
+    /// longer Rave with a hype train party chat message
+    /// </summary>
+    public class HypeTrainEffect : RaveEffect
+    {
+        new public static readonly string EFFECT_ID = "event-hype-train";
+
+        public HypeTrainEffect() :
+            base(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+            // we don't use the Mutex system - HypeTrain needs to fire "no matter what"
+            //Mutex.Add(nameof(TauntEffect)); //mutex with parent
+            Availability = new InApplication();
+        }
+
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // Parameter only gets set by Hype Train Request details as hype sentences.
+            if (!string.IsNullOrEmpty(request.Parameter))
+                _ = TF2Effects.Instance.RunCommand("say_party " + request.Parameter);
+
+            base.StartEffect(request);
+        }
+    }
+
 }

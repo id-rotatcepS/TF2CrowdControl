@@ -309,6 +309,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
+
+    /// <summary>
+    /// random color projections, taunt, & spin.
+    /// hype train is a variation on this.
+    /// </summary>
+    public static readonly Effect rave = new("Rave Party", "rave")
+    {
+        Description = "Warning: may cause euphorinausea.",
+        Duration = TimeSpan.FromSeconds(15),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_TAUNT),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+    };
     #endregion Camera
 
     #region View Model
@@ -1214,6 +1236,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             dream,
             drunk,
             fade,
+            rave,
 
             big_guns,
             small_guns,

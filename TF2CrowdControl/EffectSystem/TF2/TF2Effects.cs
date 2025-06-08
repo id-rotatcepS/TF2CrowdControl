@@ -48,6 +48,9 @@ namespace EffectSystem.TF2
                 new SilentMovieTimedEffect(),
                 new PixelatedTimedEffect(),
                 new DreamTimedEffect(),
+                new RaveEffect(),
+
+                new HypeTrainEffect(), // Rave + message, more availability, and party chat message
 
                 // big and small depending on what they usually use.
                 new BigGunsTimedEffect(),

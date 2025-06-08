@@ -32,7 +32,7 @@ namespace CrowdControl
         /// "type": "options"
         /// }
         /// </summary>
-        public string Parameter => OriginalRequest.parameters?.First?.First?["value"]?.ToString() ?? string.Empty;
+        public virtual string Parameter => OriginalRequest.parameters?.First?.First?["value"]?.ToString() ?? string.Empty;
 
         /// <summary>
         /// The requested duration of the effect, in milliseconds.	An option to report this value as decimal seconds (double?) will be available in a future release.
@@ -42,6 +42,25 @@ namespace CrowdControl
         /// The displayable name of the viewer who requested the effect.	Returns “the crowd” if multiple viewers are present.
         /// </summary>
         public string Requestor => OriginalRequest.viewer ?? string.Empty;
+    }
 
+    public class CCHypeTrainEffectDispatchRequest : CCEffectDispatchRequest
+    {
+        public CCHypeTrainEffectDispatchRequest(EffectRequest original, string hype, string progress, IEnumerable<string> hypecontribs)
+            : base(original)
+        {
+            Hype = hype;
+            Progress = progress;
+            HypeContribs = hypecontribs;
+        }
+
+        public string Hype { get; private set; }
+        public string Progress { get; }
+        public IEnumerable<string> HypeContribs { get; private set; }
+
+        public override string Parameter =>
+            Hype + " " +
+            //Progress + " " + // TODO not sure if this is formatted right - it gets logged.  Also might be too long for party-chat.
+            "Special thanks to " + string.Join(", ", HypeContribs);
     }
 }
