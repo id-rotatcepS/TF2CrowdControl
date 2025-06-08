@@ -805,6 +805,23 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
+    public static readonly Effect weapon_shuffle = new("Weapon Shuffle", "weapon_shuffle")
+    {
+        Description = "The one with the funny weapon swaps",
+        Duration = TimeSpan.FromSeconds(30),
+        Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 35, // it'll probably get you killed
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
 
     /// <summary>
     /// Next time the user gets a kill, immediately triggers a taunt and ends the effect.
@@ -1261,6 +1278,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             kill,
             explode,
             melee_only,
+            // disabled - too slow to be interesting right now.
+            // weapon_shuffle,
 
             destroybuildings,
             destroysentry,

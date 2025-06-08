@@ -69,6 +69,7 @@ namespace EffectSystem.TF2
                 new UnderwaterFadeEffect(),
 
                 new MeleeOnlyEffect(),
+                new WeaponShuffleEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),

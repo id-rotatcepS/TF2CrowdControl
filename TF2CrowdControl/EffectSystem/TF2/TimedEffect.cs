@@ -474,6 +474,47 @@
         }
     }
 
+    /// <summary>
+    /// like Melee Only but constantly rotating weapons
+    /// </summary>
+    public class WeaponShuffleEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "weapon_shuffle";
+
+        public WeaponShuffleEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+        }
+        protected WeaponShuffleEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+        }
+
+        private int slot = 1;
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            _ = TF2Effects.Instance.RunCommand("slot" + slot);
+            ++slot;
+            if (slot > 3)
+                slot = 1;
+        }
+
+        public override void StopEffect()
+        {
+            //switch to primary
+            _ = TF2Effects.Instance.RunCommand("slot1");
+        }
+    }
+
     public class ShowScoreboardEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "show_score";
