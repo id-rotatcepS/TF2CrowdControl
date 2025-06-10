@@ -26,6 +26,7 @@ namespace EffectSystem.TF2
         public static readonly string MUTEX_VIEWPORT = "viewport";
         public static readonly string MUTEX_BLOOM = "bloom";
         public static readonly string MUTEX_CLASS_CHANGE = "join_class";
+        public static readonly string MUTEX_MOTION_BLUR = "motion_blur";
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
@@ -49,6 +50,7 @@ namespace EffectSystem.TF2
                 new PixelatedTimedEffect(),
                 new DreamTimedEffect(),
                 new RaveEffect(),
+                new VertigoTimedEffect(),
 
                 new HypeTrainEffect(), // Rave + message, more availability, and party chat message
 
@@ -98,9 +100,11 @@ namespace EffectSystem.TF2
                 new SingleTauntAfterCritKillEffect(),
                 new ChallengeCataractsEffect(),
                 new ChallengeBlackAndWhiteTimedEffect(),
+                new VertigoCreepAndRestoreEffect(),
 
                 new DeathAddsPixelatedTimedEffect(),
                 new DeathAddsDreamTimedEffect(),
+                new DeathAddsVertigoTimedEffect(),
                 ];
         }
 

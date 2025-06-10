@@ -142,6 +142,210 @@
         }
     }
 
+    /// <summary>
+    /// Crazy settings on Motion Blur to create a weird effect
+    /// </summary>
+    public class VertigoTimedEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "vertigo";
+        public VertigoTimedEffect()
+            : this(EFFECT_ID, DefaultTimeSpan)
+        {
+        }
+
+        // test
+        //mat_motion_blur_enabled 1; mat_motion_blur_falling_min 100; mat_motion_blur_forward_enabled 1; mat_motion_blur_percent_of_screen_max 20; mat_motion_blur_rotation_intensity 0; mat_motion_blur_strength 30;
+        // reset
+        //mat_motion_blur_enabled 0; mat_motion_blur_falling_min 10; mat_motion_blur_forward_enabled 0; mat_motion_blur_percent_of_screen_max 4; mat_motion_blur_rotation_intensity 1; mat_motion_blur_strength 1;
+
+        protected VertigoTimedEffect(string id, TimeSpan duration)
+            : base(id, duration, new Dictionary<string, string>
+            {
+                ["mat_motion_blur_enabled"] = "1", // default 0 (archived)
+                ["mat_motion_blur_falling_intensity"] = "1",// (default 1)
+                ["mat_motion_blur_falling_max"] = "20", // (default 20)
+                ["mat_motion_blur_falling_min"] = "100", // default 10 - the inverted max/min is a key feature of this effect as I recall
+
+                ["mat_motion_blur_forward_enabled"] = "1", // default 0
+                ["mat_motion_blur_percent_of_screen_max"] = "20", // default 4 - larger percent grows the step size, sort of
+                ["mat_motion_blur_rotation_intensity"] = "0", // default 1 - larger numbers cause weird flickering
+                ["mat_motion_blur_strength"] = "30", // default 1 - larger strength shrinks the normal zone.
+                                                     // 1000 is unplayable, 0 (even with all above) looks normal but 1 does not.
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOTION_BLUR);
+            Availability = new AliveInMap();
+        }
+    }
+
+    public class DeathAddsVertigoTimedEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "death_adds_vertigo";
+        public DeathAddsVertigoTimedEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            {
+                ["mat_motion_blur_enabled"] = "1", // default 0 (archived)
+                ["mat_motion_blur_falling_intensity"] = "1",// (default 1)
+                ["mat_motion_blur_falling_max"] = "20", // (default 20)
+                ["mat_motion_blur_falling_min"] = "100", // default 10 - the inverted max/min is a key feature of this effect as I recall
+
+                ["mat_motion_blur_forward_enabled"] = "1", // default 0
+                ["mat_motion_blur_percent_of_screen_max"] = "20", // default 4 - larger percent grows the step size, sort of
+                ["mat_motion_blur_rotation_intensity"] = "0", // default 1 - larger numbers cause weird flickering
+                ["mat_motion_blur_strength"] = string.Empty, // default 1 - larger strength shrinks the normal zone.
+                                                             // 1000 is unplayable, 0 (even with all above) looks normal but 1 does not.
+            })
+        {
+            challenge = new DeathsChallenge(6);// 6th death 3x scale would put it close to 1000
+            Mutex.Add(TF2Effects.MUTEX_MOTION_BLUR);
+            Availability = new InMap();
+        }
+
+        // don't go disabled when effects aren't set yet.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private int blurStrength = 1;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            blurStrength = 1;
+            UpdateBlur();
+            TF2Effects.Instance.TF2Proxy.OnUserDied += OnDeath;
+        }
+
+        private void UpdateBlur()
+        {
+            TF2Effects.Instance.SetRequiredValue("mat_motion_blur_strength", blurStrength.ToString());
+        }
+
+        private void OnDeath()
+        {
+            blurStrength = blurStrength * 3;
+            UpdateBlur();
+        }
+
+        public override void StopEffect()
+        {
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserDied -= OnDeath;
+            blurStrength = 1;
+
+            base.StopEffect();
+        }
+    }
+
+    public class VertigoCreepAndRestoreEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "kill_restores_vertigo_creep";
+
+        public VertigoCreepAndRestoreEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
+            {
+                ["mat_motion_blur_enabled"] = "1", // default 0 (archived)
+                ["mat_motion_blur_falling_intensity"] = "1",// (default 1)
+                ["mat_motion_blur_falling_max"] = "20", // (default 20)
+                ["mat_motion_blur_falling_min"] = "100", // default 10 - the inverted max/min is a key feature of this effect as I recall
+
+                ["mat_motion_blur_forward_enabled"] = "1", // default 0
+                ["mat_motion_blur_percent_of_screen_max"] = "20", // default 4 - larger percent grows the step size, sort of
+                ["mat_motion_blur_rotation_intensity"] = "0", // default 1 - larger numbers cause weird flickering
+                ["mat_motion_blur_strength"] = string.Empty, // default 1 - larger strength shrinks the normal zone.
+                                                             // 1000 is unplayable, 0 (even with all above) looks normal but 1 does not.
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_MOTION_BLUR);
+            Availability = new InMap();
+        }
+
+        // don't go disabled when effects aren't set yet.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        private double blurStrength = 1;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            blurStrength = 1;
+            UpdateBlur();
+
+            TF2Effects.Instance.TF2Proxy.OnUserKill += RestoreOnKill;
+        }
+
+        private void UpdateBlur()
+        {
+            int blurStrengthInt = (int)blurStrength;
+            TF2Effects.Instance.SetValue("mat_motion_blur_strength", blurStrengthInt.ToString());
+        }
+
+        private void RestoreOnKill(string victim, string weapon, bool crit)
+        {
+            blurStrength = Math.Max(
+                blurStrength / 2.0,
+                1);
+            UpdateBlur();
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            //double increasePerSecond = GetCreepRate();
+            //double increase = increasePerSecond * timeSinceLastUpdate.TotalSeconds;
+            //blurStrength += increase;
+
+            double growthFactor = GetCreepFactor(timeSinceLastUpdate.TotalSeconds);
+            blurStrength *= growthFactor;
+            UpdateBlur();
+        }
+
+        private double GetCreepRate()
+        {
+            double timePercent = Elapsed.TotalSeconds / Duration.TotalSeconds;
+            double increasePerSecond;
+            if (timePercent > 0.90)
+                // Panic mode: add 400 more in the last 10% of the time
+                increasePerSecond = 400.0 / (.10 * Duration.TotalSeconds);
+            else
+                // normal mode: add 100 in the first 90% of the time.
+                increasePerSecond = 100.0 / (.90 * Duration.TotalSeconds);
+            return increasePerSecond;
+        }
+
+        //TODO: starts too slow IMO, and panic is too fast (should be POSSIBLE to keep a decent view!)
+
+        // precalc
+        private double logMaxValueNormal = Math.Log(500);
+        private double logMaxValuePanic = Math.Log(500);
+        private double GetCreepFactor(double fractionalSecondsPassed)
+        {
+            double timePercent = Elapsed.TotalSeconds / Duration.TotalSeconds;
+            double rate;
+            if (timePercent > 0.90)
+                // Panic mode: add 400 more in the last 10% of the time
+                rate = logMaxValuePanic / (.10 * Duration.TotalSeconds);
+            else
+                // normal mode: add 100 in the first 90% of the time.
+                rate = logMaxValueNormal / (.90 * Duration.TotalSeconds);
+
+            double growthFactor = Math.Exp(rate * fractionalSecondsPassed);
+            return growthFactor;
+        }
+
+        public override void StopEffect()
+        {
+            blurStrength = 1;
+
+            base.StopEffect();
+        }
+    }
+
     public class BlackAndWhiteTimedEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "blackandwhite";
@@ -471,6 +675,8 @@
             && "1" == TF2Effects.Instance.GetValue("crosshair");
     }
 
+    // Could do this as a TimedToggleEffect,
+    // but if they have crosshair off they probably have a HUD replacing it, turning it on will probably not work well.
     public class NoCrosshairEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_none";
@@ -492,7 +698,6 @@
     public abstract class MouseSensitivityEffect : TimedEffect
     {
         private const string variable = "sensitivity";
-        private int originalSensitivity;
         protected MouseSensitivityEffect(string id)
             : base(id, TimeSpan.FromSeconds(45))
         {

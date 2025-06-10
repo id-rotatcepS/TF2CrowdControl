@@ -201,6 +201,68 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
+    /// multiple mat_motion_blur settings
+    /// </summary>
+    public static readonly Effect vertigo = new("Vertigo", "vertigo")
+    {
+        SortName = "Camera: Vertigo",
+        Description = "Oh god oh god oh god make it stop",
+        Duration = TimeSpan.FromSeconds(30),
+        Category = new EffectGrouping(C_NEW, C_CAMERA),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
+    /// mat_motion_blur's strength creeps up over time, but halves every kill.
+    /// Last 10% of the duration goes 4x faster.
+    /// </summary>
+    public static readonly Effect kill_restores_vertigo_creep = new("Vertigo Creep - Reduce on Kill", "kill_restores_vertigo_creep")
+    {
+        SortName = "Challenge: Vertigo Creep - Reduce on Kill",
+        Description = "Vertigo keeps getting worse, but every kill halves the effect. Panic Mode at the end.",
+        Duration = TimeSpan.FromMinutes(5),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    public static readonly Effect death_adds_vertigo = new("Every death doubles Vertigo", "death_adds_vertigo")
+    {
+        SortName = "Challenge: Every death doubles Vertigo",
+        Note = "6 deaths",
+        Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to 10 minutes)",
+        Duration = TimeSpan.FromMinutes(10),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
     /// mat_viewportscale 0.1 (vs 1)
     /// Affects game generation - relative to primary resolution.
     /// </summary>
@@ -1254,6 +1316,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             drunk,
             fade,
             rave,
+            vertigo,
 
             big_guns,
             small_guns,
@@ -1292,6 +1355,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             cataracts_challenge,
             melee_only_challenge,
             blackandwhite_challenge_5ks,
+            kill_restores_vertigo_creep,
 
             taunt_now,
             taunt_continuously,
@@ -1300,6 +1364,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             death_adds_pixelated,
             death_adds_dream,
+            death_adds_vertigo,
         };
 
     public override Game Game { get; } = new(
