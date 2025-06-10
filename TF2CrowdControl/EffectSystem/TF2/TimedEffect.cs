@@ -12,8 +12,17 @@
         {
         }
 
+        /// <summary>
+        /// Whether Elapsed time of Duration can continue counting - <see cref="IsAvailable"/> by default.
+        /// </summary>
         override protected bool CanElapse => IsAvailable;
+        /// <summary>
+        /// Whether <see cref="Availability"/> returns true given <see cref="TF2Proxy"/> (for duration to elapse).
+        /// </summary>
         protected bool IsAvailable => Availability?.IsAvailable(TF2Effects.Instance.TF2Proxy) ?? true;
+        /// <summary>
+        /// The strategy for determining if this effect is currently available (for duration to elapse).
+        /// </summary>
         public TF2Availability? Availability { get; set; }
 
         /// <summary>
@@ -46,24 +55,65 @@
         public abstract void StopEffect();
     }
 
+    public class ChangeClassAndDieEffect : ChangeClassEffect
+    {
+        new public static readonly string EFFECT_ID = "join_class_autokill";
+        public ChangeClassAndDieEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(2))
+        {
+        }
+
+        protected override string AutoKillMode => "1";
+
+        /// <summary>
+        /// User is alive (so they can die) in addition to IsAvailable.
+        /// </summary>
+        public override bool IsSelectableGameState => IsAvailable
+            && (TF2Effects.Instance.TF2Proxy?.IsUserAlive ?? false);
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+            // in case they were in spawn and the join_class happened instantly without granting the effect's promised death:
+            _ = TF2Effects.Instance.RunCommand("kill");
+        }
+
+        // could do this like SingleCommandEffect, but our IsAvailable and duration Updates should be enough of a guarantee
+        //protected override void CheckEffectWorked()
+        //{
+        //    // availability doesn't change, but if it became unavailable it probably won't take.
+        //    if (Availability != null
+        //        && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+        //        throw new EffectNotVerifiedException("Left the map before class applied");
+
+        //    if (!string.IsNullOrEmpty(classSelection)
+        //        && classSelection != "random" // although we're not offering this currently.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
+        //        // also acceptable, although "Next" is the really relevant one.
+        //        && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
+        //        )
+        //        throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
+        //}
+    }
+
     /// <summary>
     /// no-kill class change that tries to verify you eventually spawn as the class.
-    /// Not a subclass of ForcedChangeClassEffect because we need a Duration to keep forcing the class change.
     /// </summary>
     public class ChangeClassEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "join_class_eventually";
         public ChangeClassEffect()
-            : this(EFFECT_ID)
+            : this(EFFECT_ID, TimeSpan.FromMinutes(7))
         {
         }
         private string commandFormat = "join_class {1}";
-        protected ChangeClassEffect(string id)
-            : base(id, TimeSpan.FromMinutes(7))
+        protected ChangeClassEffect(string id, TimeSpan duration)
+            : base(id, duration)
         {
             Availability = new InMap();
+            Mutex.Add(TF2Effects.MUTEX_CLASS_CHANGE); // including subclasses
             // register needed variable
-            _ = TF2Effects.Instance.GetValue(variable);
+            _ = TF2Effects.Instance.GetValue(autoKillVariable);
         }
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -81,21 +131,25 @@
             base.StartEffect(request);
         }
 
-        private string variable = "hud_classautokill";
-        private string prev = "0";
+        protected virtual string AutoKillMode => "0";
+        private DateTime classLongEnough = DateTime.MaxValue;
+        private string autoKillVariable = "hud_classautokill";
+        private string autoKillPrev = "0";
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
-                throw new EffectNotAppliedException("Unexpected error - unable to watch for spawn right now.");
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for class change right now.");
+
+            classLongEnough = DateTime.MaxValue;
 
             string formattedMainCommand = string.Format(commandFormat, requestor, classSelection);
 
-            prev = TF2Effects.Instance.GetValue(variable)
-                ?? "0";
-            if (prev != "0")
+            autoKillPrev = TF2Effects.Instance.GetValue(autoKillVariable)
+                ?? AutoKillMode;
+            if (autoKillPrev != AutoKillMode)
                 _ = TF2Effects.Instance.RunRequiredCommand(
                     // extra insurance - we don't want to get this one wrong.
-                    string.Format("{0} {1}; wait 10; {2}", variable, "0", formattedMainCommand));
+                    string.Format("{0} {1}; wait 10; {2}", autoKillVariable, AutoKillMode, formattedMainCommand));
             else
                 _ = TF2Effects.Instance.RunRequiredCommand(formattedMainCommand);
         }
@@ -107,48 +161,41 @@
             if (TF2Effects.Instance.TF2Proxy == null)
                 return; // hopefully next update it'll be set.
 
-            // keep joining the requested class until we spawn as that class (or time is up)
-            // - better: only do it if we detect a different class requested.
-            if (TF2Effects.Instance.TF2Proxy.ClassSelection == classSelection)
-                // NOTE not via OnUserSpawned because this exception needs to be during update's thread.
-                throw new EffectFinishedEarlyException(string.Format("User spawned as {0}", classSelection));
+            FinishEarlyWhenPlayedClassLongEnough(TF2Effects.Instance.TF2Proxy.ClassSelection);
 
-            // Run this always - user could swap classes in spawn and it wouldn't output "next" info, so we can't rely on that value unless we also check Current class when it's different that the starting class.
+            // Run this always - user could swap classes in spawn and it wouldn't output "next" info,
+            // so we can't rely on that value unless we also check Current class when it's different that the starting class.
             // Lots of work, when we could just spam the selected class which doesn't output if it's not new value.
             _ = TF2Effects.Instance.RunCommand(string.Format(commandFormat, requestor, classSelection));
 
             // - need to account for X minutes before they die/respawn as class
             // - should probably pause when dead even though it can be redeemed while dead.
             // TODO we would do that ^, but pausing prevents us from updating currently, and we need updates to correct user class changes.
-            // - would like to account for Y minutes minimum time as class
             //
             // maybe 5 minutes to die and 2 minutes minimum?
             // Then shows 7 minutes they feel like they're stuck with class which isn't too bad.
             // maybe just 5 total if it pauses while dead.
-            // FUTURE: Manually track 2 minute minimum as class and finish early.
+        }
+
+        private void FinishEarlyWhenPlayedClassLongEnough(string currentClass)
+        {
+            // keep joining the requested class until we spawn as that class (or time is up)
+            if (DateTime.Now > classLongEnough)
+                // NOTE not via OnUserSpawned because this exception needs to be during update's thread.
+                throw new EffectFinishedEarlyException(string.Format("User spawned as {0}", classSelection));
+
+            // only do it if we detect a different class requested
+            // but give it a minute longer so they don't "accidentally" change class as soon as it takes effect.
+            if (classLongEnough == DateTime.MaxValue
+                && currentClass == classSelection)
+                classLongEnough = DateTime.Now.Add(TimeSpan.FromMinutes(1));
         }
 
         public override void StopEffect()
         {
-            if (prev != "0")
-                TF2Effects.Instance.SetRequiredValue(variable, prev);
+            if (autoKillPrev != AutoKillMode)
+                TF2Effects.Instance.SetRequiredValue(autoKillVariable, autoKillPrev);
         }
-
-        //protected override void CheckEffectWorked()
-        //{
-        //    // availability doesn't change, but if it became unavailable it probably won't take.
-        //    if (Availability != null
-        //        && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
-        //        throw new EffectNotVerifiedException("Left the map before class applied");
-
-        //    if (!string.IsNullOrEmpty(classSelection)
-        //        && classSelection != "random" // although we're not offering this currently.
-        //        && classSelection != TF2Effects.Instance.TF2Proxy?.NextClassSelection
-        //        // also acceptable, although "Next" is the really relevant one.
-        //        && classSelection != TF2Effects.Instance.TF2Proxy?.ClassSelection
-        //        )
-        //        throw new EffectNotVerifiedException("Class doesn't appear to have been applied");
-        //}
     }
 
     public class JumpingEffect : TimedEffect
@@ -230,12 +277,15 @@
 
         protected virtual void SendTaunt()
         {
-            // choose a random taunt AND default taunt in case nothing was equipped there.
-            // slot 0 is held-weapon taunt, equippable slots are 1-8
-            int tauntSlot = Random.Shared.Next(0, 9);// max is EXclusive.
+            // do 3 rapid random taunts for people who have very little equipped
+            for (int i = 0; i < 3; ++i)
+            {
+                // slot 0 is held-weapon taunt, equippable slots are 1-8
+                int tauntSlot = Random.Shared.Next(0, 9);// max is EXclusive.
 
-            _ = TF2Effects.Instance.RunCommand(string.Format("taunt {0}", tauntSlot));
-            //FUTURE user-selected taunt by name?
+                _ = TF2Effects.Instance.RunCommand(string.Format("taunt {0}", tauntSlot));
+                //FUTURE user-selected taunt by name?
+            }
         }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
@@ -249,9 +299,11 @@
             TimeSpan longestAttempt = GetLongestAttemptSpan();
             if (DateTime.Now.Subtract(startTime) <= longestAttempt)
             {
-                // reset the attempts if we're mid-jump.
-                if (TF2Effects.Instance.TF2Proxy?.IsJumping ?? false)
-                    JumpedDuringUpdate();
+                // reset the attempts if we're mid-jump or still walking.
+                if (TF2Effects.Instance.TF2Proxy != null &&
+                    (TF2Effects.Instance.TF2Proxy.IsJumping
+                    || TF2Effects.Instance.TF2Proxy.IsWalking))
+                    MovedTooMuchDuringUpdate();
                 else
                     SendTaunt();
             }
@@ -279,10 +331,11 @@
             // Shortest ability taunt is 1.2 seconds and we don't want to accidentally taunt twice.
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
-            return TimeSpan.FromSeconds(1.2);
+            // ... but not foolproof - better to overtaunt than not deliver
+            return TimeSpan.FromSeconds(1.8);
         }
 
-        protected virtual void JumpedDuringUpdate()
+        protected virtual void MovedTooMuchDuringUpdate()
         {
             startTime = DateTime.Now;
         }
@@ -389,7 +442,7 @@
         public static readonly string EFFECT_ID = "melee_only";
 
         public MeleeOnlyEffect()
-            : this(EFFECT_ID, DefaultTimeSpan)
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
         }
         protected MeleeOnlyEffect(string id, TimeSpan duration)
@@ -412,6 +465,47 @@
             base.Update(timeSinceLastUpdate);
 
             _ = TF2Effects.Instance.RunCommand("slot3");
+        }
+
+        public override void StopEffect()
+        {
+            //switch to primary
+            _ = TF2Effects.Instance.RunCommand("slot1");
+        }
+    }
+
+    /// <summary>
+    /// like Melee Only but constantly rotating weapons
+    /// </summary>
+    public class WeaponShuffleEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "weapon_shuffle";
+
+        public WeaponShuffleEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+        }
+        protected WeaponShuffleEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            Availability = new AliveInMap();
+        }
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+        }
+
+        private int slot = 1;
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            _ = TF2Effects.Instance.RunCommand("slot" + slot);
+            ++slot;
+            if (slot > 3)
+                slot = 1;
         }
 
         public override void StopEffect()
@@ -502,7 +596,7 @@
         public static readonly string EFFECT_ID = "wm1";
 
         public WM1Effect()
-            : base(EFFECT_ID, DefaultTimeSpan)
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_FORWARD);
             Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ATTACK);
@@ -524,7 +618,7 @@
 
     // A TimedEffect that ends early when a challenge is met.
     // Assume a bad effect at the start with a very long duration but it ends early if challenge is met.
-    // "Challenge: Black & White killing spree (5ks)" (30m)
+    // "Challenge: Black & White killing spree (5ks)" (10m)
     // "Challenge: W+M1 3 kill" (10m)
     // "Challenge: Melee Only 3 kill" (10m)
     // 
@@ -542,7 +636,7 @@
     // TimedSetEffect until...
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the 5 kill streak challenge.
+    /// 10 minute Effect that cancels upon meeting the 5 kill streak challenge.
     /// </summary>
     public class ChallengeBlackAndWhiteTimedEffect : BlackAndWhiteTimedEffect
     {
@@ -570,7 +664,7 @@
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single kill (and survive) challenge.
+    /// 10 minute Effect that cancels upon meeting the single kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterKillEffect : TauntAfterKillEffect
     {
@@ -582,16 +676,16 @@
             challenge = new KillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
         }
 
-        protected override void JumpedDuringUpdate()
+        protected override void MovedTooMuchDuringUpdate()
         {
-            base.JumpedDuringUpdate();
+            base.MovedTooMuchDuringUpdate();
 
             (challenge as KillsChallenge)?.SurvivedSince(DateTime.Now);
         }
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single crit kill (and survive) challenge.
+    /// 10 minute Effect that cancels upon meeting the single crit kill (and survive) challenge.
     /// </summary>
     public class SingleTauntAfterCritKillEffect : TauntAfterCritKillEffect
     {
@@ -603,9 +697,9 @@
             challenge = new CritKillsChallenge(1, minimumSurvivalTime: TimeSpan.FromSeconds(0.7));
         }
 
-        protected override void JumpedDuringUpdate()
+        protected override void MovedTooMuchDuringUpdate()
         {
-            base.JumpedDuringUpdate();
+            base.MovedTooMuchDuringUpdate();
 
             // can't start taunt - they need to survive til landing and taunt started.
             (challenge as CritKillsChallenge)?.SurvivedSince(DateTime.Now);
@@ -613,7 +707,7 @@
     }
 
     /// <summary>
-    /// 30 minute Effect that cancels upon meeting the single kill challenge.
+    /// 10 minute Effect that cancels upon meeting the single kill challenge.
     /// </summary>
     public class ChallengeCataractsEffect : CataractsCrosshairEffect
     {
@@ -669,6 +763,89 @@
 
             currentScale = 1.0;
             UpdateScale();
+        }
+    }
+
+
+    /// <summary>
+    /// colorblind rave, keep taunting for a long duration continuously & spin
+    /// </summary>
+    public class RaveEffect : TauntEffect
+    {
+        private const string RaveVariableName = "mat_color_projection";
+        new public static readonly string EFFECT_ID = "rave";
+
+        public RaveEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(15))
+        {
+            Mutex.Add(nameof(TauntEffect)); //mutex with parent
+            Mutex.Add(nameof(BlackAndWhiteTimedEffect));
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_ROTATE);
+        }
+        protected RaveEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+            // register value to track
+            _ = TF2Effects.Instance.GetValue(RaveVariableName);
+        }
+
+        private string? restoreValue = null;
+        public override void StartEffect()
+        {
+            restoreValue = TF2Effects.Instance.GetValue(RaveVariableName);
+            base.StartEffect();
+            // spin camera around the taunts
+            _ = TF2Effects.Instance.RunCommand("+right");
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            // the taunting:
+            base.Update(timeSinceLastUpdate);
+
+            // rave flashing
+            _ = TF2Effects.Instance.RunCommand(string.Format("{0} {1}", RaveVariableName, Random.Shared.Next(0, 10)));
+        }
+
+        public override void StopEffect()
+        {
+            if (restoreValue != null)
+                TF2Effects.Instance.SetValue(RaveVariableName, restoreValue);
+
+            base.StopEffect();
+
+            _ = TF2Effects.Instance.RunCommand("-right");
+        }
+
+        protected override TimeSpan GetLongestAttemptSpan()
+        {
+            return base.Duration;
+        }
+    }
+
+    /// <summary>
+    /// longer Rave with a hype train party chat message
+    /// </summary>
+    public class HypeTrainEffect : RaveEffect
+    {
+        new public static readonly string EFFECT_ID = "event-hype-train";
+
+        public HypeTrainEffect() :
+            base(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+            // we don't use the Mutex system - HypeTrain needs to fire "no matter what"
+            //Mutex.Add(nameof(TauntEffect)); //mutex with parent
+            Availability = new InApplication();
+        }
+
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // Parameter only gets set by Hype Train Request details as hype sentences.
+            if (!string.IsNullOrEmpty(request.Parameter))
+                _ = TF2Effects.Instance.RunCommand("say_party " + request.Parameter);
+
+            base.StartEffect(request);
         }
     }
 

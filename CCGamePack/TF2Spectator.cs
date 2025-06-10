@@ -201,6 +201,68 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
+    /// multiple mat_motion_blur settings
+    /// </summary>
+    public static readonly Effect vertigo = new("Vertigo", "vertigo")
+    {
+        SortName = "Camera: Vertigo",
+        Description = "Oh god oh god oh god make it stop",
+        Duration = TimeSpan.FromSeconds(30),
+        Category = new EffectGrouping(C_NEW, C_CAMERA),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
+    /// mat_motion_blur's strength creeps up over time, but halves every kill.
+    /// Last 10% of the duration goes 4x faster.
+    /// </summary>
+    public static readonly Effect kill_restores_vertigo_creep = new("Vertigo Creep - Reduce on Kill", "kill_restores_vertigo_creep")
+    {
+        SortName = "Challenge: Vertigo Creep - Reduce on Kill",
+        Description = "Vertigo keeps getting worse, but every kill halves the effect. Panic Mode at the end.",
+        Duration = TimeSpan.FromMinutes(5),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    public static readonly Effect death_adds_vertigo = new("Every death doubles Vertigo", "death_adds_vertigo")
+    {
+        SortName = "Challenge: Every death doubles Vertigo",
+        Note = "6 deaths",
+        Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to 10 minutes)",
+        Duration = TimeSpan.FromMinutes(10),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+    /// <summary>
     /// mat_viewportscale 0.1 (vs 1)
     /// Affects game generation - relative to primary resolution.
     /// </summary>
@@ -308,6 +370,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+
+    /// <summary>
+    /// random color projections, taunt, & spin.
+    /// hype train is a variation on this.
+    /// </summary>
+    public static readonly Effect rave = new("Rave Party", "rave")
+    {
+        Description = "Warning: may cause euphorinausea.",
+        Duration = TimeSpan.FromSeconds(15),
+        Category = new EffectGrouping(C_NEW, C_CAMERA, C_TAUNT),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     #endregion Camera
 
@@ -427,7 +511,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Plastered",
         Description = "Good eveninging ofischer... I don' feel sho good",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_NEW, C_VIEWMODEL, C_CAMERA),
+        Category = new EffectGrouping(C_VIEWMODEL, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -442,6 +526,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     #endregion View Model
 
     #region Crosshair
+    /// <summary>
+    /// Turn off the crosshair.  Not available if that's their default, along with the other crosshair effects.
+    /// Affects all other crosshair effects
+    /// </summary>
+    public static readonly Effect crosshair_none = new("No Crosshair", "crosshair_none")
+    {
+        Description = "Dude, just point your screen at them - is it really so tough?",
+        Duration = TimeSpan.FromSeconds(60),
+        Category = new EffectGrouping(C_NEW, C_CROSSHAIR),
+        Price = 15,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
     /// <summary>
     /// animate a rainbow effect on the crosshair's color.
     /// Affects crosshair color
@@ -730,7 +835,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
     {
         Description = "Force slot 3 (melee) weapon.",
-        Duration = TimeSpan.FromSeconds(60),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_GAMEPLAY),
         Price = 50, // it'll probably get you killed
         #region streamer facing
@@ -761,6 +866,23 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
+    };
+    public static readonly Effect weapon_shuffle = new("Weapon Shuffle", "weapon_shuffle")
+    {
+        Description = "The one with the funny weapon swaps",
+        Duration = TimeSpan.FromSeconds(30),
+        Category = new EffectGrouping(C_GAMEPLAY),
+        Price = 35, // it'll probably get you killed
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
     /// <summary>
@@ -809,7 +931,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Random taunts for the full duration.",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_NEW, C_TAUNT),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 100,
         #region streamer facing
         IsDurationEditable = true,
@@ -830,7 +952,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "Do one equipped or weapon taunt immediately.",
         Note = "random", // planning to add specific taunts (disabled by default so streamer can enable if they equip it)
         Duration = TimeSpan.FromSeconds(5),
-        Category = new EffectGrouping(C_NEW, C_TAUNT),
+        Category = new EffectGrouping(C_TAUNT),
         Price = 20,
         #region streamer facing
         IsDurationEditable = false,
@@ -1004,7 +1126,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect wm1 = new("W+M1", "wm1")
     {
         Description = "Best strategy in the game.",
-        Duration = TimeSpan.FromSeconds(60),
+        Duration = TimeSpan.FromSeconds(45),
         Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
         Price = 50,
         #region streamer facing
@@ -1022,7 +1144,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "It's like part-time zero-gravity",
         Duration = TimeSpan.FromSeconds(45),
-        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Category = new EffectGrouping(C_MOVEMENT),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -1072,7 +1194,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 //new Parameter("?Random?", "random") // would keep changing while we wait for spawn which is weird.
                 )
         }),
-        Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn.
+        Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn and stay in class a minute.
         Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
         Price = 50, // almost same as destroyallbuildings since it will.
         #region streamer facing
@@ -1080,7 +1202,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 0.5f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(2), // no guarantee they'll ever die - somebody else can have a chance if we passed guarantee time.
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
@@ -1090,7 +1212,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect join_class_autokill = new("Death by Class Change", "join_class_autokill")
     {
         SortName = "Class Change: Death by Class Change",
-        Description = "Change to this class NOW, kills me if I'm out of spawn.",
+        Description = "Change to this class NOW, kills me to force the respawn.",
         Parameters = new ParameterList(new[] {
             new ParameterDef(name:"Class", id:"class",
                 new Parameter("Scout", "scout"),
@@ -1105,14 +1227,15 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("?Random?", "random")
                 )
         }),
+        Duration = TimeSpan.FromMinutes(2), // "enough" time to respawn and stay in class a minute.
         Category = new EffectGrouping(C_GAMEPLAY),
         Price = 75, // worse than getting killed
         #region streamer facing
-        //IsDurationEditable = true,
+        IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2), // let viewer get a couple minutes of their selection before another contradicts it.
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
@@ -1192,6 +1315,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             dream,
             drunk,
             fade,
+            rave,
+            vertigo,
 
             big_guns,
             small_guns,
@@ -1206,6 +1331,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             show_quest_log,
             popup_ui,
 
+            crosshair_none,
             crosshair_rainbow,
             crosshair_giant,
             crosshair_cataracts,
@@ -1215,6 +1341,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             kill,
             explode,
             melee_only,
+            // disabled - too slow to be interesting right now.
+            // weapon_shuffle,
 
             destroybuildings,
             destroysentry,
@@ -1227,6 +1355,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             cataracts_challenge,
             melee_only_challenge,
             blackandwhite_challenge_5ks,
+            kill_restores_vertigo_creep,
 
             taunt_now,
             taunt_continuously,
@@ -1235,6 +1364,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             death_adds_pixelated,
             death_adds_dream,
+            death_adds_vertigo,
         };
 
     public override Game Game { get; } = new(

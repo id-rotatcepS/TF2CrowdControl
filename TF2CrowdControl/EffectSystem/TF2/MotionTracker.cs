@@ -139,5 +139,15 @@ namespace EffectSystem.TF2
             double speed = lastDistance.Z / lastTimePeriod.TotalSeconds;
             return speed;
         }
+
+        public double GetHorizontalSpeed()
+        {
+            if (lastTimePeriod.TotalSeconds == 0)
+                return 0;
+
+            double distance = Math.Sqrt(lastDistance.X * lastDistance.X + lastDistance.Y * lastDistance.Y);
+            double speed = distance / lastTimePeriod.TotalSeconds;
+            return speed;
+        }
     }
 }

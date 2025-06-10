@@ -67,7 +67,9 @@
         /// </summary>
         public string NextClassSelection { get; }
         bool IsJumping { get; }
+        bool IsWalking { get; }
         double VerticalSpeed { get; }
+        double HorizontalSpeed { get; }
 
         /// <summary>
         /// User has killed another player

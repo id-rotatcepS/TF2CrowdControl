@@ -25,6 +25,8 @@ namespace EffectSystem.TF2
         public static readonly string MUTEX_FORCE_MOVE_JUMP = "force_move_jump";
         public static readonly string MUTEX_VIEWPORT = "viewport";
         public static readonly string MUTEX_BLOOM = "bloom";
+        public static readonly string MUTEX_CLASS_CHANGE = "join_class";
+        public static readonly string MUTEX_MOTION_BLUR = "motion_blur";
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
@@ -47,6 +49,10 @@ namespace EffectSystem.TF2
                 new SilentMovieTimedEffect(),
                 new PixelatedTimedEffect(),
                 new DreamTimedEffect(),
+                new RaveEffect(),
+                new VertigoTimedEffect(),
+
+                new HypeTrainEffect(), // Rave + message, more availability, and party chat message
 
                 // big and small depending on what they usually use.
                 new BigGunsTimedEffect(),
@@ -55,6 +61,7 @@ namespace EffectSystem.TF2
                 new LongArmsTimedEffect(),
                 new VRModeTimedEffect(),
 
+                new NoCrosshairEffect(),
                 new RainbowCrosshairEffect(),
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),
@@ -64,6 +71,7 @@ namespace EffectSystem.TF2
                 new UnderwaterFadeEffect(),
 
                 new MeleeOnlyEffect(),
+                new WeaponShuffleEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
@@ -77,7 +85,8 @@ namespace EffectSystem.TF2
 
                 new QuitEffect(),
                 new RetryEffect(),
-                new ForcedChangeClassEffect(),
+                //new ForcedChangeClassEffect(),
+                new ChangeClassAndDieEffect(),
                 new ChangeClassEffect(),
 
                 new SpinEffect(),
@@ -91,9 +100,11 @@ namespace EffectSystem.TF2
                 new SingleTauntAfterCritKillEffect(),
                 new ChallengeCataractsEffect(),
                 new ChallengeBlackAndWhiteTimedEffect(),
+                new VertigoCreepAndRestoreEffect(),
 
                 new DeathAddsPixelatedTimedEffect(),
                 new DeathAddsDreamTimedEffect(),
+                new DeathAddsVertigoTimedEffect(),
                 ];
         }
 
