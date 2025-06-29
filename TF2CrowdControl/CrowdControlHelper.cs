@@ -125,7 +125,7 @@ namespace CrowdControl
 
         private void HandleEffectStart(EffectRequest request)
         {
-            CCEffectDispatchRequest req = new CCEffectDispatchRequest(request);
+            CCEffectDispatchRequest req = CreateCCEffectDispatchRequest(request);
 
             Aspen.Log.Trace($"Got an effect start request [{request.id}:{request.code}].");
 
@@ -134,7 +134,7 @@ namespace CrowdControl
 
         private void HandleEffectStop(EffectRequest request)
         {
-            CCEffectDispatchRequest req = new CCEffectDispatchRequest(request);
+            CCEffectDispatchRequest req = CreateCCEffectDispatchRequest(request);
 
             Aspen.Log.Trace($"Got an effect stop request [{request.id}:{request.code}].");
 

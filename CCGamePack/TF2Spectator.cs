@@ -1365,6 +1365,12 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             death_adds_pixelated,
             death_adds_dream,
             death_adds_vertigo,
+
+            // Twitch Hype Train is a supported (hidden) effect with custom SourceDetails
+            new("event-hype-train", "event-hype-train")
+            {
+                Duration = TimeSpan.FromSeconds(30),
+            },
         };
 
     public override Game Game { get; } = new(
