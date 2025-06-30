@@ -374,6 +374,7 @@
             : this(EFFECT_ID, DefaultTimeSpan)
         {
             _ = TF2Effects.Instance.GetValue("volume"); // register for polling
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
         }
 
         protected SilentMovieTimedEffect(string id, TimeSpan duration)
@@ -772,23 +773,6 @@
         protected override double Factor => .25;
     }
 
-    // unreliable, not currently available.
-    public class WallhacksForGrassEffect : TimedSetEffect
-    {
-        public static readonly string EFFECT_ID = "wallhacks_grass";
-
-        public WallhacksForGrassEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, new()
-            {
-                ["r_drawdetailprops"] = "2"
-            })
-        {
-            //Mutex.Add(TF2Effects.MUTEX_DRAW_DETAIL_PROPS);
-            Availability = new InMap();
-        }
-        public override bool IsSelectableGameState => base.IsSelectableGameState;
-    }
-
     public class HackerHUDEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "hacker_hud";
@@ -802,6 +786,7 @@
                 ["snd_showmixer"] = "1", // flickery side text and green/yellow/red sound graph
                 ["cl_showpos"] = "1", // position and velocity in white top right corner
                 //;(cl_showbattery 1 overlaps - could alternate between this and showpos?) // usually "Battery: On AC" top right corner
+                ["r_drawdetailprops"] = "2", // bonus that sometimes doesn't work - wallhacks for grass
             })
         {
             Availability = new InMap();

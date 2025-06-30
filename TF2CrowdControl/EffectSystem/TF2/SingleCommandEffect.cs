@@ -293,11 +293,21 @@
         protected override void StartEffect()
         {
             string command = Choose(
+                    //"showconsole", // anytime (kinda boring)
                     "fogui", // anytime (& doesn't go to main menu!)
                     "bug", // anytime
                     "showschemevisualizer", // anytime
                     "training_showdlg;gameui_activate", // anytime (sometimes "hidden" on main menu? so show it)
-                    "showconsole" // anytime
+                    "itemtest", // anytime (fullscreen)
+                    "itemtest_botcontrols" // anytime (& doesn't go to main menu!)
+
+                    //"opencharinfo", // class before loadouts
+                    //"opencharinfo_direct", // current loadout
+                    //"opencharinfo_backpack",
+                    //"opencharinfo_crafting",
+                    // the above are all common menu selections... armory is rarely clicked.
+                    // but none of these work out of a map
+                    //"opencharinfo_armory" // "mannco catalog"
                     );
             // the minor additions here are not that interesting for the effect
             // TF2Effects.Instance.TF2Proxy?.IsUserAlive
@@ -332,6 +342,7 @@
             : base(id, "voicemenu {1}")
         {
             Availability = new AliveInMap();
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
         }
 
         protected string selection = string.Empty;

@@ -27,6 +27,10 @@ namespace EffectSystem.TF2
         public static readonly string MUTEX_BLOOM = "bloom";
         public static readonly string MUTEX_CLASS_CHANGE = "join_class";
         public static readonly string MUTEX_MOTION_BLUR = "motion_blur";
+        /// <summary>
+        /// can't play two files at the same time, and don't overlap muting with audio effects
+        /// </summary>
+        public static readonly string MUTEX_AUDIO = "audio";
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
