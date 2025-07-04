@@ -643,7 +643,7 @@
         new public static readonly string EFFECT_ID = "blackandwhite_challenge_5ks";
 
         public ChallengeBlackAndWhiteTimedEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(6))
         {
             challenge = new KillstreakChallenge(5);
         }
@@ -657,7 +657,7 @@
         new public static readonly string EFFECT_ID = "melee_only_challenge_3k";
 
         public ChallengeMeleeTimedEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
         }
@@ -714,7 +714,7 @@
         new public static readonly string EFFECT_ID = "crosshair_cataracts_challenge_3k";
 
         public ChallengeCataractsEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
         }
@@ -724,7 +724,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_pixelated";
         public DeathAddsPixelatedTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
             Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex

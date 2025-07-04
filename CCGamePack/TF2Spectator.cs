@@ -167,7 +167,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge with Black & White", "blackandwhite_challenge_5ks")
     {
         SortName = "Challenge: Killstreak Black and White",
-        Duration = TimeSpan.FromMinutes(10),
+        Duration = TimeSpan.FromMinutes(6), // slightly longer - killstreak is harder
         Description = "Stuck with TF2 in the 1950s until I get a 5 kill streak.",
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 250,
@@ -247,8 +247,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         SortName = "Challenge: Every death doubles Vertigo",
         Note = "6 deaths",
-        Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to 10 minutes)",
-        Duration = TimeSpan.FromMinutes(10),
+        Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to the duration)",
+        Duration = TimeSpan.FromMinutes(5),
         Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
@@ -292,8 +292,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         SortName = "Challenge: Every death doubles pixel size",
         Note = "6 deaths",
-        Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 10 minutes)",
-        Duration = TimeSpan.FromMinutes(10),
+        Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 5 minutes)",
+        Duration = TimeSpan.FromMinutes(5),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
@@ -337,8 +337,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         SortName = "Challenge: Every death doubles dreaminess",
         Note = "6 deaths",
-        Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to 10 minutes)",
-        Duration = TimeSpan.FromMinutes(10),
+        Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to the duration)",
+        Duration = TimeSpan.FromMinutes(5),
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
@@ -659,8 +659,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect cataracts_challenge = new("3 Kill Challenge with Cataracts", "crosshair_cataracts_challenge_3k")
     {
         SortName = "Challenge: 3 Kill Cataracts",
-        Description = "My vision is gradually obscured through advancing cataracts until I get 3 kills.",
-        Duration = TimeSpan.FromMinutes(10),
+        Description = "My vision is obscured through advancing cataracts until I get 3 kills.",
+        Duration = TimeSpan.FromMinutes(5),
         Category = new EffectGrouping(C_CROSSHAIR, C_CAMERA, C_CHALLENGES),
         Price = 100,
         #region streamer facing
@@ -853,7 +853,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         SortName = "Challenge: 3 Kill Melee Only",
         Description = "Forced to use slot 3 (melee) weapon until I get 3 kills.",
-        Duration = TimeSpan.FromMinutes(10),
+        Duration = TimeSpan.FromMinutes(5),
         Category = new EffectGrouping(C_GAMEPLAY, C_CHALLENGES),
         Price = 100, // it'll probably get you killed
         #region streamer facing

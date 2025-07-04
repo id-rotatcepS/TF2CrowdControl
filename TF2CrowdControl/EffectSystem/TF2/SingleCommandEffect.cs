@@ -300,14 +300,6 @@
                     "training_showdlg;gameui_activate", // anytime (sometimes "hidden" on main menu? so show it)
                     "itemtest", // anytime (fullscreen)
                     "itemtest_botcontrols" // anytime (& doesn't go to main menu!)
-
-                    //"opencharinfo", // class before loadouts
-                    //"opencharinfo_direct", // current loadout
-                    //"opencharinfo_backpack",
-                    //"opencharinfo_crafting",
-                    // the above are all common menu selections... armory is rarely clicked.
-                    // but none of these work out of a map
-                    //"opencharinfo_armory" // "mannco catalog"
                     );
             // the minor additions here are not that interesting for the effect
             // TF2Effects.Instance.TF2Proxy?.IsUserAlive
@@ -315,11 +307,17 @@
             //        "show_motd", // requires a map
             //        "showmapinfo" // requires a map...and alive?
             //        //,"+vgui_drawtree" // worried about not hitting - command
+            //        //"opencharinfo",  // requires a map// class before loadouts
+            //        //"opencharinfo_direct",  // requires a map// current loadout
+            //        //"opencharinfo_backpack", // requires a map
+            //        //"opencharinfo_crafting", // requires a map
+            //        // the above are all common menu selections... armory is rarely clicked.
+            //        //"opencharinfo_armory"  // requires a map// "mannco catalog"
 
             _ = TF2Effects.Instance.RunRequiredCommand(command);
         }
 
-        private string Choose(params string[] options)
+        private static string Choose(params string[] options)
         {
             int index = Random.Shared.Next(0, options.Length);
             return options[index];

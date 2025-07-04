@@ -182,7 +182,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_vertigo";
         public DeathAddsVertigoTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
             {
                 ["mat_motion_blur_enabled"] = "1", // default 0 (archived)
                 ["mat_motion_blur_falling_intensity"] = "1",// (default 1)
@@ -507,7 +507,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_dream";
         public DeathAddsDreamTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
             {
                 // HDR enabled maps use this value.
                 ["mat_bloom_scalefactor_scalar"] = string.Empty,
