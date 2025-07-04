@@ -71,8 +71,10 @@ namespace EffectSystem.TF2
                 new GiantCrosshairEffect(),
                 new BrrrCrosshairEffect(),
                 new AlienCrosshairEffect(),
+
                 new DrunkEffect(),
                 new UnderwaterFadeEffect(),
+                new RainbowCombatTextEffect(),
 
                 new MeleeOnlyEffect(),
                 new WeaponShuffleEffect(),

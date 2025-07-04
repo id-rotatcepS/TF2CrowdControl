@@ -358,7 +358,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect fade = new("Hydrate", "fade")
     {
         Description = "Drench me in cool blue waters",
-        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_CAMERA),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_CAMERA),
         Price = 15,
         #region streamer facing
         //IsDurationEditable = true,
@@ -556,6 +556,27 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Description = "A rainbow of colors for my crosshair.",
         Duration = TimeSpan.FromSeconds(120),// half max duration - the effect is subtle.
         Category = new EffectGrouping(C_LOW_IMPACT, C_CROSSHAIR),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
+    /// <summary>
+    /// animate a rainbow effect on the combat text color.
+    /// requires combat text being enabled.
+    /// </summary>
+    public static readonly Effect combattext_rainbow = new("Rainbow Combat Text", "combattext_rainbow")
+    {
+        Description = "A rainbow of damage numbers.",
+        Duration = TimeSpan.FromSeconds(240),// "max duration" - the effect is subtle and not constant.
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_HUD),
         Price = 1,
         #region streamer facing
         IsDurationEditable = true,
@@ -1006,7 +1027,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect show_quest_log = new("Show Contracker", "show_quest_log")
     {
         Description = "Let's check the Contracker",
-        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Category = new EffectGrouping(C_POPUP),
         Price = 20,
         #region streamer facing
         IsDurationEditable = true,
@@ -1022,7 +1043,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect popup_ui = new("Random Pop-up", "popup_ui")
     {
         Description = "A random in-game UI appears!",
-        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Category = new EffectGrouping(C_POPUP),
         Price = 20,
         #region streamer facing
         IsDurationEditable = true,
@@ -1075,7 +1096,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "TF2 from the POV of hacker/robot/terminator/predator/robocop/iron man/westworld",
         Duration = TimeSpan.FromMinutes(1),
-        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_HUD),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_HUD),
         Price = 30,
         #region streamer facing
         IsDurationEditable = true,
@@ -1195,7 +1216,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 )
         }),
         Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn and stay in class a minute.
-        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_GAMEPLAY),
         Price = 50, // almost same as destroyallbuildings since it will.
         #region streamer facing
         IsDurationEditable = true,
@@ -1281,7 +1302,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("Good Job", "2 7")
                 )
         }),
-        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_GAMEPLAY),
+        Category = new EffectGrouping(C_LOW_IMPACT, C_GAMEPLAY),
         Price = 2,
         #region streamer facing
         //IsDurationEditable = true,
@@ -1330,6 +1351,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             hacker_hud,
             show_quest_log,
             popup_ui,
+            combattext_rainbow,
 
             crosshair_none,
             crosshair_rainbow,

@@ -901,26 +901,48 @@
         }
     }
 
-    public class RainbowCrosshairEffect : TimedSetEffect
+    public class RainbowCombatTextEffect : RainbowTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "combattext_rainbow";
+        public RainbowCombatTextEffect()
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 4, 0), new()
+            {
+                // technically don't need to watch these fields at all as I don't verify them.
+                ["hud_combattext_blue"] = string.Empty,
+                ["hud_combattext_green"] = string.Empty,
+                ["hud_combattext_red"] = string.Empty
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+            Availability = new AliveInMap();
+        }
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("hud_combattext");
+
+        override protected void ApplyColor()
+        {
+            //if "hud_combattext" 1; "hud_combattext_blue" = "1.000000"  "hud_combattext_red" = "255.000000" "hud_combattext_green" = "1.000000"
+            _ = TF2Effects.Instance.RunCommand(
+                $"hud_combattext_red {r};" +
+                $"hud_combattext_green {g};" +
+                $"hud_combattext_blue {b};");
+        }
+    }
+
+    public class RainbowCrosshairEffect : RainbowTimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_rainbow";
-        private enum ColorTransition { PurpleToRed, RedToYellow, YellowToGreen, GreenToBlue, BlueToPurple }
-        private ColorTransition transition;
-        private byte r, g, b;
-
         public RainbowCrosshairEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 2, 0), new()
             {
+                // technically don't need to watch these fields at all as I don't verify them.
                 ["cl_crosshair_blue"] = string.Empty,
                 ["cl_crosshair_green"] = string.Empty,
                 ["cl_crosshair_red"] = string.Empty
             })
         {
-            transition = ColorTransition.PurpleToRed;
-            // purple (magenta)
-            r = 255;
-            g = 0;
-            b = 255;
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
@@ -928,6 +950,31 @@
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        override protected void ApplyColor()
+        {
+            _ = TF2Effects.Instance.RunCommand(
+                $"cl_crosshair_red {r};" +
+                $"cl_crosshair_green {g};" +
+                $"cl_crosshair_blue {b};");
+        }
+    }
+
+    public abstract class RainbowTimedSetEffect : TimedSetEffect
+    {
+        private enum ColorTransition { PurpleToRed, RedToYellow, YellowToGreen, GreenToBlue, BlueToPurple }
+        private ColorTransition transition;
+        protected byte r, g, b;
+
+        public RainbowTimedSetEffect(string id, TimeSpan span, Dictionary<string, string> variableSettings)
+            : base(id, span, variableSettings)
+        {
+            transition = ColorTransition.PurpleToRed;
+            // purple (magenta)
+            r = 255;
+            g = 0;
+            b = 255;
+        }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
         {
@@ -962,11 +1009,8 @@
                         ColorTransition.PurpleToRed);
                     break;
             }
-            _ = TF2Effects.Instance.RunCommand(
-                $"cl_crosshair_red {r};" +
-                $"cl_crosshair_green {g};" +
-                $"cl_crosshair_blue {b};");
 
+            ApplyColor();
         }
 
         private byte IncrementTowardsTransition(byte g, byte incrementFactor, ColorTransition transitionAtEndOfInc)
@@ -992,6 +1036,11 @@
         {
             return (byte)Math.Max(b - incrementFactor, 0);
         }
+
+        /// <summary>
+        /// use the latest r/g/b values to update the game
+        /// </summary>
+        protected abstract void ApplyColor();
     }
 
     public class CataractsCrosshairEffect : CrosshairShapeTimedSetEffect
