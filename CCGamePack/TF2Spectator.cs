@@ -724,7 +724,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        ViewerCooldown = TimeSpan.FromMinutes(2),
         //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
@@ -740,7 +740,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        ViewerCooldown = TimeSpan.FromMinutes(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -756,7 +756,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        ViewerCooldown = TimeSpan.FromMinutes(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -772,7 +772,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //IsDurationEditable = true,
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
-        ViewerCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        ViewerCooldown = TimeSpan.FromMinutes(2),
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
@@ -807,7 +807,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(5),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(1),
+        SessionCooldown = TimeSpan.FromMinutes(1),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE, G_MEDIC),
@@ -1099,7 +1099,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
         // nah, no cooldown - InMap restriction and price scale up is enough
-        //SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_MAP),
@@ -1235,7 +1235,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         ScaleFactor = 1.0f,
         ScaleDecayTime = TimeSpan.FromMinutes(10),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
-        SessionCooldown = TimeSpan.FromSeconds/*FromMinutes*/(2), // let viewer get a couple minutes of their selection before another contradicts it.
+        SessionCooldown = TimeSpan.FromMinutes(2), // let viewer get a couple minutes of their selection before another contradicts it.
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
