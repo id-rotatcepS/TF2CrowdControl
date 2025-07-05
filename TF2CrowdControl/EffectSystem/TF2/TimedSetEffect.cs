@@ -913,7 +913,6 @@
                 ["hud_combattext_red"] = string.Empty
             })
         {
-            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
         // doesn't disable just because starting state matches current state.

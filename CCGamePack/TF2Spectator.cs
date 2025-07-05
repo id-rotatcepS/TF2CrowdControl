@@ -1182,7 +1182,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
     public static readonly Effect hot_mic = new("Hot Mic", "hot_mic")
     {
-        Description = "Streamer yapping gets broadcast in game.",
+        Description = "Let the other gamers hear the streamer's reaction.",
         Duration = TimeSpan.FromSeconds(5),
         Category = new EffectGrouping(C_NEW, C_LOW_IMPACT),
         Price = 10,
