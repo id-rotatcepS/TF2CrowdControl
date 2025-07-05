@@ -613,6 +613,32 @@
     }
 
     /// <summary>
+    /// swim down/up while on land makes you move about 19% slower (about 85% slower with conga)
+    /// </summary>
+    public class WalkEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "walk";
+
+        public WalkEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+movedown");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-movedown");
+        }
+    }
+
+    /// <summary>
     /// Oddly enough, pressing W or M1 does not cancel this out.
     /// </summary>
     public class WM1Effect : TimedEffect

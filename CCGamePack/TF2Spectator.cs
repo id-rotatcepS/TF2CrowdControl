@@ -1178,6 +1178,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
+
+    public static readonly Effect walk = new("Walk", "walk")
+    {
+        Description = "Movement speed reduced by 19%.",
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_MOVEMENT),
+        Price = 10,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+    };
     #endregion HUD and Movement
 
     public static readonly Effect hot_mic = new("Hot Mic", "hot_mic")
@@ -1341,6 +1359,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             jumping,
             mouse_sensitivity_high,
             mouse_sensitivity_low,
+            walk,
 
             quit,
             retry,

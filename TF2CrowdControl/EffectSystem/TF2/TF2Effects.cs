@@ -78,6 +78,7 @@ namespace EffectSystem.TF2
 
                 new MeleeOnlyEffect(),
                 new WeaponShuffleEffect(),
+                new WalkEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
