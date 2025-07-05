@@ -332,7 +332,7 @@
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
             // ... but not foolproof - better to overtaunt than not deliver
-            return TimeSpan.FromSeconds(1.8);
+            return TimeSpan.FromSeconds(3.5);
         }
 
         protected virtual void MovedTooMuchDuringUpdate()
