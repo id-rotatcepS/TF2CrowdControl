@@ -1180,6 +1180,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     };
     #endregion HUD and Movement
 
+    public static readonly Effect hot_mic = new("Hot Mic", "hot_mic")
+    {
+        Description = "Streamer yapping gets broadcast in game.",
+        Duration = TimeSpan.FromSeconds(5),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT),
+        Price = 10,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
+
     public static readonly Effect quit = new("'Quit Smoking'", "quit")
     {
         Description = "This is what happens if you type 'quit smoking' in the console. ",
@@ -1352,6 +1370,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             show_quest_log,
             popup_ui,
             combattext_rainbow,
+            hot_mic,
 
             crosshair_none,
             crosshair_rainbow,

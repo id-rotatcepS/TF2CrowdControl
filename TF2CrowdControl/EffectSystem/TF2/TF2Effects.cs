@@ -85,6 +85,7 @@ namespace EffectSystem.TF2
                 new HackerHUDEffect(),
                 new ContrackerEffect(),
                 new PopupUIEffect(),
+                new HotMicEffect(),
 
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),

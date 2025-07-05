@@ -588,6 +588,30 @@
         }
     }
 
+    public class HotMicEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "hot_mic";
+
+        public HotMicEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(5))
+        {
+            Mutex.Add(TF2Effects.MUTEX_AUDIO); // not necessary, but it feels funnier to hear the reactions, not be muted out of them.
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+voicerecord");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-voicerecord");
+        }
+    }
+
     /// <summary>
     /// Oddly enough, pressing W or M1 does not cancel this out.
     /// </summary>
