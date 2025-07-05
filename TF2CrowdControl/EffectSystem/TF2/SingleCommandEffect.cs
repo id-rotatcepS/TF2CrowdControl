@@ -293,11 +293,13 @@
         protected override void StartEffect()
         {
             string command = Choose(
+                    //"showconsole", // anytime (kinda boring)
                     "fogui", // anytime (& doesn't go to main menu!)
                     "bug", // anytime
                     "showschemevisualizer", // anytime
                     "training_showdlg;gameui_activate", // anytime (sometimes "hidden" on main menu? so show it)
-                    "showconsole" // anytime
+                    "itemtest", // anytime (fullscreen)
+                    "itemtest_botcontrols" // anytime (& doesn't go to main menu!)
                     );
             // the minor additions here are not that interesting for the effect
             // TF2Effects.Instance.TF2Proxy?.IsUserAlive
@@ -305,11 +307,17 @@
             //        "show_motd", // requires a map
             //        "showmapinfo" // requires a map...and alive?
             //        //,"+vgui_drawtree" // worried about not hitting - command
+            //        //"opencharinfo",  // requires a map// class before loadouts
+            //        //"opencharinfo_direct",  // requires a map// current loadout
+            //        //"opencharinfo_backpack", // requires a map
+            //        //"opencharinfo_crafting", // requires a map
+            //        // the above are all common menu selections... armory is rarely clicked.
+            //        //"opencharinfo_armory"  // requires a map// "mannco catalog"
 
             _ = TF2Effects.Instance.RunRequiredCommand(command);
         }
 
-        private string Choose(params string[] options)
+        private static string Choose(params string[] options)
         {
             int index = Random.Shared.Next(0, options.Length);
             return options[index];
@@ -332,6 +340,7 @@
             : base(id, "voicemenu {1}")
         {
             Availability = new AliveInMap();
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
         }
 
         protected string selection = string.Empty;

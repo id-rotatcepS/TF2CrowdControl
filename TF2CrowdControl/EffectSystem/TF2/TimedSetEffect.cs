@@ -182,7 +182,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_vertigo";
         public DeathAddsVertigoTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
             {
                 ["mat_motion_blur_enabled"] = "1", // default 0 (archived)
                 ["mat_motion_blur_falling_intensity"] = "1",// (default 1)
@@ -374,6 +374,7 @@
             : this(EFFECT_ID, DefaultTimeSpan)
         {
             _ = TF2Effects.Instance.GetValue("volume"); // register for polling
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
         }
 
         protected SilentMovieTimedEffect(string id, TimeSpan duration)
@@ -506,7 +507,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_dream";
         public DeathAddsDreamTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10), new()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
             {
                 // HDR enabled maps use this value.
                 ["mat_bloom_scalefactor_scalar"] = string.Empty,
@@ -772,23 +773,6 @@
         protected override double Factor => .25;
     }
 
-    // unreliable, not currently available.
-    public class WallhacksForGrassEffect : TimedSetEffect
-    {
-        public static readonly string EFFECT_ID = "wallhacks_grass";
-
-        public WallhacksForGrassEffect()
-            : base(EFFECT_ID, DefaultTimeSpan, new()
-            {
-                ["r_drawdetailprops"] = "2"
-            })
-        {
-            //Mutex.Add(TF2Effects.MUTEX_DRAW_DETAIL_PROPS);
-            Availability = new InMap();
-        }
-        public override bool IsSelectableGameState => base.IsSelectableGameState;
-    }
-
     public class HackerHUDEffect : TimedSetEffect
     {
         public static readonly string EFFECT_ID = "hacker_hud";
@@ -802,6 +786,7 @@
                 ["snd_showmixer"] = "1", // flickery side text and green/yellow/red sound graph
                 ["cl_showpos"] = "1", // position and velocity in white top right corner
                 //;(cl_showbattery 1 overlaps - could alternate between this and showpos?) // usually "Battery: On AC" top right corner
+                ["r_drawdetailprops"] = "2", // bonus that sometimes doesn't work - wallhacks for grass
             })
         {
             Availability = new InMap();
@@ -916,26 +901,47 @@
         }
     }
 
-    public class RainbowCrosshairEffect : TimedSetEffect
+    public class RainbowCombatTextEffect : RainbowTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "combattext_rainbow";
+        public RainbowCombatTextEffect()
+            : base(EFFECT_ID, new TimeSpan(0, minutes: 4, 0), new()
+            {
+                // technically don't need to watch these fields at all as I don't verify them.
+                ["hud_combattext_blue"] = string.Empty,
+                ["hud_combattext_green"] = string.Empty,
+                ["hud_combattext_red"] = string.Empty
+            })
+        {
+            Availability = new AliveInMap();
+        }
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("hud_combattext");
+
+        override protected void ApplyColor()
+        {
+            //if "hud_combattext" 1; "hud_combattext_blue" = "1.000000"  "hud_combattext_red" = "255.000000" "hud_combattext_green" = "1.000000"
+            _ = TF2Effects.Instance.RunCommand(
+                $"hud_combattext_red {r};" +
+                $"hud_combattext_green {g};" +
+                $"hud_combattext_blue {b};");
+        }
+    }
+
+    public class RainbowCrosshairEffect : RainbowTimedSetEffect
     {
         public static readonly string EFFECT_ID = "crosshair_rainbow";
-        private enum ColorTransition { PurpleToRed, RedToYellow, YellowToGreen, GreenToBlue, BlueToPurple }
-        private ColorTransition transition;
-        private byte r, g, b;
-
         public RainbowCrosshairEffect()
             : base(EFFECT_ID, new TimeSpan(0, minutes: 2, 0), new()
             {
+                // technically don't need to watch these fields at all as I don't verify them.
                 ["cl_crosshair_blue"] = string.Empty,
                 ["cl_crosshair_green"] = string.Empty,
                 ["cl_crosshair_red"] = string.Empty
             })
         {
-            transition = ColorTransition.PurpleToRed;
-            // purple (magenta)
-            r = 255;
-            g = 0;
-            b = 255;
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
@@ -943,6 +949,31 @@
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        override protected void ApplyColor()
+        {
+            _ = TF2Effects.Instance.RunCommand(
+                $"cl_crosshair_red {r};" +
+                $"cl_crosshair_green {g};" +
+                $"cl_crosshair_blue {b};");
+        }
+    }
+
+    public abstract class RainbowTimedSetEffect : TimedSetEffect
+    {
+        private enum ColorTransition { PurpleToRed, RedToYellow, YellowToGreen, GreenToBlue, BlueToPurple }
+        private ColorTransition transition;
+        protected byte r, g, b;
+
+        public RainbowTimedSetEffect(string id, TimeSpan span, Dictionary<string, string> variableSettings)
+            : base(id, span, variableSettings)
+        {
+            transition = ColorTransition.PurpleToRed;
+            // purple (magenta)
+            r = 255;
+            g = 0;
+            b = 255;
+        }
 
         protected override void Update(TimeSpan timeSinceLastUpdate)
         {
@@ -977,11 +1008,8 @@
                         ColorTransition.PurpleToRed);
                     break;
             }
-            _ = TF2Effects.Instance.RunCommand(
-                $"cl_crosshair_red {r};" +
-                $"cl_crosshair_green {g};" +
-                $"cl_crosshair_blue {b};");
 
+            ApplyColor();
         }
 
         private byte IncrementTowardsTransition(byte g, byte incrementFactor, ColorTransition transitionAtEndOfInc)
@@ -1007,6 +1035,11 @@
         {
             return (byte)Math.Max(b - incrementFactor, 0);
         }
+
+        /// <summary>
+        /// use the latest r/g/b values to update the game
+        /// </summary>
+        protected abstract void ApplyColor();
     }
 
     public class CataractsCrosshairEffect : CrosshairShapeTimedSetEffect

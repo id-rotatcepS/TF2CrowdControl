@@ -27,6 +27,10 @@ namespace EffectSystem.TF2
         public static readonly string MUTEX_BLOOM = "bloom";
         public static readonly string MUTEX_CLASS_CHANGE = "join_class";
         public static readonly string MUTEX_MOTION_BLUR = "motion_blur";
+        /// <summary>
+        /// can't play two files at the same time, and don't overlap muting with audio effects
+        /// </summary>
+        public static readonly string MUTEX_AUDIO = "audio";
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
@@ -67,11 +71,14 @@ namespace EffectSystem.TF2
                 new GiantCrosshairEffect(),
                 new BrrrCrosshairEffect(),
                 new AlienCrosshairEffect(),
+
                 new DrunkEffect(),
                 new UnderwaterFadeEffect(),
+                new RainbowCombatTextEffect(),
 
                 new MeleeOnlyEffect(),
                 new WeaponShuffleEffect(),
+                new WalkEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
@@ -79,6 +86,7 @@ namespace EffectSystem.TF2
                 new HackerHUDEffect(),
                 new ContrackerEffect(),
                 new PopupUIEffect(),
+                new HotMicEffect(),
 
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),

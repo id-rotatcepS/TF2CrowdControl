@@ -332,7 +332,7 @@
             // ... but we're often mid-air longer than that, so it's worth the risk I think.
             // ... but now we kind of detect when you're jumping and reset our timing, so 1 second post-jump is plenty.
             // ... but not foolproof - better to overtaunt than not deliver
-            return TimeSpan.FromSeconds(1.8);
+            return TimeSpan.FromSeconds(3.5);
         }
 
         protected virtual void MovedTooMuchDuringUpdate()
@@ -588,6 +588,56 @@
         }
     }
 
+    public class HotMicEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "hot_mic";
+
+        public HotMicEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(5))
+        {
+            Mutex.Add(TF2Effects.MUTEX_AUDIO); // not necessary, but it feels funnier to hear the reactions, not be muted out of them.
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+voicerecord");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-voicerecord");
+        }
+    }
+
+    /// <summary>
+    /// swim down/up while on land makes you move about 19% slower (about 85% slower with conga)
+    /// </summary>
+    public class WalkEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "walk";
+
+        public WalkEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable;
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+movedown");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-movedown");
+        }
+    }
+
     /// <summary>
     /// Oddly enough, pressing W or M1 does not cancel this out.
     /// </summary>
@@ -643,7 +693,7 @@
         new public static readonly string EFFECT_ID = "blackandwhite_challenge_5ks";
 
         public ChallengeBlackAndWhiteTimedEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(6))
         {
             challenge = new KillstreakChallenge(5);
         }
@@ -657,7 +707,7 @@
         new public static readonly string EFFECT_ID = "melee_only_challenge_3k";
 
         public ChallengeMeleeTimedEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
         }
@@ -714,7 +764,7 @@
         new public static readonly string EFFECT_ID = "crosshair_cataracts_challenge_3k";
 
         public ChallengeCataractsEffect()
-            : base(EFFECT_ID, new TimeSpan(0, minutes: 10, 0))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
         }
@@ -724,7 +774,7 @@
     {
         public static readonly string EFFECT_ID = "death_adds_pixelated";
         public DeathAddsPixelatedTimedEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(10))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
             Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
