@@ -8,7 +8,7 @@ namespace EffectSystem.TF2
             => _instance
             ??= new TF2Effects();
 
-        public TF2Proxy? TF2Proxy { get; internal set; }
+        public TF2Proxy? TF2Proxy { get; set; }
 
         public static readonly string MUTEX_VIEWMODEL = "viewmodel";
         public static readonly string MUTEX_FOV = "fov";

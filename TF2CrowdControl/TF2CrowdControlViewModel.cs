@@ -6,6 +6,7 @@ using EffectSystem;
 using EffectSystem.TF2;
 
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -93,6 +94,11 @@ namespace TF2CrowdControl
 
         public TF2CrowdControlViewModel()
         {
+            Version? version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.WindowTitle = string.Format(
+                "TF2 Spectator for Crowd Control - {0}.{1}.{2} - by id_rotatcepS",
+                version?.Major, version?.Minor, version?.Build);
+
             Aspen.Log = new TF2SpectatorLog(this);
             // settings load/save to the config file.
             Aspen.Option = new TF2SpectatorSettings();
@@ -127,6 +133,8 @@ namespace TF2CrowdControl
                 ViewNotification(nameof(ProxyValues));
             };
         }
+
+        public string WindowTitle { get; }
 
         private CrowdControlHelper CCDispatcher { get; }
 
