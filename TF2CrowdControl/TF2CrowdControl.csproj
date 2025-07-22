@@ -19,15 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aspen\Aspen.csproj" />
     <ProjectReference Include="..\ConnectorLib.JSON\ConnectorLib.JSON.csproj" />
     <ProjectReference Include="..\EffectSystem\EffectSystem.csproj" />
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Aspen">
-      <HintPath>..\..\Aspen\AspenWin\bin\Debug\Aspen.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
