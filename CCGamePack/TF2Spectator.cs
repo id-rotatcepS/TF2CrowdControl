@@ -1247,8 +1247,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("Engy", "engineer"),
                 new Parameter("Medic", "medic"),
                 new Parameter("Sniper", "sniper"),
-                new Parameter("Spy", "spy")
-                //new Parameter("?Random?", "random") // would keep changing while we wait for spawn which is weird.
+                new Parameter("Spy", "spy"),
+                new Parameter("?Random?", "random")
                 )
         }),
         Duration = TimeSpan.FromMinutes(7), // "enough" time to die and respawn and stay in class a minute.

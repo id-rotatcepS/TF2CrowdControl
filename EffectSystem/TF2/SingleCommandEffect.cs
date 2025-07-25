@@ -188,7 +188,7 @@
     {
         public static readonly string EFFECT_ID = "say_party";
         public PartyChatEffect()
-            : base(EFFECT_ID, "say_party {0} in stream says: '{1}'")
+            : base(EFFECT_ID, "tf_party_chat \"{0} in stream says: '{1}'\"")
         {
             Availability = new InApplication();
         }
@@ -196,6 +196,7 @@
         protected override void StartEffect(EffectDispatchRequest request)
         {
             //base.StartEffect(request);
+            //TODO escape/replace quotes in Parameter
             string formattedCommand = string.Format(Command, request.Requestor, request.Parameter);
             _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
 

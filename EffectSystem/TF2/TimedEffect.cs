@@ -101,6 +101,13 @@
     /// </summary>
     public class ChangeClassEffect : TimedEffect
     {
+        public static readonly string[] classes = new string[] {
+            "scout", "soldier", "pyro", 
+            "demoman", "heavyweapons", "engineer", 
+            "medic", "sniper", "spy"
+        };
+        public static readonly string class_random = "random";
+
         public static readonly string EFFECT_ID = "join_class_eventually";
         public ChangeClassEffect()
             : this(EFFECT_ID, TimeSpan.FromMinutes(7))
@@ -126,9 +133,26 @@
             // 0: part of format, but not used currently 
             requestor = request.Requestor;
             // 1: part of format
-            classSelection = request.Parameter.ToLower(); // join_class supports "random" directly
+            classSelection = request.Parameter.ToLower();
+
+            // join_class supports "random" directly, but enforcement keeps re-randomizing
+            // so we just manually randomize a different class if it wasn't one of the 9 already.
+            if (!classes.Contains(classSelection))
+                classSelection = RandomDifferentClass();
 
             base.StartEffect(request);
+        }
+
+        private string RandomDifferentClass()
+        {
+            string oldClass = TF2Effects.Instance.TF2Proxy?.ClassSelection ?? string.Empty;
+
+            string newClass;
+            do 
+                newClass = classes[Random.Shared.Next(0, classes.Length)];
+            while (oldClass == newClass);
+
+            return newClass;
         }
 
         protected virtual string AutoKillMode => "0";
@@ -599,7 +623,9 @@
             Availability = new AliveInMap();
         }
 
-        public override bool IsSelectableGameState => IsAvailable;
+        public override bool IsSelectableGameState => IsAvailable
+            // voice chat enabled.
+            && "1" == TF2Effects.Instance.GetValue("voice_modenable");
 
         public override void StartEffect()
         {
@@ -893,9 +919,14 @@
         {
             // Parameter only gets set by Hype Train Request details as hype sentences.
             if (!string.IsNullOrEmpty(request.Parameter))
-                _ = TF2Effects.Instance.RunCommand("say_party " + request.Parameter);
+                _ = TF2Effects.Instance.RunCommand(string.Format("tf_party_chat \"{0}\"", RemoveQuotes(request.Parameter)));
 
             base.StartEffect(request);
+        }
+
+        private string RemoveQuotes(string parameter)
+        {
+            return parameter.Replace('\"', '\'');
         }
     }
 
