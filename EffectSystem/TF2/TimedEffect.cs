@@ -638,6 +638,33 @@
         }
     }
 
+    public class InspectEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "inspect";
+
+        public InspectEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(2))
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            // view model enabled.
+            && "1" == TF2Effects.Instance.GetValue("r_drawviewmodel")
+            // not VR mode.
+            && "1" != TF2Effects.Instance.GetValue("cl_first_person_uses_world_model");
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+inspect");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-inspect");
+        }
+    }
+
     /// <summary>
     /// swim down/up while on land makes you move about 19% slower (about 85% slower with conga)
     /// </summary>

@@ -523,6 +523,28 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
     };
+
+    /// <summary>
+    /// +inspect/-inspect
+    /// only if viewmodels visible and vr mode is off
+    /// </summary>
+    public static readonly Effect inspect = new("Weapon Inspection", "inspect")
+    {
+        Description = "Take a closer look at this implement of destruction.",
+        Duration = TimeSpan.FromSeconds(2),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_VIEWMODEL),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
     #endregion View Model
 
     #region Crosshair
@@ -1056,6 +1078,37 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
+    public static readonly Effect item_preview = new("Instant Hat Unbox", "item_preview")
+    {
+        Description = "Time to check out a favorite hat",
+        Category = new EffectGrouping(C_NEW, C_POPUP),
+        Price = 20,
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Command", id:"command",
+                // Voice Menu 1 Default key: Z
+                new Parameter("Ghostly Gibus", "S76561198083916565A1491862148D11874349914003223400"),
+                new Parameter("Max's Severed Head", "S76561199539604012A15902684526D17071649092129025168"),
+                new Parameter("b4nny's hat", "S76561197970669109A7689141273D3017147659807827538"),
+                new Parameter("Chili's hat", "S76561198042942046A10458868989D14389446022136406337"),
+                new Parameter("FUNKe's hat", "S76561198044193282A9112107146D14113689125525611592"),
+                new Parameter("MrPaladin's hat", "S76561197960376851A5145242654D490541382423770033"),
+                new Parameter("Muselk's hat", "S76561198050006597A13807105470D12105887195075265203"),
+                new Parameter("rotatcepS' hat", "S76561198083916565A14064851526D9932670688550599146"),
+                new Parameter("Uncle Dane's hat", "S76561198057999536A6497885574D232926978521785832"),
+                new Parameter("Burning Flames Team Captain", "S76561198062670452A15893661306D2938247794712982680")
+                )
+        }),        
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
     public static readonly Effect mouse_sensitivity_high = new("High Sensitivity", "mouse_sensitivity_high")
     {
         SortName = "Mouse: High Sensitivity",
@@ -1390,6 +1443,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             popup_ui,
             combattext_rainbow,
             hot_mic,
+            inspect,
+            item_preview,
 
             crosshair_none,
             crosshair_rainbow,

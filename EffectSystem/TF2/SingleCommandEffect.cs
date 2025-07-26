@@ -375,5 +375,49 @@
         }
     }
 
+    public class ItemPreviewEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "item_preview";
+        public ItemPreviewEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected ItemPreviewEffect(string id)
+            : base(id, "tf_econ_item_preview {1}")
+        {
+            Availability = new InApplication();
+        }
+
+        protected string selection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            selection = request.Parameter;
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+            string formattedCommand = string.Format(Command, requestor, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in application before command applied");
+        }
+    }
+
 
 }

@@ -64,6 +64,7 @@ namespace EffectSystem.TF2
                 new NoGunsToggleEffect(),
                 new LongArmsTimedEffect(),
                 new VRModeTimedEffect(),
+                new InspectEffect(),
 
                 new NoCrosshairEffect(),
                 new RainbowCrosshairEffect(),
@@ -87,6 +88,7 @@ namespace EffectSystem.TF2
                 new ContrackerEffect(),
                 new PopupUIEffect(),
                 new HotMicEffect(),
+                new ItemPreviewEffect(),
 
                 new MouseSensitivityHighEffect(),
                 new MouseSensitivityLowEffect(),
