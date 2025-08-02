@@ -1410,6 +1410,22 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
     };
+    public static readonly Effect quack = new("Quack!", "quack")
+    {
+        Description = "Random quiet !quack like we just activated the Duck Journal.",
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT),
+        Price = 1,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_APP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
+    };
 
     public override EffectList Effects
         => new Effect[]{
@@ -1451,6 +1467,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             hot_mic,
             inspect,
             item_preview,
+            quack,
 
             crosshair_none,
             crosshair_rainbow,

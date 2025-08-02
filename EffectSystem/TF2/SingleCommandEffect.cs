@@ -431,5 +431,38 @@
         }
     }
 
+    public class QuackEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "quack";
+        public QuackEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected QuackEffect(string id)
+            : base(id, string.Empty)
+        {
+            Availability = new InApplication();
+        }
 
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+
+            TF2Effects.Instance.Play(Choose(TF2Effects.SOUND_QUACKS));
+        }
+
+        private static T Choose<T>(params T[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in application before command applied");
+        }
+    }
 }

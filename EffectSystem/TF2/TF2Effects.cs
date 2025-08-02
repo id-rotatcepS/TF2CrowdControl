@@ -113,6 +113,7 @@ namespace EffectSystem.TF2
                 new DrunkEffect(),
                 new UnderwaterFadeEffect(),
                 new RainbowCombatTextEffect(),
+                new QuackEffect(),
 
                 new MeleeOnlyEffect(),
                 new WeaponShuffleEffect(),
