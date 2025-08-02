@@ -10,6 +10,7 @@ namespace EffectSystem.TF2
 
         public TF2Proxy? TF2Proxy { get; set; }
 
+        #region Mutual Exclusion categories
         public static readonly string MUTEX_VIEWMODEL = "viewmodel";
         public static readonly string MUTEX_FOV = "fov";
         public static readonly string MUTEX_WEAPONSLOT = "weaponslot";
@@ -31,6 +32,40 @@ namespace EffectSystem.TF2
         /// can't play two files at the same time, and don't overlap muting with audio effects
         /// </summary>
         public static readonly string MUTEX_AUDIO = "audio";
+        #endregion Mutual Exclusion categories
+
+        // Sounds that can be used with the "play" command (maybe will get moved into the TF2FrameworkInterface)
+        // (paths generally pulled from game_sounds.txt and similar... mix of mp3/wave and back/forward slashes are from there)
+        #region sounds
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_SLIP = new TF2FrameworkInterface.TF2Sound("misc/banana_slip.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_CLOCK_TICK = new TF2FrameworkInterface.TF2Sound("misc/halloween/clock_tick.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_WHEEL_OF_FATE = new TF2FrameworkInterface.TF2Sound("misc/halloween/hwn_wheel_of_fate.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_MISSILE_EXPLOSION = new TF2FrameworkInterface.TF2Sound("misc\\doomsday_missile_explosion.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_ALARM_KLAXON = new TF2FrameworkInterface.TF2Sound("ambient_mp3\\alarms\\doomsday_lift_alarm.mp3");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_ACHIEVEMENT_GUITAR_CHEER = new TF2FrameworkInterface.TF2Sound("misc/achievement_earned.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_ANNOUNCER_SUDDEN_DEATH = new TF2FrameworkInterface.TF2Sound("misc/your_team_suddendeath.mp3");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_HL_SUITCHARGED = new TF2FrameworkInterface.TF2Sound("items/suitchargeok1.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_RESUPPLY_CABINET = new TF2FrameworkInterface.TF2Sound("items/regenerate.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_BONUS_DUCKS3 = new TF2FrameworkInterface.TF2Sound("vo/halloween_merasmus/sf14_merasmus_minigame_duckhunt_bonusducks_03.mp3");
+        public static readonly TF2FrameworkInterface.TF2Sound[] SOUND_QUACKS = new[] 
+        {
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack1.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack2.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack3.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack4.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack5.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack9.wav"),
+            new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack11.wav")
+        };
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_PROJECTOR_MOVIE = new TF2FrameworkInterface.TF2Sound("ui/projector_movie.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_PROJECTOR_UP = new TF2FrameworkInterface.TF2Sound("ui/projector_screen_up_long.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_JARATE_TOSS1 = new TF2FrameworkInterface.TF2Sound("vo/sniper_JarateToss01.mp3");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_JARATE_EXPLODE = new TF2FrameworkInterface.TF2Sound("weapons/jar_explode.wav");
+        /// <summary>
+        /// Valid sound file that plays no sound, but ends any other wav (especially looping sounds)
+        /// </summary>
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_STOP_SOUND = new TF2FrameworkInterface.TF2Sound("misc\\blank.wav");
+        #endregion sounds
 
         /// <summary>
         /// <see cref="CrowdControl.Games.Packs.TF2Spectator.TF2Spectator"/> contains the registration of these effects with the same IDs.
@@ -179,6 +214,26 @@ namespace EffectSystem.TF2
         public string? GetValue(string variable)
         {
             return TF2Proxy?.GetValue(variable);
+        }
+
+        /// <summary>
+        /// Play a TF2 Sound File
+        /// </summary>
+        /// <param name="sound"></param>
+        public void Play(TF2FrameworkInterface.TF2Sound sound)
+        {
+            _ = TF2Proxy?.RunCommand(string.Format("play {0}", sound.File));
+        }
+
+        /// <summary>
+        /// Play a TF2 Sound File at a lower volume.  
+        /// Note, some files at 100% (1.0) will still be quieter than using <see cref="Play(TF2Sound)"/>.
+        /// </summary>
+        /// <param name="sound"></param>
+        /// <param name="volumePercent">number between 0.0 and 1.0 (larger values just act like 1.0)</param>
+        public void PlayVol(TF2FrameworkInterface.TF2Sound sound, double volumePercent)
+        {
+            _ = TF2Proxy?.RunCommand(string.Format("playvol {0} {1}", sound.File, volumePercent));
         }
     }
 }

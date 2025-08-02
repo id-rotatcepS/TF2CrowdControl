@@ -1094,7 +1094,13 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("MrPaladin's hat", "S76561197960376851A5145242654D490541382423770033"),
                 new Parameter("Muselk's hat", "S76561198050006597A13807105470D12105887195075265203"),
                 new Parameter("rotatcepS' hat", "S76561198083916565A14064851526D9932670688550599146"),
+                //new Parameter("SQU1RRELLY's hat","antlers"),
+                // festive lights "Giftcrafter" steam://rungame/440/76561202255233023/+tf_econ_item_preview%20S76561197961279983A12127524140D14059627465413680496
+                // frantic spooker "Twisted Topper" steam://rungame/440/76561202255233023/+tf_econ_item_preview%20S76561197961279983A13657151506D9943227030958030427
+                // soulful slice "Firearm Protector" steam://rungame/440/76561202255233023/+tf_econ_item_preview%20S76561197961279983A14655595641D8006096480765894586
+                // kirby: steam://rungame/440/76561202255233023/+tf_econ_item_preview%20S76561197961279983A10702081034D7186498884810988273
                 new Parameter("Uncle Dane's hat", "S76561198057999536A6497885574D232926978521785832"),
+                new Parameter("Lo-Fi Longwave", "S76561198083916565A13518291877D13857052967502425458"),
                 new Parameter("Burning Flames Team Captain", "S76561198062670452A15893661306D2938247794712982680")
                 )
         }),        
