@@ -405,10 +405,18 @@
         protected override void StartEffect()
         {
             //base.StartEffect(); // runs Command directly.
-            string formattedCommand = string.Format(Command, requestor, selection);
 
-            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+            TF2Effects.Instance.Play(Choose(
+                    TF2Effects.SOUND_CRATE_OPEN,
+                    TF2Effects.SOUND_CRATE_RARE_MVM_OPEN));
         }
+
+        private static T Choose<T>(params T[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
 
         protected override void CheckEffectWorked()
         {
@@ -416,6 +424,10 @@
             if (Availability != null
                 && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
                 throw new EffectNotVerifiedException("Not in application before command applied");
+
+            string formattedCommand = string.Format(Command, requestor, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
         }
     }
 

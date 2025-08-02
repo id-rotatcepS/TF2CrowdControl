@@ -61,6 +61,8 @@ namespace EffectSystem.TF2
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_PROJECTOR_UP = new TF2FrameworkInterface.TF2Sound("ui/projector_screen_up_long.wav");
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_JARATE_TOSS1 = new TF2FrameworkInterface.TF2Sound("vo/sniper_JarateToss01.mp3");
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_JARATE_EXPLODE = new TF2FrameworkInterface.TF2Sound("weapons/jar_explode.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_CRATE_OPEN = new TF2FrameworkInterface.TF2Sound("ui/item_open_crate_short.wav");
+        public static readonly TF2FrameworkInterface.TF2Sound SOUND_CRATE_RARE_MVM_OPEN = new TF2FrameworkInterface.TF2Sound("ui/itemcrate_smash_ultrarare_short.wav");
         /// <summary>
         /// Valid sound file that plays no sound, but ends any other wav (especially looping sounds)
         /// </summary>
