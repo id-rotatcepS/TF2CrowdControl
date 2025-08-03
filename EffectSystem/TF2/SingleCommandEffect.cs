@@ -483,6 +483,8 @@
         }
 
         public override bool IsSelectableGameState => base.IsSelectableGameState
+            // vote kick enabled
+            && "1" == TF2Effects.Instance.GetValue("sv_vote_issue_kick_allowed")
             && TF2Effects.Instance.TF2Proxy?.User?.KickUserID != null
             && TF2Effects.Instance.TF2Proxy?.TimeInMap > VoteLateJoinCooldown;
 

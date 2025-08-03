@@ -1078,9 +1078,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect item_preview = new("Instant Hat Unbox", "item_preview")
+    public static readonly Effect item_preview = new("Unbox a Hat", "item_preview")
     {
-        Description = "Time to check out a favorite hat",
+        Description = "Time to check out a cool hat",
         Category = new EffectGrouping(C_NEW, C_POPUP),
         Price = 20,
         Parameters = new ParameterList(new[] {
@@ -1294,14 +1294,15 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
     public static readonly Effect self_kick = new("Kick Me!", "self_kick")
     {
-        Description = "Kind of like slapping a sign on my back, but involves a server vote on %voteissue%. ",
+        Description = "Like slapping a sign on my back, but the server gets a %voteissue% for the boot. (After 5m in the map)",
         Parameters = new ParameterList(new[] {
             // reasons:  "other", "cheating", "idle", "scamming"
             new ParameterDef(name:"Reason", id:"reason",
                 new Parameter("Idle", "idle"),
                 new Parameter("Scamming", "scamming"),
                 new Parameter("Cheating", "cheating"),
-                new Parameter("Other", "other")
+                new Parameter("Other", "other"),
+                new Parameter("No Reason", "")
                 )
         }),
         Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
