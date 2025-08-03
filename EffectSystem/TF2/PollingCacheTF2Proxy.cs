@@ -379,6 +379,7 @@ namespace EffectSystem.TF2
             log.OnUserChangedClass += UserChangedClass;
             log.OnUserSelectedClass += UserSelectedClass;
             log.OnMapNameChanged += MapNameChanged;
+            log.OnPlayerStatus += PlayerStatus;
 
             motionTracker = new MotionTracker(this);
         }
@@ -449,9 +450,11 @@ namespace EffectSystem.TF2
 
         private void MapNameChanged(string mapName)
         {
+            mapChanged = DateTime.Now;
             Map = mapName;
 
             // we start over.
+            //TODO "on death" effects are recording extra deaths becuase of this.
             RecordUserDeath();
 
             SetInfo("info_class", string.Empty);
@@ -461,6 +464,18 @@ namespace EffectSystem.TF2
             }
             ClassSelection = string.Empty;
         }
+
+        private void PlayerStatus(TF2Status status)
+        {
+            //TODO somehow know when we're out of a server
+            Server ??= new TF2Server();
+
+            Server.RefreshPlayer(status);
+        }
+
+        private DateTime mapChanged = DateTime.MaxValue;
+        public TimeSpan TimeInMap => mapChanged == DateTime.MaxValue ? new TimeSpan(0) 
+            : DateTime.Now - mapChanged;
 
         /// <summary>
         /// Last known map name (empty string if never loaded)
@@ -823,6 +838,16 @@ namespace EffectSystem.TF2
         /// Non-clearing "name" variable value.
         /// </summary>
         public string? UserName => GetValue("name");
+
+        /// <summary>
+        /// Data about the currently connected game server, including its player list.
+        /// </summary>
+        public TF2Server? Server { get; private set; }
+
+        /// <summary>
+        /// Data about the streamer's player in the game server - null if not in a game.
+        /// </summary>
+        public TF2Player? User => Server?.Players.FirstOrDefault(p=>p.Name == UserName);
 
         // ways to infer that we're in a map
         // getpos not 000, net_channels, tf_party_debug

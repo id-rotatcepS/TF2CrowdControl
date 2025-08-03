@@ -136,6 +136,7 @@ namespace EffectSystem.TF2
                 //new ForcedChangeClassEffect(),
                 new ChangeClassAndDieEffect(),
                 new ChangeClassEffect(),
+                new SelfKickEffect(),
 
                 new SpinEffect(),
                 new WM1Effect(),

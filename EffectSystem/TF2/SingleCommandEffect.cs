@@ -465,4 +465,67 @@
                 throw new EffectNotVerifiedException("Not in application before command applied");
         }
     }
+
+    public class SelfKickEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "self_kick";
+        public SelfKickEffect()
+            : this(EFFECT_ID)
+        {
+        }
+
+        protected SelfKickEffect(string id)
+            // callvote kick "{GameID} [reason]"
+            // callvote kick "4648 cheating"
+            : base(id, "callvote kick \"{0} {1}\"")
+        {
+            Availability = new InMap();
+        }
+
+        public override bool IsSelectableGameState => base.IsSelectableGameState
+            && TF2Effects.Instance.TF2Proxy?.User?.KickUserID != null
+            && TF2Effects.Instance.TF2Proxy?.TimeInMap > VoteLateJoinCooldown;
+
+        /// <summary>
+        /// 5 minutes.
+        /// TODO, check the server variable for actual value for this server instead of hardcoding the default.
+        /// sv_vote_late_join_cooldown
+        /// Controls the length of a cooldown(in seconds) applied to players joining a match in progress preventing them from creating vote kicks.Defaults to 300 (5 minutes).
+        /// </summary>
+        public TimeSpan VoteLateJoinCooldown => TimeSpan.FromSeconds(300);
+
+        protected string selection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            selection = request.Parameter;
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+            string? kickUserID = TF2Effects.Instance.TF2Proxy?.User?.KickUserID
+                ?? throw new EffectNotAppliedException("Not enough server information loaded");
+
+            string formattedCommand = string.Format(Command, kickUserID, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in map before command applied");
+        }
+    }
 }

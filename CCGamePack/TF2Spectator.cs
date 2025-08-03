@@ -1292,6 +1292,31 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
     };
 
+    public static readonly Effect self_kick = new("Kick Me!", "self_kick")
+    {
+        Description = "Kind of like slapping a sign on my back, but involves a server vote on %voteissue%. ",
+        Parameters = new ParameterList(new[] {
+            // reasons:  "other", "cheating", "idle", "scamming"
+            new ParameterDef(name:"Reason", id:"reason",
+                new Parameter("Idle", "idle"),
+                new Parameter("Scamming", "scamming"),
+                new Parameter("Cheating", "cheating"),
+                new Parameter("Other", "other")
+                )
+        }),
+        Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
+        Price = 90,
+        #region streamer facing
+        //IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_MAP),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
     public static readonly Effect join_class_eventually = new("Next Class Change", "join_class_eventually")
     {
         SortName = "Class Change: Next Class Change",
@@ -1438,6 +1463,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             quit,
             retry,
+            self_kick,
 
             join_class_autokill,
             join_class_eventually,
