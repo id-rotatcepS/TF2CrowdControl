@@ -118,7 +118,7 @@ namespace TF2CrowdControl
 
             StartTF2ConnectionAndEffectHandlers();
 
-            CCDispatcher.OnEffectStatesUpdated += (c) =>
+            CCDispatcher.EffectDispatcher.OnEffectStatesUpdated += (c) =>
             {
                 ViewNotification(nameof(StatusEffects));
                 ViewNotification(nameof(StatusMapName));

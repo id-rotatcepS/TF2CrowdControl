@@ -282,6 +282,9 @@
             Availability = new AliveInMap();
         }
 
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+        
         public override bool IsSelectableGameState => IsAvailable
             && null != TF2Effects.Instance.TF2Proxy;
 
@@ -476,6 +479,10 @@
             Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         public override bool IsSelectableGameState => IsAvailable;
 
         public override void StartEffect()
@@ -515,6 +522,10 @@
             Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         public override bool IsSelectableGameState => IsAvailable;
 
         public override void StartEffect()
@@ -522,9 +533,15 @@
         }
 
         private int slot = 1;
+        private bool skip = true;
         protected override void Update(TimeSpan timeSinceLastUpdate)
         {
             base.Update(timeSinceLastUpdate);
+
+            // animation is a little too fast...skip every other one.
+            skip = !skip;
+            if (skip)
+                return;
 
             _ = TF2Effects.Instance.RunCommand("slot" + slot);
             ++slot;

@@ -913,9 +913,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect weapon_shuffle = new("Weapon Shuffle", "weapon_shuffle")
     {
         Description = "The one with the funny weapon swaps",
-        Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_GAMEPLAY),
-        Price = 35, // it'll probably get you killed
+        Duration = TimeSpan.FromSeconds(20),
+        Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
+        Price = 30, // it'll probably get you killed
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 0.5f,
@@ -1506,8 +1506,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             kill,
             explode,
             melee_only,
-            // disabled - too slow to be interesting right now.
-            // weapon_shuffle,
+            weapon_shuffle,
 
             destroybuildings,
             destroysentry,

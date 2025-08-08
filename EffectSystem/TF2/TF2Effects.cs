@@ -118,6 +118,7 @@ namespace EffectSystem.TF2
                 new MeleeOnlyEffect(),
                 new WeaponShuffleEffect(),
                 new WalkEffect(),
+                new WeaponShuffleEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
@@ -133,7 +134,6 @@ namespace EffectSystem.TF2
 
                 new QuitEffect(),
                 new RetryEffect(),
-                //new ForcedChangeClassEffect(),
                 new ChangeClassAndDieEffect(),
                 new ChangeClassEffect(),
                 new SelfKickEffect(),

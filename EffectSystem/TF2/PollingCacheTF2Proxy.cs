@@ -778,15 +778,13 @@ namespace EffectSystem.TF2
         }
 
         private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
-        private string lastCommand = string.Empty;
         public string RunCommand(string command)
         {
             string result = string.Empty;
 
-            if (command != lastCommand)
+            if (IsLogworthy(command))
             {
                 Aspen.Log.Info($"Run> {command}");
-                lastCommand = command;
             }
 
             bool completed =
@@ -800,6 +798,15 @@ namespace EffectSystem.TF2
                 Aspen.Log.Warning("TF2 command took too long - If this continues, restart TF2");
             //TODO consider caching failures and retrying them before the requested command.
 
+            return result;
+        }
+
+        private string lastCommand = string.Empty;
+        private bool IsLogworthy(string command)
+        {
+            bool result = command.Split(" ")[0] != lastCommand.Split(" ")[0];
+            if (result)
+                lastCommand = command;
             return result;
         }
 

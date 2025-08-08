@@ -114,25 +114,42 @@ namespace EffectSystem
             return result;
         }
 
-        public void UpdateUnclosedDurationEffects()
+        protected void UpdateUnclosedDurationEffects()
         {
             foreach (Effect openEffect in Effects.Where(e
                 => !e.IsClosed
-                && e.HasDuration))
+                && e.HasDuration
+                && !e.IsUpdateAnimation))
             {
-                //Aspen.Log.Trace($"Updating effect [{openEffect.ID}].");
+                UpdateEffect(openEffect);
+            }
+        }
 
-                // save reference in case the update clears it.
-                EffectDispatchRequest? request = openEffect.CurrentRequest;
-                try
-                {
-                    openEffect.Update(
-                        OnUpdatePausedEffect,
-                        OnUpdateResumedEffect,
-                        OnUpdateClosingEffect
-                        );
-                }
-                catch (Exception e) { Aspen.Log.ErrorException(e, $"Update Effect failed [{request?.EffectID}]"); }
+        private void UpdateEffect(Effect openEffect)
+        {
+            //Aspen.Log.Trace($"Updating effect [{openEffect.ID}].");
+
+            // save reference in case the update clears it.
+            EffectDispatchRequest? request = openEffect.CurrentRequest;
+            try
+            {
+                openEffect.Update(
+                    OnUpdatePausedEffect,
+                    OnUpdateResumedEffect,
+                    OnUpdateClosingEffect
+                    );
+            }
+            catch (Exception e) { Aspen.Log.ErrorException(e, $"Update Effect failed [{request?.EffectID}]"); }
+        }
+
+        protected void UpdateUnclosedDurationFastAnimationEffects()
+        {
+            foreach (Effect openEffect in Effects.Where(e
+                => !e.IsClosed
+                && e.HasDuration
+                && e.IsUpdateAnimation))
+            {
+                UpdateEffect(openEffect);
             }
         }
 
@@ -199,7 +216,7 @@ namespace EffectSystem
             }
         }
 
-        public void StopAll()
+        virtual public void StopAll()
         {
             foreach (Effect openEffect in Effects.Where(e => !e.IsClosed))
             {
@@ -217,7 +234,7 @@ namespace EffectSystem
 
         // TODO maybe not the best plan, but I need to cache rather than constantly sending hte same status.
         private Dictionary<Effect, (bool selectable, bool listable)> EffectListings = new();
-        public void RefreshEffectListings()
+        protected void RefreshEffectListings()
         {
             foreach (Effect effect in Effects)
             {
@@ -248,6 +265,14 @@ namespace EffectSystem
 
                 EffectListings[effect] = (selectable, listable);
             }
+        }
+
+        public delegate void EffectStatesUpdated(EffectDispatcher cc);
+        public event EffectStatesUpdated? OnEffectStatesUpdated;
+
+        protected void NotifyEffectStatesUpdated(EffectDispatcher tF2EffectDispatcher)
+        {
+            OnEffectStatesUpdated?.Invoke(this);
         }
 
     }

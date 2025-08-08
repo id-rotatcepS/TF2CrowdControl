@@ -833,6 +833,9 @@
             Availability = new AliveInMap();
         }
 
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -860,6 +863,9 @@
             byte rangeFOV = (byte)(maxFOV - minFOV);
             byte incrementFOV = (byte)Math.Min(rangeFOV,
                 (timeSinceLastUpdate.TotalSeconds / transitionLengthFOV) * rangeFOV);
+            // rounds down to 0 sometimes, always do SOMETHING
+            // FUTURE change both to use double?
+            if (incrementFOV == 0) incrementFOV = 1;
 
             if (fov_up)
             {
@@ -885,6 +891,8 @@
             byte rangeVM = (byte)(maxVM - minVM);
             byte incrementVM = (byte)Math.Min(rangeVM,
                 (timeSinceLastUpdate.TotalSeconds / transitionLengthVM) * rangeVM);
+            // rounds down to 0 sometimes, always do SOMETHING
+            if (incrementVM == 0) incrementVM = 1;
 
             if (vm_up)
             {
@@ -945,6 +953,10 @@
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
@@ -1061,6 +1073,11 @@
             //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
+
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.

@@ -191,6 +191,8 @@ namespace EffectSystem
             CurrentRequest = null;
         }
 
+        virtual public bool IsUpdateAnimation => false;
+
         /// <summary>
         /// Perform effect updates since last update (or start).
         /// Throw <see cref="EffectFinishedEarlyException"/> if the Update determines the effect is ending prior to the full Duration.
