@@ -139,6 +139,7 @@ namespace EffectSystem
                     OnUpdateClosingEffect
                     );
             }
+            //TODO move this up a level - "pause" fast animations, skip regular updates for this iteration. (same protection that variable updates get in the proxy)
             catch (Exception e) { Aspen.Log.ErrorException(e, $"Update Effect failed [{request?.EffectID}]"); }
         }
 

@@ -1,6 +1,5 @@
 ﻿using ASPEN;
 
-using System.IO;
 using System.Text.RegularExpressions;
 
 using TF2FrameworkInterface;
@@ -474,7 +473,7 @@ namespace EffectSystem.TF2
         }
 
         private DateTime mapChanged = DateTime.MaxValue;
-        public TimeSpan TimeInMap => mapChanged == DateTime.MaxValue ? new TimeSpan(0) 
+        public TimeSpan TimeInMap => mapChanged == DateTime.MaxValue ? new TimeSpan(0)
             : DateTime.Now - mapChanged;
 
         /// <summary>
@@ -621,6 +620,7 @@ namespace EffectSystem.TF2
         private string tickRepeatedExceptionMessage = string.Empty;
         private void PollTick(object? state)
         {
+            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick");
             try
             {
                 // polling "status" or anything else for additional log parsing.
@@ -654,6 +654,7 @@ namespace EffectSystem.TF2
                 // This is to prevent game crashes we were getting during map loads.
                 _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
+            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick after");
         }
 
         public double VerticalSpeed => motionTracker.GetVerticalSpeed();
@@ -696,13 +697,15 @@ namespace EffectSystem.TF2
         {
             // Note: I kind of want to only lock during direct setting/querying of Values,
             // but one point here is to clear (one variable, and one dummy command) entries and fill them again
+            // HOWEVER we only need a long long for those that get cleared, the rest can be handled individually.
             lock (valuesLock)
             {
                 // in case we're timing out
                 ResetResults();
 
-                SetResults();
+                SetResetResults();
             }
+            SetResults();
         }
 
         private void ResetResults()
@@ -714,9 +717,10 @@ namespace EffectSystem.TF2
                 response?.Invoke(null);
         }
 
-        private void SetResults()
+        private void SetResetResults()
         {
-            foreach (string name in Values.Keys)
+            foreach (string name in Values.Keys
+                .Intersect(ClearValues))
                 if (StringValues.Contains(name))
                     PollStringNow(name);
                 else
@@ -744,7 +748,7 @@ namespace EffectSystem.TF2
             }
         }
 
-        // numer format examples: 0 0. .0 0.0 -0.0 0.05f 300.f
+        // number format examples: 0 0. .0 0.0 -0.0 0.05f 300.f
         private readonly Regex cvarNumeric = new Regex(@"^\s*\-?(:?\d*\.?\d+|\d+\.?\d*)f?\s*$");
         private void PollNumberNow(string name)
         {
@@ -762,6 +766,17 @@ namespace EffectSystem.TF2
             {
                 bool completed = task.Wait(MaxCommandRunTime);
             }
+        }
+
+        private void SetResults()
+        {
+            foreach (string name in Values.Keys
+                // these ones were polled in SetResetResults
+                .Except(ClearValues))
+                if (StringValues.Contains(name))
+                    PollStringNow(name);
+                else
+                    PollNumberNow(name);
         }
 
         private void PollForUserClassChangeNotification()
@@ -854,7 +869,7 @@ namespace EffectSystem.TF2
         /// <summary>
         /// Data about the streamer's player in the game server - null if not in a game.
         /// </summary>
-        public TF2Player? User => Server?.Players.FirstOrDefault(p=>p.Name == UserName);
+        public TF2Player? User => Server?.Players.FirstOrDefault(p => p.Name == UserName);
 
         // ways to infer that we're in a map
         // getpos not 000, net_channels, tf_party_debug

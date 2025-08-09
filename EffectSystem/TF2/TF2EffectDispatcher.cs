@@ -1,4 +1,6 @@
 ﻿
+using ASPEN;
+
 namespace EffectSystem.TF2
 {
     /// <summary>
@@ -21,6 +23,7 @@ namespace EffectSystem.TF2
 
         private void TickSafe(object? state)
         {
+            Aspen.Log.Trace(DateTime.Now.Ticks + " TickSAFE");
             try
             {
                 //TODO merge these into one interface call on Dispatcher?
@@ -33,6 +36,7 @@ namespace EffectSystem.TF2
             {
                 _ = _safeTimer?.Change(SafeIntervalInMillis, Timeout.Infinite);
             }
+            Aspen.Log.Trace(DateTime.Now.Ticks + " TickSAFE after");
         }
 
         private void TickFast(object? state)
