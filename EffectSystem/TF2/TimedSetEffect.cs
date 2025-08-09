@@ -1112,6 +1112,91 @@
         }
     }
 
+
+    public class CataractsCreepAndRestoreEffect : CrosshairShapeTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "kill_restores_cataracts_creep";
+
+        public CataractsCreepAndRestoreEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
+            {
+                ["cl_crosshair_scale"] = "32",
+            })
+        {
+            Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
+            //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Availability = new AliveInMap();
+        }
+
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        double scale;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            // "dot" crosshair, will grow
+            TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", "crosshair5");
+
+            scale = 32;
+            UpdateSize();
+
+            TF2Effects.Instance.TF2Proxy.OnUserKill += RestoreOnKill;
+        }
+
+        private void UpdateSize()
+        {
+            TF2Effects.Instance.SetValue("cl_crosshair_scale", ((int)scale).ToString());
+        }
+
+        private void RestoreOnKill(string victim, string weapon, bool crit)
+        {
+            scale = Math.Max(
+                scale / 2,
+                1);
+            UpdateSize();
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            double growthFactor = GetCreepFactor(timeSinceLastUpdate.TotalSeconds);
+            scale += Math.Max(1, growthFactor);
+
+            UpdateSize();
+        }
+
+        private double GetCreepFactor(double fractionalSecondsPassed)
+        {
+            double timePercent = Elapsed.TotalSeconds / Duration.TotalSeconds;
+            double rate;
+            if (timePercent > 0.90)
+                // Panic mode: add 4000 more in the last 10% of the time
+                rate = 6000 / (.10 * Duration.TotalSeconds);
+            else
+                // normal mode: add 1000 in the first 90% of the time.
+                rate = 3000 / (.90 * Duration.TotalSeconds);
+
+            double growthFactor = rate * fractionalSecondsPassed;
+            return growthFactor;
+        }
+
+        public override void StopEffect()
+        {
+            scale = 32;
+
+            base.StopEffect();
+        }
+    }
+
     /// <summary>
     /// special handling to restore crosshair shape at the end of the effect.
     /// Also registers mutex with shape and provides a list of available shapes.

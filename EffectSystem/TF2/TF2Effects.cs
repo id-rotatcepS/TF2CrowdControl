@@ -47,7 +47,7 @@ namespace EffectSystem.TF2
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_HL_SUITCHARGED = new TF2FrameworkInterface.TF2Sound("items/suitchargeok1.wav");
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_RESUPPLY_CABINET = new TF2FrameworkInterface.TF2Sound("items/regenerate.wav");
         public static readonly TF2FrameworkInterface.TF2Sound SOUND_BONUS_DUCKS3 = new TF2FrameworkInterface.TF2Sound("vo/halloween_merasmus/sf14_merasmus_minigame_duckhunt_bonusducks_03.mp3");
-        public static readonly TF2FrameworkInterface.TF2Sound[] SOUND_QUACKS = new[] 
+        public static readonly TF2FrameworkInterface.TF2Sound[] SOUND_QUACKS = new[]
         {
             new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack1.wav"),
             new TF2FrameworkInterface.TF2Sound("ambient/bumper_car_quack2.wav"),
@@ -150,6 +150,7 @@ namespace EffectSystem.TF2
                 new ChallengeCataractsEffect(),
                 new ChallengeBlackAndWhiteTimedEffect(),
                 new VertigoCreepAndRestoreEffect(),
+                new CataractsCreepAndRestoreEffect(),
 
                 new DeathAddsPixelatedTimedEffect(),
                 new DeathAddsDreamTimedEffect(),

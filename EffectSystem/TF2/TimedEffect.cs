@@ -102,8 +102,8 @@
     public class ChangeClassEffect : TimedEffect
     {
         public static readonly string[] classes = new string[] {
-            "scout", "soldier", "pyro", 
-            "demoman", "heavyweapons", "engineer", 
+            "scout", "soldier", "pyro",
+            "demoman", "heavyweapons", "engineer",
             "medic", "sniper", "spy"
         };
         public static readonly string class_random = "random";
@@ -148,7 +148,7 @@
             string oldClass = TF2Effects.Instance.TF2Proxy?.ClassSelection ?? string.Empty;
 
             string newClass;
-            do 
+            do
                 newClass = classes[Random.Shared.Next(0, classes.Length)];
             while (oldClass == newClass);
 
@@ -284,7 +284,7 @@
 
         // animate this more quickly.
         public override bool IsUpdateAnimation => true;
-        
+
         public override bool IsSelectableGameState => IsAvailable
             && null != TF2Effects.Instance.TF2Proxy;
 
@@ -827,7 +827,7 @@
     }
 
     /// <summary>
-    /// 10 minute Effect that cancels upon meeting the single kill challenge.
+    /// 5 minute Effect that cancels upon meeting the single kill challenge.
     /// </summary>
     public class ChallengeCataractsEffect : CataractsCrosshairEffect
     {

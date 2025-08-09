@@ -200,6 +200,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_APP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
+    public static readonly Effect kill_restores_cataracts_creep = new("Cataracts Creep - Reduce on Kill", "kill_restores_cataracts_creep")
+    {
+        SortName = "Challenge: Cataracts Creep - Reduce on Kill",
+        Description = "Cataracts keep getting worse, but every kill halves the effect. Panic Mode at the end.",
+        Duration = TimeSpan.FromMinutes(5),
+        Category = new EffectGrouping(C_NEW, C_CROSSHAIR, C_CHALLENGES),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
     /// <summary>
     /// multiple mat_motion_blur settings
     /// </summary>
@@ -1103,7 +1121,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
                 new Parameter("Lo-Fi Longwave", "S76561198083916565A13518291877D13857052967502425458"),
                 new Parameter("Burning Flames Team Captain", "S76561198062670452A15893661306D2938247794712982680")
                 )
-        }),        
+        }),
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 1.0f,
@@ -1520,6 +1538,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             melee_only_challenge,
             blackandwhite_challenge_5ks,
             kill_restores_vertigo_creep,
+            kill_restores_cataracts_creep,
 
             taunt_now,
             taunt_continuously,
