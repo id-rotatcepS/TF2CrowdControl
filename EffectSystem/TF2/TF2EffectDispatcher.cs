@@ -10,45 +10,60 @@ namespace EffectSystem.TF2
     {
         public TF2EffectDispatcher(EffectResponder responses) : base(responses)
         {
-            // start the Update timer.
-            _safeTimer = new Timer(TickSafe, null, SafeIntervalInMillis, Timeout.Infinite);
-            _fastTimer = new Timer(TickFast, null, TickIntervalInMillis, Timeout.Infinite);
+            // start the Update timers.
+            _safeTimer = new Timer(TickSafe, null, PollPeriodSafe, Timeout.InfiniteTimeSpan);
+            _fastTimer = new Timer(TickFast, null, PollPeriodFast, Timeout.InfiniteTimeSpan);
         }
 
         private Timer? _safeTimer;
         private Timer? _fastTimer;
 
-        private readonly int TickIntervalInMillis = 50;
-        private readonly int SafeIntervalInMillis = 250;
+        private static readonly TimeSpan PollPeriodFast = TimeSpan.FromMilliseconds(50);
+        private static readonly TimeSpan PollPeriodSafe = TimeSpan.FromMilliseconds(250);
+
+        private static readonly TimeSpan PollPauseTime = TimeSpan.FromSeconds(10);
 
         private void TickSafe(object? state)
         {
             Aspen.Log.Trace(DateTime.Now.Ticks + " TickSAFE");
-            try
+            TickOrPauseOnError(_safeTimer, PollPeriodSafe, () =>
             {
                 //TODO merge these into one interface call on Dispatcher?
                 UpdateUnclosedDurationEffects();
                 RefreshEffectListings();
                 //TODO make this more granular - dispatcher should invoke when there's actually a change.
                 NotifyEffectStatesUpdated(this);
-            }
-            finally
-            {
-                _ = _safeTimer?.Change(SafeIntervalInMillis, Timeout.Infinite);
-            }
+            });
             Aspen.Log.Trace(DateTime.Now.Ticks + " TickSAFE after");
+        }
+
+        private string tickRepeatedExceptionMessage = string.Empty;
+        private void TickOrPauseOnError(Timer? timer, TimeSpan pollPeriod, Action tickAction)
+        {
+            try
+            {
+                tickAction.Invoke();
+
+                _ = timer?.Change(pollPeriod, Timeout.InfiniteTimeSpan);
+            }
+            catch (Exception pollEx)
+            {
+                if (tickRepeatedExceptionMessage != pollEx.Message)
+                {
+                    tickRepeatedExceptionMessage = pollEx.Message;
+                    Aspen.Log.WarningException(pollEx, "unable to update tf2 effects - pausing for a bit");
+                }
+                // give us a long break to finish loading or whatever else is wrong.
+                // This is to prevent game crashes we were getting during map loads.
+                _ = timer?.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
+            }
         }
 
         private void TickFast(object? state)
         {
-            try
-            {
-                UpdateUnclosedDurationFastAnimationEffects();
-            }
-            finally
-            {
-                _ = _fastTimer?.Change(TickIntervalInMillis, Timeout.Infinite);
-            }
+            TickOrPauseOnError(_fastTimer, PollPeriodFast, () =>
+                UpdateUnclosedDurationFastAnimationEffects()
+            );
         }
 
         public override void StopAll()

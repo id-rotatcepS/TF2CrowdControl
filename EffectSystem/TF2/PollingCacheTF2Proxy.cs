@@ -770,9 +770,11 @@ namespace EffectSystem.TF2
 
         private void SetResults()
         {
-            foreach (string name in Values.Keys
+            List<string> nonClearedVariables = Values.Keys
                 // these ones were polled in SetResetResults
-                .Except(ClearValues))
+                .Except(ClearValues).ToList();
+
+            foreach (string name in nonClearedVariables)
                 if (StringValues.Contains(name))
                     PollStringNow(name);
                 else
