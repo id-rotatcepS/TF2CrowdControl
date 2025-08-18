@@ -151,6 +151,7 @@ namespace EffectSystem.TF2
                 new ChallengeBlackAndWhiteTimedEffect(),
                 new VertigoCreepAndRestoreEffect(),
                 new CataractsCreepAndRestoreEffect(),
+                new BindEforExplodeEffect(),
 
                 new DeathAddsPixelatedTimedEffect(),
                 new DeathAddsDreamTimedEffect(),

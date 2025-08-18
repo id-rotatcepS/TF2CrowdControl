@@ -928,6 +928,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
+    public static readonly Effect e_to_explode = new("Press E to Explode Challenge", "e_to_explode")
+    {
+        SortName = "Challenge: Press E to Explode",
+        Description = "If I try to call for medic, I explode instead.",
+        Duration = TimeSpan.FromMinutes(5),
+        Category = new EffectGrouping(C_NEW, C_GAMEPLAY, C_CHALLENGES),
+        Price = 150, // it'll probably get you killed
+        #region streamer facing
+        IsDurationEditable = false,
+        ScaleFactor = 1.0f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.ExtremelyHarmful),
+    };
     public static readonly Effect weapon_shuffle = new("Weapon Shuffle", "weapon_shuffle")
     {
         Description = "The one with the funny weapon swaps",
@@ -1539,6 +1557,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             blackandwhite_challenge_5ks,
             kill_restores_vertigo_creep,
             kill_restores_cataracts_creep,
+            e_to_explode,
 
             taunt_now,
             taunt_continuously,

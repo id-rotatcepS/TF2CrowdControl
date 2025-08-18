@@ -682,6 +682,46 @@
         }
     }
 
+
+    public class BindEforExplodeEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "e_to_explode";
+
+        public BindEforExplodeEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && HasFreeMedicBinding();
+
+        private bool HasFreeMedicBinding()
+        {
+            CommandBinding? binding = GetMedicBinding();
+            return binding != null && !binding.IsChanged;
+        }
+
+        private CommandBinding? GetMedicBinding()
+        {
+            return (TF2Effects.Instance.TF2Proxy as PollingCacheTF2Proxy).GetCommandBinding("voicemenu 0 0");
+        }
+
+        private CommandBinding? callMedic = null;
+        public override void StartEffect()
+        {
+            callMedic = GetMedicBinding();
+            if (callMedic == null)
+                throw new EffectNotAppliedException("No current 'Medic!' bind found to change");
+            callMedic.ChangeCommand("explode");
+        }
+
+        public override void StopEffect()
+        {
+            callMedic?.RestoreCommand();
+        }
+    }
+
     /// <summary>
     /// swim down/up while on land makes you move about 19% slower (about 85% slower with conga)
     /// </summary>

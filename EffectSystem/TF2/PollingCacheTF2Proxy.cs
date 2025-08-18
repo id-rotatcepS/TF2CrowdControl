@@ -381,9 +381,12 @@ namespace EffectSystem.TF2
             log.OnPlayerStatus += PlayerStatus;
 
             motionTracker = new MotionTracker(this);
+
+            bindTracker = new BindTracker(this);
         }
 
         private MotionTracker motionTracker;
+        private BindTracker bindTracker;
 
         private string ConfigFilepath { get; }
         private string BackupConfigFilepath { get; }
@@ -797,6 +800,11 @@ namespace EffectSystem.TF2
         private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
         public string RunCommand(string command)
         {
+            return RunCommand(command, tf2.SendCommand);
+        }
+
+        private string RunCommand(string command, Func<TF2Command, Action<string>, Task> sendCommand)
+        {
             string result = string.Empty;
 
             if (IsLogworthy(command))
@@ -805,7 +813,7 @@ namespace EffectSystem.TF2
             }
 
             bool completed =
-                tf2.SendCommand(new StringCommand(command),
+                sendCommand.Invoke(new StringCommand(command),
                 (r) => result = r
                 ).Wait(MaxCommandRunTime);
 
@@ -825,6 +833,11 @@ namespace EffectSystem.TF2
             if (result)
                 lastCommand = command;
             return result;
+        }
+
+        internal string RunCommandRaw(string command)
+        {
+            return RunCommand(command, tf2.SendCommandRaw);
         }
 
         public void SetInfo(string variable, string value)
@@ -915,6 +928,9 @@ namespace EffectSystem.TF2
 
             return activeChannels;
         }
+
+        public CommandBinding? GetCommandBinding(string command) => bindTracker.GetCommandBinding(command);
+
         // net_status: includes "- Config: Multiplayer, listen, 0 connections"
         // tf_party_debug: includes "associated_lobby_id: 0"
 

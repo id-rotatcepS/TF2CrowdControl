@@ -225,14 +225,16 @@ namespace TF2FrameworkInterface
 
         /// <summary>
         /// runs the command and an action to process its result.  
+        /// (result is pre-processed assuming it might be a variable output, returning only the value of the variable if it
+        /// looks like that)
         /// Returns a task governing the execution of the result processing.
         /// Just call .Wait() if you want to be synchronous with the result execution.
         /// First attempts a synchronous connect if we aren't connected.
         /// </summary>
         /// <param name="command"></param>
-        /// <param name="result"></param>
+        /// <param name="resultHandler"></param>
         /// <returns></returns>
-        public Task SendCommand(TF2Command command, Action<string> result)
+        public Task SendCommand(TF2Command command, Action<string> resultHandler)
         {
             ConnectRCON();
             //if (!rconConnected)
@@ -240,31 +242,64 @@ namespace TF2FrameworkInterface
 
             string consoleCommand = command.ConsoleString;
             //SendHijackCommand(consoleCommand);
-            return SendRCONCommand(consoleCommand, result);
+            return SendRCONCommand(consoleCommand, resultHandler);
         }
 
-        private Task SendRCONCommand(string consoleCommand, Action<string> result)
+        private Task SendRCONCommand(string consoleCommand, Action<string> resultHandler)
         {
             lock (this)
             {
                 Task<string> rconTask = TF2RCON.SendCommandAsync(consoleCommand);
 
                 return rconTask.ContinueWith(
-                    s => result(ProcessResult(s.Result))
+                    s => resultHandler(ProcessResult(s.Result))
                     );
             }
         }
+
+        /// <summary>
+        /// Like <see cref="SendCommand(TF2Command, Action{string})"/> but doesn't pre-process the result passed to the action.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="resultHandler"></param>
+        /// <returns></returns>
+        public Task SendCommandRaw(TF2Command command, Action<string> resultHandler)
+        {
+            ConnectRCON();
+
+            string consoleCommand = command.ConsoleString;
+            return SendRCONCommandRaw(consoleCommand, resultHandler);
+        }
+
+        private Task SendRCONCommandRaw(string consoleCommand, Action<string> resultHandler)
+        {
+            lock (this)
+            {
+                Task<string> rconTask = TF2RCON.SendCommandAsync(consoleCommand);
+
+                return rconTask.ContinueWith(
+                    s => resultHandler(s.Result)
+                    );
+            }
+        }
+
 
         /// <summary>
         /// normally true to convert to 'value' from results like '"cl_variable_name" = "value" (def: "")'
         /// </summary>
         public bool ShouldProcessResultValues { get; set; } = true;
 
-        // handle output that could be like this:
-        // "cl_crosshair_file" = "crosshair1" ( def. "" )
-        // client archive
-        // - help text
-        private static readonly Regex variableMatch = new Regex(
+
+        /// <summary>
+        /// Matcher for variable-like output in tf2 console, 
+        /// named groups of "variable" and "value"
+        /// (doesn't match if either group is empty)
+        /// handle output that could be like this:
+        /// "cl_crosshair_file" = "crosshair1" ( def. "" )
+        /// client archive
+        /// - help text
+        /// </summary>
+        public static readonly Regex VariableMatch = new Regex(
             ".*\"(?<variable>[^\"]+)\"\\s*=\\s*\"(?<value>[^\"]+)\".*"
             );
         /* example cases that didn't match (other than truly blank string cases) - both are basically blank string but it has help:
@@ -286,7 +321,7 @@ namespace TF2FrameworkInterface
             if (!ShouldProcessResultValues)
                 return result;
 
-            Match matcher = variableMatch.Match(result);
+            Match matcher = VariableMatch.Match(result);
             if (!matcher.Success)
                 return result;
 

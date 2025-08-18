@@ -81,6 +81,16 @@ namespace CrowdControl
 
         private void ClientRequestReceived(SimpleJSONRequest request)
         {
+            if (request.IsKeepAlive)
+            {
+                // type=KeepAlive:
+                //  "Can be used in either direction to keep connections open or test connection status.
+                //  Responses are neither expected nor given."
+                // *  "... if you get a Ping you ideally should Pong, although im not sure the native client actually sends out any of its own.
+                // *  Native<->Game communication ... feel free to send a Ping every 30 seconds or whatever"
+                //_client.Update(new EffectUpdate() { type = ResponseType.KeepAlive });
+                return;
+            }
             if (request is EffectRequest effectRequest)
             {
                 switch (effectRequest.type)
@@ -95,11 +105,17 @@ namespace CrowdControl
                         HandleEffectStop(effectRequest);
                         return;
                     default:
+                        // there are no other known types that make an EffectRequest
                         Aspen.Log.Warning($"Unsupported Effect Request Type: {effectRequest.type}");
-                        //not relevant for this game, ignore
                         return;
                 }
             }
+            //not relevant for this game, ignore
+            // DataRequest: RequestType.DataRequest
+            // RpcResponse: RequestType.RpcResponse
+            // PlayerInfo: RequestType.PlayerInfo
+            // MessageRequest: RequestType.Login
+            // EmptyRequest: RequestType.GameUpdate, RequestType.KeepAlive
         }
 
         private void HandleEffectStart(EffectRequest request)
@@ -170,6 +186,11 @@ namespace CrowdControl
             if (hype == null)
                 return new CCEffectDispatchRequest(request);
 
+            return CreateCCHypeTrainEffectDispatchRequest(request, hype);
+        }
+
+        private static CCEffectDispatchRequest CreateCCHypeTrainEffectDispatchRequest(EffectRequest request, HypeTrainSourceDetails hype)
+        {
             //hype.Type == req.EffectID;
             string train = $"Level {hype.Level} Hype Train!";
             string progress = $"{hype.Total} bits makes {hype.Progress} towards {hype.Goal}.";
