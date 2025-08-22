@@ -52,6 +52,13 @@
         void ShutDown();
 
         /// <summary>
+        /// Get the object representing the keybind that is used for this command so we can change it.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        CommandBinding? GetCommandBinding(string command);
+
+        /// <summary>
         /// User's known info according to the game server (null if the user isn't in a game)
         /// </summary>
         public TF2Player? User { get; }

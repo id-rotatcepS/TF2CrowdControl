@@ -704,7 +704,7 @@
 
         private CommandBinding? GetMedicBinding()
         {
-            return (TF2Effects.Instance.TF2Proxy as PollingCacheTF2Proxy).GetCommandBinding("voicemenu 0 0");
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("voicemenu 0 0");
         }
 
         private CommandBinding? callMedic = null;
