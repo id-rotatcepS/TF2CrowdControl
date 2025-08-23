@@ -142,6 +142,79 @@
         }
     }
 
+
+    public class TankModeEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "tank_mode";
+
+        public TankModeEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+        }
+        protected TankModeEffect(string id, TimeSpan duration)
+            : base(id, duration, new()
+            {
+                ["lookstrafe"] = "1",
+            })
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && IsRightAndLeftAvailable();
+
+        private bool IsRightAndLeftAvailable()
+        {
+            CommandBinding? right = GetRightCommand();
+            if (right == null)
+                return false;
+            if (right.IsChanged)
+                return false;
+
+            CommandBinding? left = GetLeftCommand();
+            if (left == null)
+                return false;
+            if (left.IsChanged)
+                return false;
+
+            return true;
+        }
+
+        private CommandBinding? GetRightCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+moveright");
+        }
+
+        private CommandBinding? GetLeftCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+moveleft");
+        }
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            CommandBinding right = GetRightCommand()
+                ?? throw new EffectNotAppliedException("right bind not found");
+            right.ChangeCommand("+right");
+
+            CommandBinding left = GetLeftCommand()
+                ?? throw new EffectNotAppliedException("left bind not found");
+            left.ChangeCommand("+left");
+        }
+
+        public override void StopEffect()
+        {
+            CommandBinding? right = GetRightCommand();
+            right?.RestoreCommand();
+
+            CommandBinding? left = GetLeftCommand();
+            left?.RestoreCommand();
+
+            base.StopEffect();
+        }
+    }
+
     /// <summary>
     /// Crazy settings on Motion Blur to create a weird effect
     /// </summary>

@@ -266,6 +266,121 @@
         }
     }
 
+    public class NoJumpingEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "no_jumping";
+
+        public NoJumpingEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_JUMP);
+        }
+        protected NoJumpingEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && IsJumpAvailable();
+
+        private bool IsJumpAvailable()
+        {
+            CommandBinding? jumpCommand = GetJumpCommand();
+            if (jumpCommand == null)
+                return false;
+            return !jumpCommand.IsChanged;
+        }
+
+        public override void StartEffect()
+        {
+            CommandBinding jumpCommand = GetJumpCommand()
+                ?? throw new EffectNotAppliedException("jump bind not found");
+
+            jumpCommand.ChangeCommand("echo jump disabled");
+        }
+
+        private CommandBinding? GetJumpCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+jump");
+        }
+
+        public override void StopEffect()
+        {
+            CommandBinding? jumpCommand = GetJumpCommand();
+            jumpCommand?.RestoreCommand();
+        }
+    }
+
+    /// <summary>
+    /// force strafe movement
+    /// </summary>
+    public class CrabWalkEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "crab_walk";
+
+        public CrabWalkEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+        }
+        protected CrabWalkEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && IsForwardAndBackwardAvailable();
+
+        private bool IsForwardAndBackwardAvailable()
+        {
+            CommandBinding? forwardCommand = GetForwardCommand();
+            if (forwardCommand == null)
+                return false;
+            if (forwardCommand.IsChanged)
+                return false;
+
+            CommandBinding? backwardCommand = GetBackwardCommand();
+            if (backwardCommand == null)
+                return false;
+            if (backwardCommand.IsChanged)
+                return false;
+
+            return true;
+        }
+
+        private CommandBinding? GetForwardCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+forward");
+        }
+
+        private CommandBinding? GetBackwardCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+back");
+        }
+
+        public override void StartEffect()
+        {
+            CommandBinding forwardCommand = GetForwardCommand()
+                ?? throw new EffectNotAppliedException("forward bind not found");
+
+            forwardCommand.ChangeCommand("echo forward disabled");
+
+            CommandBinding backCommand = GetBackwardCommand()
+                ?? throw new EffectNotAppliedException("back bind not found");
+
+            backCommand.ChangeCommand("echo back disabled");
+        }
+
+        public override void StopEffect()
+        {
+            CommandBinding? forwardCommand = GetForwardCommand();
+            forwardCommand?.RestoreCommand();
+            CommandBinding? backCommand = GetBackwardCommand();
+            backCommand?.RestoreCommand();
+        }
+    }
+
     public class TauntEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_now";

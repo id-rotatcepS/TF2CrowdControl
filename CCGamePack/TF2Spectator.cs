@@ -893,6 +893,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHelpful),
     };
 
+    public static readonly Effect tank_mode = new("Tank Mode", "tank_mode")
+    {
+        Description = "Tanks for the memories.",
+        Duration = TimeSpan.FromSeconds(45),
+        Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
     {
         Description = "Force slot 3 (melee) weapon.",
@@ -1274,6 +1292,42 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Neutral),
     };
 
+    public static readonly Effect no_jumping = new("No Jumping", "no_jumping")
+    {
+        Description = "Let's try to stay grounded for a while",
+        Duration = TimeSpan.FromSeconds(45),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Price = 40,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+    };
+
+    public static readonly Effect crab_walk = new("Crab Walk", "crab_walk")
+    {
+        Description = "Only walking sideways, like a crab! (No, we're not doing the spy crab)",
+        Duration = TimeSpan.FromSeconds(45),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+
     public static readonly Effect walk = new("Walk", "walk")
     {
         Description = "Movement speed reduced by 19%.",
@@ -1494,6 +1548,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             spin_left,
             wm1,
             jumping,
+            no_jumping,
+            crab_walk,
             mouse_sensitivity_high,
             mouse_sensitivity_low,
             walk,
@@ -1543,6 +1599,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             explode,
             melee_only,
             weapon_shuffle,
+            tank_mode,
 
             destroybuildings,
             destroysentry,

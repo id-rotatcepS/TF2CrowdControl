@@ -119,6 +119,7 @@ namespace EffectSystem.TF2
                 new WeaponShuffleEffect(),
                 new WalkEffect(),
                 new WeaponShuffleEffect(),
+                new TankModeEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
@@ -143,6 +144,8 @@ namespace EffectSystem.TF2
                 new TauntEffect(),
                 new TauntContinouslyEffect(),
                 new JumpingEffect(),
+                new NoJumpingEffect(),
+                new CrabWalkEffect(),
 
                 new ChallengeMeleeTimedEffect(),
                 new SingleTauntAfterKillEffect(),
