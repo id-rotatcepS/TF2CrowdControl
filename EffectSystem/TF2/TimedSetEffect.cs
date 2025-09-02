@@ -1238,7 +1238,7 @@
             Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
             //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
-            Availability = new AliveInMap();
+            Availability = new InMap();
         }
 
         // doesn't disable just because starting state matches current state.

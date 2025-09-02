@@ -526,6 +526,8 @@
             Mutex.Add(nameof(TauntAfterKillEffect)); //hierarchy is all mutex
             // specifically not mutex with a basic taunt - they can do that while waiting for these,
             // and they can queue these while an immediate taunt is in progress.
+
+            Availability = new InMap();
         }
 
         public override void StartEffect()
@@ -570,7 +572,6 @@
         protected TauntAfterCritKillEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
-            Availability = new AliveInMap();
         }
 
         protected override bool ShouldTaunt(string victim, string weapon, bool crit)
@@ -871,6 +872,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(6))
         {
             challenge = new KillstreakChallenge(5);
+            Availability = new InMap();
         }
     }
 
@@ -885,6 +887,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
+            Availability = new InMap();
         }
     }
 
@@ -942,6 +945,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
+            Availability = new InMap();
         }
     }
 
