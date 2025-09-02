@@ -15,6 +15,7 @@ namespace EffectSystem.TF2
         private readonly TF2Instance tf2;
 
         private readonly Timer timer;
+        private readonly Timer fasttimer;
         private readonly TF2LogOutput log;
         private readonly Dictionary<TF2Command, Action<string?>> commands;
         private readonly Dictionary<string, string?> Values;
@@ -373,6 +374,10 @@ namespace EffectSystem.TF2
                 // start in 10 seconds, manual repeat
                 dueTime: 1000 * 10, period: Timeout.Infinite);
 
+            fasttimer = new Timer(FastPollTick, state: null,
+                // start in 30 seconds, manual repeat
+                dueTime: 1000 * 10, period: Timeout.Infinite);
+
             log = new TF2LogOutput(tf2Path);
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
@@ -443,6 +448,7 @@ namespace EffectSystem.TF2
         private void Dispose()
         {
             timer.Dispose();
+            fasttimer.Dispose();
             OnUserDied = null;
             OnUserKill = null;
             OnUserSpawned = null;
@@ -624,27 +630,21 @@ namespace EffectSystem.TF2
         private void PollTick(object? state)
         {
             Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick");
+
+            PollOrPause(timer, PollPeriod, PollTick);
+
+            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick after");
+        }
+
+        private void PollOrPause(Timer timer, TimeSpan period, Action action)
+        {
             try
             {
-                // polling "status" or anything else for additional log parsing.
-                _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
-                    .Wait(MaxCommandRunTime);
-                // sending a command first establishes the connection if it was not connected
-                if (tf2.IsConnected)
-                {
-                    InitializeLogWhenNeeded();
-
-                    PollCommandsAndVariables();
-
-                    PollForUserClassChangeNotification();
-
-                    // use getpos and time to calculate motion for other features.
-                    motionTracker.RecordUserMotion();
-                }
+                action?.Invoke();
 
                 tickRepeatedExceptionMessage = string.Empty;
                 // standard update period, manual repeat
-                _ = timer.Change(PollPeriod, Timeout.InfiniteTimeSpan);
+                _ = timer.Change(period, Timeout.InfiniteTimeSpan);
             }
             catch (Exception pollEx)
             {
@@ -657,7 +657,37 @@ namespace EffectSystem.TF2
                 // This is to prevent game crashes we were getting during map loads.
                 _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
-            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick after");
+        }
+
+        private void PollTick()
+        {
+            // polling "status" or anything else for additional log parsing.
+            _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
+                .Wait(MaxCommandRunTime);
+            // sending a command first establishes the connection if it was not connected
+            if (!tf2.IsConnected)
+                return;
+
+            InitializeLogWhenNeeded();
+
+            PollCommandsAndVariables();
+
+            PollForUserClassChangeNotification();
+        }
+
+        public static readonly TimeSpan FastPollPeriod = TimeSpan.FromMilliseconds(100);
+        private void FastPollTick(object? state)
+        {
+            PollOrPause(fasttimer, FastPollPeriod, FastPollTick);
+        }
+
+        private void FastPollTick()
+        {
+            if (!tf2.IsConnected)
+                return;
+
+            // use getpos and time to calculate motion for other features.
+            motionTracker.RecordUserMotion();
         }
 
         public double VerticalSpeed => motionTracker.GetVerticalSpeed();
