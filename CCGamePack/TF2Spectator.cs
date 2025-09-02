@@ -164,7 +164,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
-    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge with Black & White", "blackandwhite_challenge_5ks")
+    public static readonly Effect blackandwhite_challenge_5ks = new("5 Killstreak Challenge in Black & White", "blackandwhite_challenge_5ks")
     {
         SortName = "Challenge: Killstreak Black and White",
         Duration = TimeSpan.FromMinutes(6), // slightly longer - killstreak is harder
@@ -946,11 +946,11 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
-    public static readonly Effect e_to_explode = new("Press E to Explode Challenge", "e_to_explode")
+    public static readonly Effect e_to_explode = new("Press E to Explode challenge", "e_to_explode")
     {
         SortName = "Challenge: Press E to Explode",
         Description = "If I try to call for medic, I explode instead.",
-        Duration = TimeSpan.FromMinutes(5),
+        Duration = TimeSpan.FromMinutes(3),
         Category = new EffectGrouping(C_NEW, C_GAMEPLAY, C_CHALLENGES),
         Price = 150, // it'll probably get you killed
         #region streamer facing
@@ -967,9 +967,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     public static readonly Effect weapon_shuffle = new("Weapon Shuffle", "weapon_shuffle")
     {
         Description = "The one with the funny weapon swaps",
-        Duration = TimeSpan.FromSeconds(20),
+        Duration = TimeSpan.FromSeconds(5),
         Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
-        Price = 30, // it'll probably get you killed
+        Price = 15, // like toxic scoreboard
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 0.5f,

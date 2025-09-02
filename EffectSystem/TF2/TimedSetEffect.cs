@@ -160,7 +160,7 @@
             Availability = new AliveInMap();
         }
 
-        public override bool IsSelectableGameState => IsAvailable
+        public override bool IsSelectableGameState => base.IsSelectableGameState
             && IsRightAndLeftAvailable();
 
         private bool IsRightAndLeftAvailable()
@@ -213,6 +213,45 @@
 
             base.StopEffect();
         }
+    }
+
+    /// <summary>
+    /// like Melee Only but constantly rotating weapons
+    /// </summary>
+    public class WeaponShuffleEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "weapon_shuffle";
+
+        public WeaponShuffleEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(5))
+        {
+        }
+        protected WeaponShuffleEffect(string id, TimeSpan duration)
+            : base(id, duration, new()
+            {
+                ["hud_fastswitch"] = "1" // required for it to actually shuffle.
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            Availability = new AliveInMap();
+        }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
+        // don't go disabled when effects aren't set yet.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            _ = TF2Effects.Instance.RunCommand("invnext");
+        }
+
+        //StopEffect:
+        // do nothing - whatever it happened to switch to last is what we stop on
+        // ... because we shuffled the weapons.
     }
 
     /// <summary>

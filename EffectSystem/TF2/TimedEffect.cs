@@ -620,57 +620,6 @@
         }
     }
 
-    /// <summary>
-    /// like Melee Only but constantly rotating weapons
-    /// </summary>
-    public class WeaponShuffleEffect : TimedEffect
-    {
-        public static readonly string EFFECT_ID = "weapon_shuffle";
-
-        public WeaponShuffleEffect()
-            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
-        {
-        }
-        protected WeaponShuffleEffect(string id, TimeSpan duration)
-            : base(id, duration)
-        {
-            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
-            Availability = new AliveInMap();
-        }
-
-        // animate this more quickly.
-        public override bool IsUpdateAnimation => true;
-
-        public override bool IsSelectableGameState => IsAvailable;
-
-        public override void StartEffect()
-        {
-        }
-
-        private int slot = 1;
-        private bool skip = true;
-        protected override void Update(TimeSpan timeSinceLastUpdate)
-        {
-            base.Update(timeSinceLastUpdate);
-
-            // animation is a little too fast...skip every other one.
-            skip = !skip;
-            if (skip)
-                return;
-
-            _ = TF2Effects.Instance.RunCommand("slot" + slot);
-            ++slot;
-            if (slot > 3)
-                slot = 1;
-        }
-
-        public override void StopEffect()
-        {
-            //switch to primary
-            _ = TF2Effects.Instance.RunCommand("slot1");
-        }
-    }
-
     public class ShowScoreboardEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "show_score";
@@ -803,9 +752,9 @@
         public static readonly string EFFECT_ID = "e_to_explode";
 
         public BindEforExplodeEffect()
-            : base(EFFECT_ID, TimeSpan.FromMinutes(5))
+            : base(EFFECT_ID, TimeSpan.FromMinutes(3))
         {
-            Availability = new AliveInMap();
+            Availability = new InMap();
         }
 
         public override bool IsSelectableGameState => IsAvailable
@@ -819,7 +768,8 @@
 
         private CommandBinding? GetMedicBinding()
         {
-            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("voicemenu 0 0");
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("voicemenu 0 0")
+                ?? TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+helpme"); // according to some sources, but config_default.cfg doesn't have it
         }
 
         private CommandBinding? callMedic = null;
