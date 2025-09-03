@@ -907,18 +907,54 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Tanks for the memories.",
         Duration = TimeSpan.FromSeconds(45),
-        Category = new EffectGrouping(C_NEW, C_GAMEPLAY),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
         ScaleFactor = 0.5f,
-        ScaleDecayTime = TimeSpan.FromMinutes(10),
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
         //ViewerCooldown = TimeSpan.FromMinutes(0),
         //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
         Group = new EffectGrouping(G_ALIVE),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+
+    public static readonly Effect swap_left_and_right = new("Swap Left & Right", "swap_left_and_right")
+    {
+        Description = "Like steering the back end of the fire truck.",
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Price = 25,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+    };
+
+    public static readonly Effect swap_forward_and_back = new("Swap Forward & Back", "swap_forward_and_back")
+    {
+        Description = "Like steering an airplane.",
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Price = 25,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(2),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
 
     public static readonly Effect melee_only = new("Melee Only", "melee_only")
@@ -1610,6 +1646,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             melee_only,
             weapon_shuffle,
             tank_mode,
+            swap_left_and_right,
+            swap_forward_and_back,
 
             destroybuildings,
             destroysentry,

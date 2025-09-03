@@ -747,6 +747,102 @@
         }
     }
 
+    public class BindLeftRightSwapEffect : BindSwapEffect
+    {
+        public static readonly string EFFECT_ID = "swap_left_and_right";
+
+        public BindLeftRightSwapEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+        }
+
+        protected override string GetCommand1()
+        {
+            return "+moveleft";
+        }
+
+        protected override string GetCommand2()
+        {
+            return "+moveright";
+        }
+    }
+
+    public abstract class BindSwapEffect : TimedEffect
+    {
+        protected BindSwapEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && HasFreeBindings();
+
+        private bool HasFreeBindings()
+        {
+            CommandBinding? binding1 = GetBinding1();
+            CommandBinding? binding2 = GetBinding2();
+            return binding1 != null && !binding1.IsChanged
+                && binding2 != null && !binding2.IsChanged;
+        }
+
+        private CommandBinding? GetBinding1()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding(GetCommand1());
+        }
+
+        abstract protected string GetCommand1();
+
+        private CommandBinding? GetBinding2()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding(GetCommand2());
+        }
+
+        abstract protected string GetCommand2();
+
+        private CommandBinding? command1 = null;
+        private CommandBinding? command2 = null;
+        public override void StartEffect()
+        {
+            command1 = GetBinding1();
+            if (command1 == null)
+                throw new EffectNotAppliedException(string.Format("No current {0} bind found to change", GetCommand1()));
+
+            command2 = GetBinding2();
+            if (command2 == null)
+                throw new EffectNotAppliedException(string.Format("No current {0} bind found to change", GetCommand2()));
+
+            command1.ChangeCommand(GetCommand2());
+
+            command2.ChangeCommand(GetCommand1());
+        }
+
+        public override void StopEffect()
+        {
+            command1?.RestoreCommand();
+            command2?.RestoreCommand();
+        }
+    }
+
+    public class BindForwardBackSwapEffect : BindSwapEffect
+    {
+        public static readonly string EFFECT_ID = "swap_forward_and_back";
+
+        public BindForwardBackSwapEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+        }
+
+        protected override string GetCommand1()
+        {
+            return "+forward";
+        }
+
+        protected override string GetCommand2()
+        {
+            return "+back";
+        }
+    }
 
     public class BindEforExplodeEffect : TimedEffect
     {

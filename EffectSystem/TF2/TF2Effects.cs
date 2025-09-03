@@ -120,6 +120,8 @@ namespace EffectSystem.TF2
                 new WalkEffect(),
                 new WeaponShuffleEffect(),
                 new TankModeEffect(),
+                new BindLeftRightSwapEffect(),
+                new BindForwardBackSwapEffect(),
 
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
