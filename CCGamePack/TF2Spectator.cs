@@ -1356,6 +1356,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
 
+    public static readonly Effect mute_character = new("Mute Character", "mute_character")
+    {
+        Description = "Communication is key to any relationship - let's remove my chat and voice commands.",
+        Duration = TimeSpan.FromMinutes(2),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT),
+        Price = 20,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
+    };
+
     public static readonly Effect crab_walk = new("Crab Walk", "crab_walk")
     {
         Description = "Only walking sideways, like a crab! (No, we're not doing the spy crab)",
@@ -1646,6 +1664,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             popup_ui,
             combattext_rainbow,
             hot_mic,
+            mute_character,
             inspect,
             item_preview,
             quack,

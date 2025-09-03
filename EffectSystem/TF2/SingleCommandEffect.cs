@@ -342,6 +342,7 @@
         {
             Availability = new AliveInMap();
             Mutex.Add(TF2Effects.MUTEX_AUDIO);
+            Mutex.Add(TF2Effects.MUTEX_VOICEMENU);
         }
 
         protected string selection = string.Empty;
@@ -442,6 +443,7 @@
             : base(id, string.Empty)
         {
             Availability = new InApplication();
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
         }
 
         protected override void StartEffect()

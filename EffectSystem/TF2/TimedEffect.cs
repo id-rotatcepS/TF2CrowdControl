@@ -364,6 +364,10 @@
                 .Select((command) => TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command));
         }
 
+        /// <summary>
+        /// List of commands to disable - if any of them are not bound (or have been rebound by another effect), this effect will be disabled.
+        /// </summary>
+        /// <returns></returns>
         abstract protected IEnumerable<string> GetCommands();
 
         public override void StartEffect()
@@ -401,6 +405,35 @@
             {
                 "+moveleft",
                 "+moveright"
+            };
+        }
+    }
+
+    public class MuteCharacterEffect : DisableBindsEffect
+    {
+        public static readonly string EFFECT_ID = "mute_character";
+
+        public MuteCharacterEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(2))
+        {
+            Mutex.Add(TF2Effects.MUTEX_VOICEMENU);
+            Mutex.Add(TF2Effects.MUTEX_TEXTCHAT);
+        }
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                // not sure which is the true default. Regardless, not everybody uses the true default version
+                // and DisableBinds will fail to enable if we have it wrong.
+                //"+helpme", "voicemenu 0 0",
+
+                "voice_menu_1",
+                "voice_menu_2",
+                "voice_menu_3",
+                "say",
+                "say_team",
+                "+voicerecord",
             };
         }
     }

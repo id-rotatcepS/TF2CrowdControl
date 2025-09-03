@@ -32,6 +32,8 @@ namespace EffectSystem.TF2
         /// can't play two files at the same time, and don't overlap muting with audio effects
         /// </summary>
         public static readonly string MUTEX_AUDIO = "audio";
+        public static readonly string MUTEX_VOICEMENU = "voicemenu";
+        public static readonly string MUTEX_TEXTCHAT = "say";
         #endregion Mutual Exclusion categories
 
         // Sounds that can be used with the "play" command (maybe will get moved into the TF2FrameworkInterface)
@@ -123,6 +125,7 @@ namespace EffectSystem.TF2
                 new ShowScoreboardEffect(),
                 new ShowScoreboardMeanEffect(),
                 new VoiceMenuEffect(),
+                new MuteCharacterEffect(),
                 new HackerHUDEffect(),
                 new ContrackerEffect(),
                 new PopupUIEffect(),
