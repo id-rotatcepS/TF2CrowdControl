@@ -189,7 +189,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
-        Group = new EffectGrouping(G_APP),
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     public static readonly Effect silent_movie = new("Silent Movie", "silent_movie")
@@ -225,7 +225,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
-        Group = new EffectGrouping(G_ALIVE),
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
     /// <summary>
@@ -742,7 +742,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
-        Group = new EffectGrouping(G_ALIVE),
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     #endregion Crosshair
@@ -989,7 +989,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //SessionCooldown = TimeSpan.FromMinutes(2),
         //bool Inactive;
         #endregion streamer facing
-        Group = new EffectGrouping(G_ALIVE),
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.VeryHarmful),
     };
     public static readonly Effect e_to_explode = new("Press E to Explode challenge", "e_to_explode")
@@ -1046,7 +1046,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         //SessionCooldown = TimeSpan.FromMinutes(0),
         //bool Inactive;
         #endregion streamer facing
-        Group = new EffectGrouping(G_ALIVE),
+        Group = new EffectGrouping(G_MAP),
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.SlightlyHarmful),
     };
     public static readonly Effect taunt_after_single_crit_kill = new("Taunt after next Crit Kill", "taunt_after_crit_kill_challenge_1k")
