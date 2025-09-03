@@ -18,6 +18,16 @@ namespace CrowdControl.Games.Packs.TF2Spectator;
     -# \*It actually has 4; BizHawk, Project64, Randomizer v0.5, & Randomizer v1.2
     -# \*\*Standalone/Unity games generally do not have an accompany C# file or game mod and instead connect directly to our PubSub backend service
  */
+// new ParameterDef(name:"Item Color", id:"color",
+//  ParameterBase.ParameterType.HexColor)
+// 'probably "#xxxxxx"'
+
+// 'quantity is separate to the parameter system
+// parameters dont effect cost
+// anything that effects cost has to be separate
+// quantity effects cost in the way you would expect
+// you can set a min and a max, the viewer can choose a number in between this region (inclusive iirc)'
+
 
 /// <summary>
 /// Crowd Control Game Pack class.
@@ -226,7 +236,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Vertigo",
         Description = "Oh god oh god oh god make it stop",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_NEW, C_CAMERA),
+        Category = new EffectGrouping(C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -248,7 +258,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: Vertigo Creep - Reduce on Kill",
         Description = "Vertigo keeps getting worse, but every kill halves the effect. Panic Mode at the end.",
         Duration = TimeSpan.FromMinutes(5),
-        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
@@ -267,7 +277,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "6 deaths",
         Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to the duration)",
         Duration = TimeSpan.FromMinutes(5),
-        Category = new EffectGrouping(C_NEW, C_CAMERA, C_CHALLENGES),
+        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
@@ -398,7 +408,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Warning: may cause euphorinausea.",
         Duration = TimeSpan.FromSeconds(15),
-        Category = new EffectGrouping(C_NEW, C_CAMERA, C_TAUNT),
+        Category = new EffectGrouping(C_CAMERA, C_TAUNT),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -574,7 +584,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Dude, just point your screen at them - is it really so tough?",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_NEW, C_CROSSHAIR),
+        Category = new EffectGrouping(C_CROSSHAIR),
         Price = 15,
         #region streamer facing
         IsDurationEditable = true,
