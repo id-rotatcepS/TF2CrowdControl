@@ -1374,6 +1374,24 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
     };
 
+    public static readonly Effect no_strafing = new("No Strafing", "no_strafing")
+    {
+        Description = "Only walking forwards and backwards - take them head on!",
+        Duration = TimeSpan.FromSeconds(45),
+        Category = new EffectGrouping(C_NEW, C_MOVEMENT),
+        Price = 50,
+        #region streamer facing
+        IsDurationEditable = true,
+        ScaleFactor = 0.5f,
+        ScaleDecayTime = TimeSpan.FromMinutes(5),
+        //ViewerCooldown = TimeSpan.FromMinutes(0),
+        //SessionCooldown = TimeSpan.FromMinutes(2),
+        //bool Inactive;
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+        Alignment = new Alignment(/*Orderliness.Chaotic, */Morality.Harmful),
+    };
+
     public static readonly Effect walk = new("Walk", "walk")
     {
         Description = "Movement speed reduced by 19%.",
@@ -1594,8 +1612,6 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             spin_left,
             wm1,
             jumping,
-            no_jumping,
-            crab_walk,
             mouse_sensitivity_high,
             mouse_sensitivity_low,
             walk,
@@ -1645,6 +1661,9 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
             explode,
             melee_only,
             weapon_shuffle,
+            no_jumping,
+            crab_walk,
+            no_strafing,
             tank_mode,
             swap_left_and_right,
             swap_forward_and_back,

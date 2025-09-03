@@ -315,69 +315,93 @@
     /// <summary>
     /// force strafe movement
     /// </summary>
-    public class CrabWalkEffect : TimedEffect
+    public class CrabWalkEffect : DisableBindsEffect
     {
         public static readonly string EFFECT_ID = "crab_walk";
 
         public CrabWalkEffect()
-            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
         {
         }
-        protected CrabWalkEffect(string id, TimeSpan duration)
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                "+forward",
+                "+back"
+            };
+        }
+    }
+
+    public abstract class DisableBindsEffect : TimedEffect
+    {
+        protected DisableBindsEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
             Availability = new AliveInMap();
         }
 
         public override bool IsSelectableGameState => IsAvailable
-            && IsForwardAndBackwardAvailable();
+            && AreBindsAvailable();
 
-        private bool IsForwardAndBackwardAvailable()
+        private bool AreBindsAvailable()
         {
-            CommandBinding? forwardCommand = GetForwardCommand();
-            if (forwardCommand == null)
-                return false;
-            if (forwardCommand.IsChanged)
-                return false;
-
-            CommandBinding? backwardCommand = GetBackwardCommand();
-            if (backwardCommand == null)
-                return false;
-            if (backwardCommand.IsChanged)
-                return false;
+            foreach (CommandBinding? binding in GetBindings())
+            {
+                if (binding == null)
+                    return false;
+                if (binding.IsChanged)
+                    return false;
+            }
 
             return true;
         }
 
-        private CommandBinding? GetForwardCommand()
+        private IEnumerable<CommandBinding?> GetBindings()
         {
-            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+forward");
+            return GetCommands()
+                .Select((command) => TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command));
         }
 
-        private CommandBinding? GetBackwardCommand()
-        {
-            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+back");
-        }
+        abstract protected IEnumerable<string> GetCommands();
 
         public override void StartEffect()
         {
-            CommandBinding forwardCommand = GetForwardCommand()
-                ?? throw new EffectNotAppliedException("forward bind not found");
+            foreach (string command in GetCommands())
+            {
+                CommandBinding binding = TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command)
+                    ?? throw new EffectNotAppliedException(string.Format("{0} bind not found", command));
 
-            forwardCommand.ChangeCommand("echo forward disabled");
-
-            CommandBinding backCommand = GetBackwardCommand()
-                ?? throw new EffectNotAppliedException("back bind not found");
-
-            backCommand.ChangeCommand("echo back disabled");
+                binding.ChangeCommand($"echo {command} disabled");
+            }
         }
 
         public override void StopEffect()
         {
-            CommandBinding? forwardCommand = GetForwardCommand();
-            forwardCommand?.RestoreCommand();
-            CommandBinding? backCommand = GetBackwardCommand();
-            backCommand?.RestoreCommand();
+            foreach (CommandBinding? binding in GetBindings())
+            {
+                binding?.RestoreCommand();
+            }
+        }
+    }
+
+    public class NoStrafingEffect : DisableBindsEffect
+    {
+        public static readonly string EFFECT_ID = "no_strafing";
+
+        public NoStrafingEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+        }
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                "+moveleft",
+                "+moveright"
+            };
         }
     }
 
