@@ -3,6 +3,7 @@
 using ConnectorLib.JSON;
 
 using EffectSystem;
+using EffectSystem.TF2;
 
 namespace CrowdControl
 {
@@ -50,7 +51,7 @@ namespace CrowdControl
             _client.OnConnected += ClientConnected;
             _client.OnRequestReceived += ClientRequestReceived;
 
-            _effectDispatcher = new EffectDispatcher(
+            _effectDispatcher = new TF2EffectDispatcher(
                 new CCEffectResponder(_client));
         }
 
@@ -59,6 +60,8 @@ namespace CrowdControl
         /// </summary>
         public List<Effect> Effects => _effectDispatcher.Effects;
 
+        public EffectDispatcher EffectDispatcher => _effectDispatcher;
+
         /// <summary>
         /// Stops all Effects in the EffectDispatcher and Disposes local resources.
         /// </summary>
@@ -66,7 +69,6 @@ namespace CrowdControl
         {
             _effectDispatcher.StopAll();
             _client.Dispose();
-            _timer?.Dispose();
             // probably should set _Instance to null.
         }
 
@@ -75,33 +77,20 @@ namespace CrowdControl
             _connected_once = true;
             try { _client.OnConnected -= ClientConnected; }
             catch { /**/ }
-
-            // start the Update timer.
-            _timer = new Timer(Tick, null, TickIntervalInMillis, Timeout.Infinite);
-        }
-
-        private Timer? _timer;
-
-        private readonly int TickIntervalInMillis = 250;
-
-        private void Tick(object? state)
-        {
-            try
-            {
-                //TODO merge these into one interface call on Dispatcher?
-                _effectDispatcher.UpdateUnclosedDurationEffects();
-                _effectDispatcher.RefreshEffectListings();
-                //TODO make this more granular - dispatcher should invoke when there's actually a change.
-                OnEffectStatesUpdated?.Invoke(this);
-            }
-            finally
-            {
-                _ = _timer?.Change(TickIntervalInMillis, Timeout.Infinite);
-            }
         }
 
         private void ClientRequestReceived(SimpleJSONRequest request)
         {
+            if (request.IsKeepAlive)
+            {
+                // type=KeepAlive:
+                //  "Can be used in either direction to keep connections open or test connection status.
+                //  Responses are neither expected nor given."
+                // *  "... if you get a Ping you ideally should Pong, although im not sure the native client actually sends out any of its own.
+                // *  Native<->Game communication ... feel free to send a Ping every 30 seconds or whatever"
+                //_client.Update(new EffectUpdate() { type = ResponseType.KeepAlive });
+                return;
+            }
             if (request is EffectRequest effectRequest)
             {
                 switch (effectRequest.type)
@@ -116,11 +105,17 @@ namespace CrowdControl
                         HandleEffectStop(effectRequest);
                         return;
                     default:
+                        // there are no other known types that make an EffectRequest
                         Aspen.Log.Warning($"Unsupported Effect Request Type: {effectRequest.type}");
-                        //not relevant for this game, ignore
                         return;
                 }
             }
+            //not relevant for this game, ignore
+            // DataRequest: RequestType.DataRequest
+            // RpcResponse: RequestType.RpcResponse
+            // PlayerInfo: RequestType.PlayerInfo
+            // MessageRequest: RequestType.Login
+            // EmptyRequest: RequestType.GameUpdate, RequestType.KeepAlive
         }
 
         private void HandleEffectStart(EffectRequest request)
@@ -191,6 +186,11 @@ namespace CrowdControl
             if (hype == null)
                 return new CCEffectDispatchRequest(request);
 
+            return CreateCCHypeTrainEffectDispatchRequest(request, hype);
+        }
+
+        private static CCEffectDispatchRequest CreateCCHypeTrainEffectDispatchRequest(EffectRequest request, HypeTrainSourceDetails hype)
+        {
             //hype.Type == req.EffectID;
             string train = $"Level {hype.Level} Hype Train!";
             string progress = $"{hype.Total} bits makes {hype.Progress} towards {hype.Goal}.";
@@ -202,9 +202,6 @@ namespace CrowdControl
             Aspen.Log.Info("Hype Train Event: " + train + " " + progress + " " + string.Join(", ", contributions));
             return new CCHypeTrainEffectDispatchRequest(request, train, progress, contributions);
         }
-
-        public delegate void EffectStatesUpdated(CrowdControlHelper cc);
-        public event EffectStatesUpdated? OnEffectStatesUpdated;
 
         /// <summary>
         /// Summarizes the effects and what's currently going on with them.

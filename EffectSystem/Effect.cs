@@ -63,6 +63,11 @@
         /// if CurrentRequest has been Stopped (is null).
         /// </summary>
         bool IsClosed { get; }
+
+        /// <summary>
+        /// Whether this effect's updates perform an update, so it may need faster updating.
+        /// </summary>
+        bool IsUpdateAnimation { get; }
     }
 
 }

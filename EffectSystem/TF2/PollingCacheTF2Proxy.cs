@@ -1,6 +1,5 @@
 ﻿using ASPEN;
 
-using System.IO;
 using System.Text.RegularExpressions;
 
 using TF2FrameworkInterface;
@@ -16,6 +15,7 @@ namespace EffectSystem.TF2
         private readonly TF2Instance tf2;
 
         private readonly Timer timer;
+        private readonly Timer fasttimer;
         private readonly TF2LogOutput log;
         private readonly Dictionary<TF2Command, Action<string?>> commands;
         private readonly Dictionary<string, string?> Values;
@@ -374,16 +374,24 @@ namespace EffectSystem.TF2
                 // start in 10 seconds, manual repeat
                 dueTime: 1000 * 10, period: Timeout.Infinite);
 
+            fasttimer = new Timer(FastPollTick, state: null,
+                // start in 30 seconds, manual repeat
+                dueTime: 1000 * 10, period: Timeout.Infinite);
+
             log = new TF2LogOutput(tf2Path);
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
             log.OnUserSelectedClass += UserSelectedClass;
             log.OnMapNameChanged += MapNameChanged;
+            log.OnPlayerStatus += PlayerStatus;
 
             motionTracker = new MotionTracker(this);
+
+            bindTracker = new BindTracker(this);
         }
 
         private MotionTracker motionTracker;
+        private BindTracker bindTracker;
 
         private string ConfigFilepath { get; }
         private string BackupConfigFilepath { get; }
@@ -440,6 +448,7 @@ namespace EffectSystem.TF2
         private void Dispose()
         {
             timer.Dispose();
+            fasttimer.Dispose();
             OnUserDied = null;
             OnUserKill = null;
             OnUserSpawned = null;
@@ -449,9 +458,11 @@ namespace EffectSystem.TF2
 
         private void MapNameChanged(string mapName)
         {
+            mapChanged = DateTime.Now;
             Map = mapName;
 
             // we start over.
+            //TODO "on death" effects are recording extra deaths becuase of this.
             RecordUserDeath();
 
             SetInfo("info_class", string.Empty);
@@ -461,6 +472,18 @@ namespace EffectSystem.TF2
             }
             ClassSelection = string.Empty;
         }
+
+        private void PlayerStatus(TF2Status status)
+        {
+            //TODO somehow know when we're out of a server
+            Server ??= new TF2Server();
+
+            Server.RefreshPlayer(status);
+        }
+
+        private DateTime mapChanged = DateTime.MaxValue;
+        public TimeSpan TimeInMap => mapChanged == DateTime.MaxValue ? new TimeSpan(0)
+            : DateTime.Now - mapChanged;
 
         /// <summary>
         /// Last known map name (empty string if never loaded)
@@ -606,27 +629,22 @@ namespace EffectSystem.TF2
         private string tickRepeatedExceptionMessage = string.Empty;
         private void PollTick(object? state)
         {
+            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick");
+
+            PollOrPause(timer, PollPeriod, PollTick);
+
+            Aspen.Log.Trace(DateTime.Now.Ticks + " PollTick after");
+        }
+
+        private void PollOrPause(Timer timer, TimeSpan period, Action action)
+        {
             try
             {
-                // polling "status" or anything else for additional log parsing.
-                _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
-                    .Wait(MaxCommandRunTime);
-                // sending a command first establishes the connection if it was not connected
-                if (tf2.IsConnected)
-                {
-                    InitializeLogWhenNeeded();
-
-                    PollCommandsAndVariables();
-
-                    PollForUserClassChangeNotification();
-
-                    // use getpos and time to calculate motion for other features.
-                    motionTracker.RecordUserMotion();
-                }
+                action?.Invoke();
 
                 tickRepeatedExceptionMessage = string.Empty;
                 // standard update period, manual repeat
-                _ = timer.Change(PollPeriod, Timeout.InfiniteTimeSpan);
+                _ = timer.Change(period, Timeout.InfiniteTimeSpan);
             }
             catch (Exception pollEx)
             {
@@ -639,6 +657,37 @@ namespace EffectSystem.TF2
                 // This is to prevent game crashes we were getting during map loads.
                 _ = timer.Change(PollPauseTime, Timeout.InfiniteTimeSpan);
             }
+        }
+
+        private void PollTick()
+        {
+            // polling "status" or anything else for additional log parsing.
+            _ = tf2.SendCommand(new StringCommand(log.ActiveLoggingCommand), (s) => { })
+                .Wait(MaxCommandRunTime);
+            // sending a command first establishes the connection if it was not connected
+            if (!tf2.IsConnected)
+                return;
+
+            InitializeLogWhenNeeded();
+
+            PollCommandsAndVariables();
+
+            PollForUserClassChangeNotification();
+        }
+
+        public static readonly TimeSpan FastPollPeriod = TimeSpan.FromMilliseconds(100);
+        private void FastPollTick(object? state)
+        {
+            PollOrPause(fasttimer, FastPollPeriod, FastPollTick);
+        }
+
+        private void FastPollTick()
+        {
+            if (!tf2.IsConnected)
+                return;
+
+            // use getpos and time to calculate motion for other features.
+            motionTracker.RecordUserMotion();
         }
 
         public double VerticalSpeed => motionTracker.GetVerticalSpeed();
@@ -681,13 +730,15 @@ namespace EffectSystem.TF2
         {
             // Note: I kind of want to only lock during direct setting/querying of Values,
             // but one point here is to clear (one variable, and one dummy command) entries and fill them again
+            // HOWEVER we only need a long long for those that get cleared, the rest can be handled individually.
             lock (valuesLock)
             {
                 // in case we're timing out
                 ResetResults();
 
-                SetResults();
+                SetResetResults();
             }
+            SetResults();
         }
 
         private void ResetResults()
@@ -699,9 +750,10 @@ namespace EffectSystem.TF2
                 response?.Invoke(null);
         }
 
-        private void SetResults()
+        private void SetResetResults()
         {
-            foreach (string name in Values.Keys)
+            foreach (string name in Values.Keys
+                .Intersect(ClearValues))
                 if (StringValues.Contains(name))
                     PollStringNow(name);
                 else
@@ -729,7 +781,7 @@ namespace EffectSystem.TF2
             }
         }
 
-        // numer format examples: 0 0. .0 0.0 -0.0 0.05f 300.f
+        // number format examples: 0 0. .0 0.0 -0.0 0.05f 300.f
         private readonly Regex cvarNumeric = new Regex(@"^\s*\-?(:?\d*\.?\d+|\d+\.?\d*)f?\s*$");
         private void PollNumberNow(string name)
         {
@@ -749,6 +801,19 @@ namespace EffectSystem.TF2
             }
         }
 
+        private void SetResults()
+        {
+            List<string> nonClearedVariables = Values.Keys
+                // these ones were polled in SetResetResults
+                .Except(ClearValues).ToList();
+
+            foreach (string name in nonClearedVariables)
+                if (StringValues.Contains(name))
+                    PollStringNow(name);
+                else
+                    PollNumberNow(name);
+        }
+
         private void PollForUserClassChangeNotification()
         {
             string? playerClass;
@@ -763,19 +828,22 @@ namespace EffectSystem.TF2
         }
 
         private TimeSpan MaxCommandRunTime = TimeSpan.FromSeconds(10);
-        private string lastCommand = string.Empty;
         public string RunCommand(string command)
+        {
+            return RunCommand(command, tf2.SendCommand);
+        }
+
+        private string RunCommand(string command, Func<TF2Command, Action<string>, Task> sendCommand)
         {
             string result = string.Empty;
 
-            if (command != lastCommand)
+            if (IsLogworthy(command))
             {
                 Aspen.Log.Info($"Run> {command}");
-                lastCommand = command;
             }
 
             bool completed =
-                tf2.SendCommand(new StringCommand(command),
+                sendCommand.Invoke(new StringCommand(command),
                 (r) => result = r
                 ).Wait(MaxCommandRunTime);
 
@@ -786,6 +854,20 @@ namespace EffectSystem.TF2
             //TODO consider caching failures and retrying them before the requested command.
 
             return result;
+        }
+
+        private string lastCommand = string.Empty;
+        private bool IsLogworthy(string command)
+        {
+            bool result = command.Split(" ")[0] != lastCommand.Split(" ")[0];
+            if (result)
+                lastCommand = command;
+            return result;
+        }
+
+        internal string RunCommandRaw(string command)
+        {
+            return RunCommand(command, tf2.SendCommandRaw);
         }
 
         public void SetInfo(string variable, string value)
@@ -823,6 +905,16 @@ namespace EffectSystem.TF2
         /// Non-clearing "name" variable value.
         /// </summary>
         public string? UserName => GetValue("name");
+
+        /// <summary>
+        /// Data about the currently connected game server, including its player list.
+        /// </summary>
+        public TF2Server? Server { get; private set; }
+
+        /// <summary>
+        /// Data about the streamer's player in the game server - null if not in a game.
+        /// </summary>
+        public TF2Player? User => Server?.Players.FirstOrDefault(p => p.Name == UserName);
 
         // ways to infer that we're in a map
         // getpos not 000, net_channels, tf_party_debug
@@ -866,6 +958,9 @@ namespace EffectSystem.TF2
 
             return activeChannels;
         }
+
+        public CommandBinding? GetCommandBinding(string command) => bindTracker.GetCommandBinding(command);
+
         // net_status: includes "- Config: Multiplayer, listen, 0 connections"
         // tf_party_debug: includes "associated_lobby_id: 0"
 

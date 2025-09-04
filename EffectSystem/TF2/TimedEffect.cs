@@ -101,6 +101,13 @@
     /// </summary>
     public class ChangeClassEffect : TimedEffect
     {
+        public static readonly string[] classes = new string[] {
+            "scout", "soldier", "pyro",
+            "demoman", "heavyweapons", "engineer",
+            "medic", "sniper", "spy"
+        };
+        public static readonly string class_random = "random";
+
         public static readonly string EFFECT_ID = "join_class_eventually";
         public ChangeClassEffect()
             : this(EFFECT_ID, TimeSpan.FromMinutes(7))
@@ -126,9 +133,26 @@
             // 0: part of format, but not used currently 
             requestor = request.Requestor;
             // 1: part of format
-            classSelection = request.Parameter.ToLower(); // join_class supports "random" directly
+            classSelection = request.Parameter.ToLower();
+
+            // join_class supports "random" directly, but enforcement keeps re-randomizing
+            // so we just manually randomize a different class if it wasn't one of the 9 already.
+            if (!classes.Contains(classSelection))
+                classSelection = RandomDifferentClass();
 
             base.StartEffect(request);
+        }
+
+        private string RandomDifferentClass()
+        {
+            string oldClass = TF2Effects.Instance.TF2Proxy?.ClassSelection ?? string.Empty;
+
+            string newClass;
+            do
+                newClass = classes[Random.Shared.Next(0, classes.Length)];
+            while (oldClass == newClass);
+
+            return newClass;
         }
 
         protected virtual string AutoKillMode => "0";
@@ -242,6 +266,178 @@
         }
     }
 
+    public class NoJumpingEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "no_jumping";
+
+        public NoJumpingEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+            Mutex.Add(TF2Effects.MUTEX_FORCE_MOVE_JUMP);
+        }
+        protected NoJumpingEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && IsJumpAvailable();
+
+        private bool IsJumpAvailable()
+        {
+            CommandBinding? jumpCommand = GetJumpCommand();
+            if (jumpCommand == null)
+                return false;
+            return !jumpCommand.IsChanged;
+        }
+
+        public override void StartEffect()
+        {
+            CommandBinding jumpCommand = GetJumpCommand()
+                ?? throw new EffectNotAppliedException("jump bind not found");
+
+            jumpCommand.ChangeCommand("echo jump disabled");
+        }
+
+        private CommandBinding? GetJumpCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+jump");
+        }
+
+        public override void StopEffect()
+        {
+            CommandBinding? jumpCommand = GetJumpCommand();
+            jumpCommand?.RestoreCommand();
+        }
+    }
+
+    /// <summary>
+    /// force strafe movement
+    /// </summary>
+    public class CrabWalkEffect : DisableBindsEffect
+    {
+        public static readonly string EFFECT_ID = "crab_walk";
+
+        public CrabWalkEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+        }
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                "+forward",
+                "+back"
+            };
+        }
+    }
+
+    public abstract class DisableBindsEffect : TimedEffect
+    {
+        protected DisableBindsEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && AreBindsAvailable();
+
+        private bool AreBindsAvailable()
+        {
+            foreach (CommandBinding? binding in GetBindings())
+            {
+                if (binding == null)
+                    return false;
+                if (binding.IsChanged)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private IEnumerable<CommandBinding?> GetBindings()
+        {
+            return GetCommands()
+                .Select((command) => TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command));
+        }
+
+        /// <summary>
+        /// List of commands to disable - if any of them are not bound (or have been rebound by another effect), this effect will be disabled.
+        /// </summary>
+        /// <returns></returns>
+        abstract protected IEnumerable<string> GetCommands();
+
+        public override void StartEffect()
+        {
+            foreach (string command in GetCommands())
+            {
+                CommandBinding binding = TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command)
+                    ?? throw new EffectNotAppliedException(string.Format("{0} bind not found", command));
+
+                binding.ChangeCommand($"echo {command} disabled");
+            }
+        }
+
+        public override void StopEffect()
+        {
+            foreach (CommandBinding? binding in GetBindings())
+            {
+                binding?.RestoreCommand();
+            }
+        }
+    }
+
+    public class NoStrafingEffect : DisableBindsEffect
+    {
+        public static readonly string EFFECT_ID = "no_strafing";
+
+        public NoStrafingEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(45))
+        {
+        }
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                "+moveleft",
+                "+moveright"
+            };
+        }
+    }
+
+    public class MuteCharacterEffect : DisableBindsEffect
+    {
+        public static readonly string EFFECT_ID = "mute_character";
+
+        public MuteCharacterEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(2))
+        {
+            Mutex.Add(TF2Effects.MUTEX_VOICEMENU);
+            Mutex.Add(TF2Effects.MUTEX_TEXTCHAT);
+        }
+
+        protected override IEnumerable<string> GetCommands()
+        {
+            return new string[]
+            {
+                // not sure which is the true default. Regardless, not everybody uses the true default version
+                // and DisableBinds will fail to enable if we have it wrong.
+                //"+helpme", "voicemenu 0 0",
+
+                "voice_menu_1",
+                "voice_menu_2",
+                "voice_menu_3",
+                "say",
+                "say_team",
+                "+voicerecord",
+            };
+        }
+    }
+
     public class TauntEffect : TimedEffect
     {
         public static readonly string EFFECT_ID = "taunt_now";
@@ -257,6 +453,9 @@
         {
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
 
         public override bool IsSelectableGameState => IsAvailable
             && null != TF2Effects.Instance.TF2Proxy;
@@ -384,6 +583,8 @@
             Mutex.Add(nameof(TauntAfterKillEffect)); //hierarchy is all mutex
             // specifically not mutex with a basic taunt - they can do that while waiting for these,
             // and they can queue these while an immediate taunt is in progress.
+
+            Availability = new InMap();
         }
 
         public override void StartEffect()
@@ -428,7 +629,6 @@
         protected TauntAfterCritKillEffect(string id, TimeSpan duration)
             : base(id, duration)
         {
-            Availability = new AliveInMap();
         }
 
         protected override bool ShouldTaunt(string victim, string weapon, bool crit)
@@ -452,6 +652,10 @@
             Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         public override bool IsSelectableGameState => IsAvailable;
 
         public override void StartEffect()
@@ -465,47 +669,6 @@
             base.Update(timeSinceLastUpdate);
 
             _ = TF2Effects.Instance.RunCommand("slot3");
-        }
-
-        public override void StopEffect()
-        {
-            //switch to primary
-            _ = TF2Effects.Instance.RunCommand("slot1");
-        }
-    }
-
-    /// <summary>
-    /// like Melee Only but constantly rotating weapons
-    /// </summary>
-    public class WeaponShuffleEffect : TimedEffect
-    {
-        public static readonly string EFFECT_ID = "weapon_shuffle";
-
-        public WeaponShuffleEffect()
-            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
-        {
-        }
-        protected WeaponShuffleEffect(string id, TimeSpan duration)
-            : base(id, duration)
-        {
-            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
-            Availability = new AliveInMap();
-        }
-        public override bool IsSelectableGameState => IsAvailable;
-
-        public override void StartEffect()
-        {
-        }
-
-        private int slot = 1;
-        protected override void Update(TimeSpan timeSinceLastUpdate)
-        {
-            base.Update(timeSinceLastUpdate);
-
-            _ = TF2Effects.Instance.RunCommand("slot" + slot);
-            ++slot;
-            if (slot > 3)
-                slot = 1;
         }
 
         public override void StopEffect()
@@ -599,7 +762,9 @@
             Availability = new AliveInMap();
         }
 
-        public override bool IsSelectableGameState => IsAvailable;
+        public override bool IsSelectableGameState => IsAvailable
+            // voice chat enabled.
+            && "1" == TF2Effects.Instance.GetValue("voice_modenable");
 
         public override void StartEffect()
         {
@@ -609,6 +774,170 @@
         public override void StopEffect()
         {
             _ = TF2Effects.Instance.RunCommand("-voicerecord");
+        }
+    }
+
+    public class InspectEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "inspect";
+
+        public InspectEffect()
+            : base(EFFECT_ID, TimeSpan.FromSeconds(2))
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            // view model enabled.
+            && "1" == TF2Effects.Instance.GetValue("r_drawviewmodel")
+            // not VR mode.
+            && "1" != TF2Effects.Instance.GetValue("cl_first_person_uses_world_model");
+
+        public override void StartEffect()
+        {
+            _ = TF2Effects.Instance.RunRequiredCommand("+inspect");
+        }
+
+        public override void StopEffect()
+        {
+            _ = TF2Effects.Instance.RunCommand("-inspect");
+        }
+    }
+
+    public class BindLeftRightSwapEffect : BindSwapEffect
+    {
+        public static readonly string EFFECT_ID = "swap_left_and_right";
+
+        public BindLeftRightSwapEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+        }
+
+        protected override string GetCommand1()
+        {
+            return "+moveleft";
+        }
+
+        protected override string GetCommand2()
+        {
+            return "+moveright";
+        }
+    }
+
+    public abstract class BindSwapEffect : TimedEffect
+    {
+        protected BindSwapEffect(string id, TimeSpan duration)
+            : base(id, duration)
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && HasFreeBindings();
+
+        private bool HasFreeBindings()
+        {
+            CommandBinding? binding1 = GetBinding1();
+            CommandBinding? binding2 = GetBinding2();
+            return binding1 != null && !binding1.IsChanged
+                && binding2 != null && !binding2.IsChanged;
+        }
+
+        private CommandBinding? GetBinding1()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding(GetCommand1());
+        }
+
+        abstract protected string GetCommand1();
+
+        private CommandBinding? GetBinding2()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding(GetCommand2());
+        }
+
+        abstract protected string GetCommand2();
+
+        private CommandBinding? command1 = null;
+        private CommandBinding? command2 = null;
+        public override void StartEffect()
+        {
+            command1 = GetBinding1();
+            if (command1 == null)
+                throw new EffectNotAppliedException(string.Format("No current {0} bind found to change", GetCommand1()));
+
+            command2 = GetBinding2();
+            if (command2 == null)
+                throw new EffectNotAppliedException(string.Format("No current {0} bind found to change", GetCommand2()));
+
+            command1.ChangeCommand(GetCommand2());
+
+            command2.ChangeCommand(GetCommand1());
+        }
+
+        public override void StopEffect()
+        {
+            command1?.RestoreCommand();
+            command2?.RestoreCommand();
+        }
+    }
+
+    public class BindForwardBackSwapEffect : BindSwapEffect
+    {
+        public static readonly string EFFECT_ID = "swap_forward_and_back";
+
+        public BindForwardBackSwapEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1))
+        {
+        }
+
+        protected override string GetCommand1()
+        {
+            return "+forward";
+        }
+
+        protected override string GetCommand2()
+        {
+            return "+back";
+        }
+    }
+
+    public class BindEforExplodeEffect : TimedEffect
+    {
+        public static readonly string EFFECT_ID = "e_to_explode";
+
+        public BindEforExplodeEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(3))
+        {
+            Availability = new InMap();
+        }
+
+        public override bool IsSelectableGameState => IsAvailable
+            && HasFreeMedicBinding();
+
+        private bool HasFreeMedicBinding()
+        {
+            CommandBinding? binding = GetMedicBinding();
+            return binding != null && !binding.IsChanged;
+        }
+
+        private CommandBinding? GetMedicBinding()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("voicemenu 0 0")
+                ?? TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+helpme"); // according to some sources, but config_default.cfg doesn't have it
+        }
+
+        private CommandBinding? callMedic = null;
+        public override void StartEffect()
+        {
+            callMedic = GetMedicBinding();
+            if (callMedic == null)
+                throw new EffectNotAppliedException("No current 'Medic!' bind found to change");
+            callMedic.ChangeCommand("explode");
+        }
+
+        public override void StopEffect()
+        {
+            callMedic?.RestoreCommand();
         }
     }
 
@@ -696,6 +1025,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(6))
         {
             challenge = new KillstreakChallenge(5);
+            Availability = new InMap();
         }
     }
 
@@ -710,6 +1040,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
+            Availability = new InMap();
         }
     }
 
@@ -757,7 +1088,7 @@
     }
 
     /// <summary>
-    /// 10 minute Effect that cancels upon meeting the single kill challenge.
+    /// 5 minute Effect that cancels upon meeting the single kill challenge.
     /// </summary>
     public class ChallengeCataractsEffect : CataractsCrosshairEffect
     {
@@ -767,6 +1098,7 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new KillsChallenge(3);
+            Availability = new InMap();
         }
     }
 
@@ -893,9 +1225,14 @@
         {
             // Parameter only gets set by Hype Train Request details as hype sentences.
             if (!string.IsNullOrEmpty(request.Parameter))
-                _ = TF2Effects.Instance.RunCommand("say_party " + request.Parameter);
+                _ = TF2Effects.Instance.RunCommand(string.Format("tf_party_chat \"{0}\"", RemoveQuotes(request.Parameter)));
 
             base.StartEffect(request);
+        }
+
+        private string RemoveQuotes(string parameter)
+        {
+            return parameter.Replace('\"', '\'');
         }
     }
 

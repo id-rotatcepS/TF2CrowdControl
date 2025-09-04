@@ -123,6 +123,7 @@ namespace EffectSystem
             {
                 if (!CanElapse)
                 {
+                    UpdateOrStopAnimations(OnClosing);
                     UpdatePaused(OnPaused);
                     return;
                 }
@@ -136,6 +137,49 @@ namespace EffectSystem
         /// Whether the effect duration should not be paused.  Defaults to true.
         /// </summary>
         abstract protected bool CanElapse { get; }
+
+        /// <summary>
+        /// If this effect needs to update even when the duration isn't elapsing.
+        /// TODO might need to make this a separate concept - currently just alias for <see cref="IsUpdateAnimation"/>
+        /// </summary>
+        private bool IsContinuousUpdatingEffect => IsUpdateAnimation;
+
+        private void UpdateOrStopAnimations(Action<Effect> onClosing)
+        {
+            if (!IsContinuousUpdatingEffect)
+                return;
+
+            TimeSpan span = GetAnimationTimeSpanIncrement();
+            UpdateTimeSpanOrStop(span, onClosing);
+        }
+
+        private TimeSpan GetAnimationTimeSpanIncrement()
+        {
+            DateTime now = DateTime.Now;
+            TimeSpan span = now.Subtract(LastUpdate);
+            return span;
+        }
+
+        private void UpdateTimeSpanOrStop(TimeSpan span, Action<Effect> onClosing)
+        {
+            if (Elapsed < Duration)
+            {
+                try
+                {
+                    Update(span);
+                    return;
+                }
+                catch (EffectFinishedEarlyException)
+                {
+                    // fall through to "stop" code
+                }
+            }
+
+            StopEffect(span);
+            // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
+            onClosing?.Invoke(this);
+            CurrentRequest = null;
+        }
 
         private void UpdatePaused(Action<Effect> OnPaused)
         {
@@ -172,24 +216,10 @@ namespace EffectSystem
         private void UpdateOrStop(Action<Effect> onClosing)
         {
             TimeSpan span = ElapsedTimeSpanIncrement();
-            if (Elapsed < Duration)
-            {
-                try
-                {
-                    Update(span);
-                    return;
-                }
-                catch (EffectFinishedEarlyException)
-                {
-                    // fall through to "stop" code
-                }
-            }
-
-            StopEffect(span);
-            // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
-            onClosing?.Invoke(this);
-            CurrentRequest = null;
+            UpdateTimeSpanOrStop(span, onClosing);
         }
+
+        virtual public bool IsUpdateAnimation => false;
 
         /// <summary>
         /// Perform effect updates since last update (or start).

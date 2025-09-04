@@ -1,5 +1,6 @@
-﻿using System.Text.RegularExpressions;
-using System.Windows.Media.Media3D;
+﻿using System.Numerics;
+using System.Text.RegularExpressions;
+
 
 namespace EffectSystem.TF2
 {
@@ -56,10 +57,10 @@ namespace EffectSystem.TF2
 
         private DateTime lastMotionTime = DateTime.MinValue;
         private TimeSpan lastTimePeriod = TimeSpan.Zero;
-        private static readonly Point3D zzz = new Point3D();
-        private static readonly Vector3D stopped = new Vector3D(0.0, 0.0, 0.0);
-        private Point3D lastPosition = zzz;
-        private Vector3D lastDistance = stopped;
+        private static readonly Vector3 zzz = new Vector3();
+        private static readonly Vector3 stopped = new Vector3(0.0f, 0.0f, 0.0f);
+        private Vector3 lastPosition = zzz;
+        private Vector3 lastDistance = stopped;
 
         public void RecordUserMotion()
         {
@@ -82,43 +83,44 @@ namespace EffectSystem.TF2
                 string spz = pos.Groups["spz"].Value;
 
                 UpdateDistanceAndPosition(spx, spy, spz);
+
+                #region angle
+                // Future...not sure this is right, and don't need it right now.
+                //Match ang = setangpyr.Match(getpos);
+                //if (ang.Success)
+                //{
+                //    string sap = ang.Groups["sap"].Value;
+                //    string say = ang.Groups["say"].Value;
+                //    string sar = ang.Groups["sar"].Value;
+                //    //misuse of vector? as long as we use it consistently I guess we're fine.
+                //    System.Windows.Media.Media3D.Vector3D currentangle = new System.Windows.Media.Media3D
+                //        .Vector3D(double.Parse(sap), double.Parse(say), double.Parse(sar));
+
+                //    if (!lastangle.Equals(straight))
+                //    {
+                //        System.Windows.Media.Media3D.Vector3D rotation = System.Windows.Media.Media3D.Point3D
+                //            .Subtract(currentangle, lastangle);
+                //        lastrotation = rotation;
+                //    }
+                //    lastangle = currentangle;
+                //}
+                #endregion angle
+
+                lastTimePeriod = updateTime.Subtract(lastMotionTime);
+                lastMotionTime = updateTime;
             }
-            #region angle
-            // Future...not sure this is right, and don't need it right now.
-            //Match ang = setangpyr.Match(getpos);
-            //if (ang.Success)
-            //{
-            //    string sap = ang.Groups["sap"].Value;
-            //    string say = ang.Groups["say"].Value;
-            //    string sar = ang.Groups["sar"].Value;
-            //    //misuse of vector? as long as we use it consistently I guess we're fine.
-            //    System.Windows.Media.Media3D.Vector3D currentangle = new System.Windows.Media.Media3D
-            //        .Vector3D(double.Parse(sap), double.Parse(say), double.Parse(sar));
-
-            //    if (!lastangle.Equals(straight))
-            //    {
-            //        System.Windows.Media.Media3D.Vector3D rotation = System.Windows.Media.Media3D.Point3D
-            //            .Subtract(currentangle, lastangle);
-            //        lastrotation = rotation;
-            //    }
-            //    lastangle = currentangle;
-            //}
-            #endregion angle
-
-            lastTimePeriod = updateTime.Subtract(lastMotionTime);
-            lastMotionTime = updateTime;
         }
 
         private void UpdateDistanceAndPosition(string spx, string spy, string spz)
         {
-            Point3D currentposition = new Point3D(double.Parse(spx), double.Parse(spy), double.Parse(spz));
+            Vector3 currentposition = new Vector3(float.Parse(spx), float.Parse(spy), float.Parse(spz));
 
             lastDistance = GetLastDistance(currentposition);
 
             lastPosition = currentposition;
         }
 
-        private Vector3D GetLastDistance(Point3D currentposition)
+        private Vector3 GetLastDistance(Vector3 currentposition)
         {
             if (lastMotionTime == DateTime.MinValue
                 || lastPosition.Equals(zzz)
@@ -126,7 +128,7 @@ namespace EffectSystem.TF2
                 return stopped;
 
             // start + distance = end  therefore  distance = end - start
-            Vector3D distance = Point3D.Subtract(currentposition, lastPosition);
+            Vector3 distance = Vector3.Subtract(currentposition, lastPosition);
 
             return distance;
         }

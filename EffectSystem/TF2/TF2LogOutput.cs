@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using TF2FrameworkInterface;
 
 namespace EffectSystem.TF2
 {
@@ -107,8 +108,8 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
 
                 new LoadMapMatcher(this),
 
+                // output of the "status" command
                 // currently disabled/not needed:
-                //// output of the "status" command
                 //new StatusHostnameMatcher(this),
                 //new StatusUDPMatcher(this),
                 //new StatusVersionMatcher(this),
@@ -120,7 +121,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
                 //new StatusPlayersMatcher(this),
                 //new StatusEdictsMatcher(this),
                 //new StatusHeaderMatcher(this),
-                //new StatusPlayerMatcher(this),
+                new StatusPlayerMatcher(this),
             };
         }
 
@@ -147,6 +148,20 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         internal void NotifyPlayerDied(PlayerKiller killer)
         {
             OnPlayerDied.Invoke(killer);
+        }
+
+        /// <summary>
+        /// Called OnPlayerStatus
+        /// </summary>
+        /// <param name="status">Details of the player found in the status command</param>
+        public delegate void PlayerStatus(TF2Status status);
+        /// <summary>
+        /// Fires when any player shows up in the status command with name, id, and game id (used for the kick command).
+        /// </summary>
+        public event PlayerStatus OnPlayerStatus;
+        internal void NotifyPlayerStatus(TF2Status status)
+        {
+            OnPlayerStatus.Invoke(status);
         }
 
         /// <summary>
@@ -492,6 +507,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
             : base(tF2LogOutput, mapConnectRegex)
         {
         }
+        //TODO needs to be nulled somehow and needs to share with StatusMapMatcher
         private string lastValue = string.Empty;
         public override void Handle(Match match, string line)
         {
@@ -584,6 +600,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
             : base(tF2LogOutput, mapRegex)
         {
         }
+        //TODO needs to be nulled somehow and needs to share with LoadMapMatcher 
         private string lastValue = string.Empty;
         public override void Handle(Match match, string line)
         {
@@ -667,13 +684,15 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
 
     public class StatusPlayerMatcher : LineMatcher
     {
-        //#    777 "NameName"          [U:1:1111111111]    23:09       89    0 active
-        private static readonly Regex playerRegex = new Regex(
-            @"^# +(?<userid>\d+) +""(?<name>" + PlayerNamePattern + @")"" +(?<uniqueid>\[.*\]) +(?<connected>[\d:]+) +(?<ping>\d+) +(?<loss>\d+) +(?<state>\w+)$"
-        // more detailed version:
-        // turns out connected could have an hour part... just in case allowing for empty minute part
-        //@"^#\s+(?<userid>\d+)\s+\""(?<name>.*)\""\s+(?<uniqueid>\[U:\d+:\d+\])\s+(?:(?:(?<connected_hr>\d+):)?(?<connected_min>\d+):)?(?<connected_sec>\d?\d)\s+(?<ping>\d+)\s+(?<loss>\d+)\s+(?<state>.*)"
-        );
+        ////#    777 "NameName"          [U:1:1111111111]    23:09       89    0 active
+        //private static readonly Regex playerRegex = new Regex(
+        //    @"^# +(?<userid>\d+) +""(?<name>" + PlayerNamePattern + @")"" +(?<uniqueid>\[.*\]) +(?<connected>[\d:]+) +(?<ping>\d+) +(?<loss>\d+) +(?<state>\w+)$"
+        //// more detailed version:
+        //// turns out connected could have an hour part... just in case allowing for empty minute part
+        ////@"^#\s+(?<userid>\d+)\s+\""(?<name>.*)\""\s+(?<uniqueid>\[U:\d+:\d+\])\s+(?:(?:(?<connected_hr>\d+):)?(?<connected_min>\d+):)?(?<connected_sec>\d?\d)\s+(?<ping>\d+)\s+(?<loss>\d+)\s+(?<state>.*)"
+        //);
+
+        private static readonly Regex playerRegex = TF2Status.Matcher;
 
         public StatusPlayerMatcher(TF2LogOutput tF2LogOutput)
             : base(tF2LogOutput, playerRegex)
@@ -681,8 +700,10 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         }
         public override void Handle(Match match, string line)
         {
-            // just eat it for now.
+            TF2Status playerStatus = new TF2Status(match);
+            TF2LogOutput.NotifyPlayerStatus(playerStatus);
         }
+        
     }
 
     public class LineMatcher

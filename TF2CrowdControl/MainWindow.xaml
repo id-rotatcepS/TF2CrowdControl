@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TF2CrowdControl"
         mc:Ignorable="d"
-        Title="TF2 Spectator for Crowd Control - by id_rotatcepS" 
+        Title="{Binding WindowTitle}" 
         Height="500" Width="800"
         ResizeMode="CanResizeWithGrip"
         Closed="Window_Closed"
@@ -80,7 +80,8 @@
                         <TextBlock Text="  "/>
                         <TextBlock x:Name="VerticalSpeed" 
                                    Text="{Binding StatusVerticalSpeed}" 
-                                   Foreground="{Binding StatusVerticalSpeedColor}"/>                    </StackPanel>
+                                   Foreground="{Binding StatusVerticalSpeedColor}"/>
+                    </StackPanel>
                 </Expander.Header>
                 <StackPanel Orientation="Horizontal">
                     <ItemsControl x:Name="Effects" ItemsSource="{Binding StatusEffects}" Width="530">

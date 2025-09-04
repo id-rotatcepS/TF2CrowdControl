@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>1.1.6</Version>
+    <Version>1.1.7</Version>
     <ApplicationIcon>Spectator-Logo1.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -19,15 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aspen\Aspen.csproj" />
     <ProjectReference Include="..\ConnectorLib.JSON\ConnectorLib.JSON.csproj" />
     <ProjectReference Include="..\EffectSystem\EffectSystem.csproj" />
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Aspen">
-      <HintPath>..\..\Aspen\AspenWin\bin\Debug\Aspen.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

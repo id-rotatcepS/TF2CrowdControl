@@ -96,7 +96,6 @@ namespace CrowdControl
                 Aspen.Log.Trace($"{result} effect [{effectID}].");
                 return await _client.Update(new EffectUpdate()
                 {
-                    id = 0,//TODO uuid.v4()
                     status = result,
                     type = ResponseType.EffectStatus,
                     // list of specific effects, vs. a list of group or category names to update.

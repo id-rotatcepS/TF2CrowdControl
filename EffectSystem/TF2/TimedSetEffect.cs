@@ -1,4 +1,6 @@
-﻿namespace EffectSystem.TF2
+﻿using System.Globalization; // for NumberStyles.HexNumber
+
+namespace EffectSystem.TF2
 {
     /// <summary>
     /// self-disables (false IsSelectableGameState) if all values are already set.
@@ -140,6 +142,118 @@
         {
             Availability = new AliveClass("medic");
         }
+    }
+
+
+    public class TankModeEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "tank_mode";
+
+        public TankModeEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(30))
+        {
+        }
+        protected TankModeEffect(string id, TimeSpan duration)
+            : base(id, duration, new()
+            {
+                ["lookstrafe"] = "1",
+            })
+        {
+            Availability = new AliveInMap();
+        }
+
+        public override bool IsSelectableGameState => base.IsSelectableGameState
+            && IsRightAndLeftAvailable();
+
+        private bool IsRightAndLeftAvailable()
+        {
+            CommandBinding? right = GetRightCommand();
+            if (right == null)
+                return false;
+            if (right.IsChanged)
+                return false;
+
+            CommandBinding? left = GetLeftCommand();
+            if (left == null)
+                return false;
+            if (left.IsChanged)
+                return false;
+
+            return true;
+        }
+
+        private CommandBinding? GetRightCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+moveright");
+        }
+
+        private CommandBinding? GetLeftCommand()
+        {
+            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+moveleft");
+        }
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            CommandBinding right = GetRightCommand()
+                ?? throw new EffectNotAppliedException("right bind not found");
+            right.ChangeCommand("+right");
+
+            CommandBinding left = GetLeftCommand()
+                ?? throw new EffectNotAppliedException("left bind not found");
+            left.ChangeCommand("+left");
+        }
+
+        public override void StopEffect()
+        {
+            CommandBinding? right = GetRightCommand();
+            right?.RestoreCommand();
+
+            CommandBinding? left = GetLeftCommand();
+            left?.RestoreCommand();
+
+            base.StopEffect();
+        }
+    }
+
+    /// <summary>
+    /// like Melee Only but constantly rotating weapons
+    /// </summary>
+    public class WeaponShuffleEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "weapon_shuffle";
+
+        public WeaponShuffleEffect()
+            : this(EFFECT_ID, TimeSpan.FromSeconds(5))
+        {
+        }
+        protected WeaponShuffleEffect(string id, TimeSpan duration)
+            : base(id, duration, new()
+            {
+                ["hud_fastswitch"] = "1" // required for it to actually shuffle.
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_WEAPONSLOT);
+            Availability = new AliveInMap();
+        }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
+        // don't go disabled when effects aren't set yet.
+        public override bool IsSelectableGameState => IsAvailable;
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            _ = TF2Effects.Instance.RunCommand("invnext");
+        }
+
+        //StopEffect:
+        // do nothing - whatever it happened to switch to last is what we stop on
+        // ... because we shuffled the weapons.
     }
 
     /// <summary>
@@ -833,6 +947,9 @@
             Availability = new AliveInMap();
         }
 
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -860,6 +977,9 @@
             byte rangeFOV = (byte)(maxFOV - minFOV);
             byte incrementFOV = (byte)Math.Min(rangeFOV,
                 (timeSinceLastUpdate.TotalSeconds / transitionLengthFOV) * rangeFOV);
+            // rounds down to 0 sometimes, always do SOMETHING
+            // FUTURE change both to use double?
+            if (incrementFOV == 0) incrementFOV = 1;
 
             if (fov_up)
             {
@@ -885,6 +1005,8 @@
             byte rangeVM = (byte)(maxVM - minVM);
             byte incrementVM = (byte)Math.Min(rangeVM,
                 (timeSinceLastUpdate.TotalSeconds / transitionLengthVM) * rangeVM);
+            // rounds down to 0 sometimes, always do SOMETHING
+            if (incrementVM == 0) incrementVM = 1;
 
             if (vm_up)
             {
@@ -945,6 +1067,10 @@
             Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
             Availability = new AliveInMap();
         }
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
@@ -956,6 +1082,75 @@
                 $"cl_crosshair_red {r};" +
                 $"cl_crosshair_green {g};" +
                 $"cl_crosshair_blue {b};");
+        }
+    }
+
+    public class CrosshairColorEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_color";
+        public CrosshairColorEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1), new()
+            {
+                ["cl_crosshair_blue"] = string.Empty,
+                ["cl_crosshair_green"] = string.Empty,
+                ["cl_crosshair_red"] = string.Empty
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+            Availability = new AliveInMap();
+        }
+
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        private string hexColor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // color in #xxxxxx format
+            hexColor = request.Parameter.ToLower();
+
+            base.StartEffect(request);
+        }
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            (byte r, byte g, byte b) = ParseHexRGB(hexColor);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(
+                $"cl_crosshair_red {r};" +
+                $"cl_crosshair_green {g};" +
+                $"cl_crosshair_blue {b};");
+        }
+
+        private static (byte r, byte g, byte b) ParseHexRGB(string hexColor)
+        {
+            // Remove '#' if present
+            if (hexColor.StartsWith("#"))
+                hexColor = hexColor.Substring(1);
+
+            // Ensure valid length for RGB
+            if (hexColor.Length != 6)
+                throw new ArgumentException("Hex color string must be 6 characters long for RGB.");
+
+            // Parse individual color components
+            byte r = ParseHexPair(hexColor, startIndex: 0);
+            byte g = ParseHexPair(hexColor, startIndex: 2);
+            byte b = ParseHexPair(hexColor, startIndex: 4);
+
+            return (r, g, b);
+        }
+
+        private static byte ParseHexPair(string hexString, int startIndex)
+        {
+            if (hexString.Length < (startIndex + 2))
+                throw new ArgumentException("Hex string must have 2 characters per byte.");
+            return byte.Parse(hexString.Substring(startIndex, length: 2), NumberStyles.HexNumber);
         }
     }
 
@@ -1061,6 +1256,11 @@
             //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new AliveInMap();
         }
+
+
+        // animate this more quickly.
+        public override bool IsUpdateAnimation => true;
+
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable
             // crosshair enabled.
@@ -1092,6 +1292,91 @@
             TF2Effects.Instance.SetValue("cl_crosshair_scale", scale.ToString());
             // MAYBE: ensure shape doesn't get changed
             //TF2Effects.Instance.SetValue("cl_crosshair_file", "crosshair5");
+        }
+    }
+
+
+    public class CataractsCreepAndRestoreEffect : CrosshairShapeTimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "kill_restores_cataracts_creep";
+
+        public CataractsCreepAndRestoreEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(5), new()
+            {
+                ["cl_crosshair_scale"] = "32",
+            })
+        {
+            Mutex.Add(nameof(CataractsCrosshairEffect));//hierarchy is all mutex
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SIZE);
+            //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
+            Availability = new InMap();
+        }
+
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        double scale;
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            if (TF2Effects.Instance.TF2Proxy == null)
+                throw new EffectNotAppliedException("Unexpected error - unable to watch for kills right now.");
+
+            // "dot" crosshair, will grow
+            TF2Effects.Instance.SetRequiredValue("cl_crosshair_file", "crosshair5");
+
+            scale = 32;
+            UpdateSize();
+
+            TF2Effects.Instance.TF2Proxy.OnUserKill += RestoreOnKill;
+        }
+
+        private void UpdateSize()
+        {
+            TF2Effects.Instance.SetValue("cl_crosshair_scale", ((int)scale).ToString());
+        }
+
+        private void RestoreOnKill(string victim, string weapon, bool crit)
+        {
+            scale = Math.Max(
+                scale / 2,
+                1);
+            UpdateSize();
+        }
+
+        protected override void Update(TimeSpan timeSinceLastUpdate)
+        {
+            base.Update(timeSinceLastUpdate);
+
+            double growthFactor = GetCreepFactor(timeSinceLastUpdate.TotalSeconds);
+            scale += Math.Max(1, growthFactor);
+
+            UpdateSize();
+        }
+
+        private double GetCreepFactor(double fractionalSecondsPassed)
+        {
+            double timePercent = Elapsed.TotalSeconds / Duration.TotalSeconds;
+            double rate;
+            if (timePercent > 0.90)
+                // Panic mode: add 4000 more in the last 10% of the time
+                rate = 6000 / (.10 * Duration.TotalSeconds);
+            else
+                // normal mode: add 1000 in the first 90% of the time.
+                rate = 3000 / (.90 * Duration.TotalSeconds);
+
+            double growthFactor = rate * fractionalSecondsPassed;
+            return growthFactor;
+        }
+
+        public override void StopEffect()
+        {
+            scale = 32;
+
+            base.StopEffect();
         }
     }
 

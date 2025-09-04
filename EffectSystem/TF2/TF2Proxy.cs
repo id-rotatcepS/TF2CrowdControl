@@ -18,6 +18,7 @@
         /// name of the last loaded game map
         /// </summary>
         public string Map { get; }
+        TimeSpan TimeInMap { get; }
 
         /// <summary>
         /// Gets the latest known value returned for the named variable (or command)
@@ -49,6 +50,18 @@
         /// call this to clean up when shutting down (e.g. restoring any settings)
         /// </summary>
         void ShutDown();
+
+        /// <summary>
+        /// Get the object representing the keybind that is used for this command so we can change it.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        CommandBinding? GetCommandBinding(string command);
+
+        /// <summary>
+        /// User's known info according to the game server (null if the user isn't in a game)
+        /// </summary>
+        public TF2Player? User { get; }
 
         /// <summary>
         /// User has spawned and has not died.

@@ -188,7 +188,7 @@
     {
         public static readonly string EFFECT_ID = "say_party";
         public PartyChatEffect()
-            : base(EFFECT_ID, "say_party {0} in stream says: '{1}'")
+            : base(EFFECT_ID, "tf_party_chat \"{0} in stream says: '{1}'\"")
         {
             Availability = new InApplication();
         }
@@ -196,6 +196,7 @@
         protected override void StartEffect(EffectDispatchRequest request)
         {
             //base.StartEffect(request);
+            //TODO escape/replace quotes in Parameter
             string formattedCommand = string.Format(Command, request.Requestor, request.Parameter);
             _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
 
@@ -341,6 +342,7 @@
         {
             Availability = new AliveInMap();
             Mutex.Add(TF2Effects.MUTEX_AUDIO);
+            Mutex.Add(TF2Effects.MUTEX_VOICEMENU);
         }
 
         protected string selection = string.Empty;
@@ -374,5 +376,160 @@
         }
     }
 
+    public class ItemPreviewEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "item_preview";
+        public ItemPreviewEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected ItemPreviewEffect(string id)
+            : base(id, "tf_econ_item_preview {1}")
+        {
+            Availability = new InApplication();
+        }
 
+        protected string selection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            selection = request.Parameter;
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+
+            TF2Effects.Instance.Play(Choose(
+                    TF2Effects.SOUND_CRATE_OPEN,
+                    TF2Effects.SOUND_CRATE_RARE_MVM_OPEN));
+        }
+
+        private static T Choose<T>(params T[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in application before command applied");
+
+            string formattedCommand = string.Format(Command, requestor, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+        }
+    }
+
+    public class QuackEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "quack";
+        public QuackEffect()
+            : this(EFFECT_ID)
+        {
+        }
+        protected QuackEffect(string id)
+            : base(id, string.Empty)
+        {
+            Availability = new InApplication();
+            Mutex.Add(TF2Effects.MUTEX_AUDIO);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+
+            TF2Effects.Instance.Play(Choose(TF2Effects.SOUND_QUACKS));
+        }
+
+        private static T Choose<T>(params T[] options)
+        {
+            int index = Random.Shared.Next(0, options.Length);
+            return options[index];
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in application before command applied");
+        }
+    }
+
+    public class SelfKickEffect : SingleCommandEffect
+    {
+        public static readonly string EFFECT_ID = "self_kick";
+        public SelfKickEffect()
+            : this(EFFECT_ID)
+        {
+        }
+
+        protected SelfKickEffect(string id)
+            // callvote kick "{GameID} [reason]"
+            // callvote kick "4648 cheating"
+            : base(id, "callvote kick \"{0} {1}\"")
+        {
+            Availability = new InMap();
+        }
+
+        public override bool IsSelectableGameState => base.IsSelectableGameState
+            // vote kick enabled
+            && "1" == TF2Effects.Instance.GetValue("sv_vote_issue_kick_allowed")
+            && TF2Effects.Instance.TF2Proxy?.User?.KickUserID != null
+            && TF2Effects.Instance.TF2Proxy?.TimeInMap > VoteLateJoinCooldown;
+
+        /// <summary>
+        /// 5 minutes.
+        /// TODO, check the server variable for actual value for this server instead of hardcoding the default.
+        /// sv_vote_late_join_cooldown
+        /// Controls the length of a cooldown(in seconds) applied to players joining a match in progress preventing them from creating vote kicks.Defaults to 300 (5 minutes).
+        /// </summary>
+        public TimeSpan VoteLateJoinCooldown => TimeSpan.FromSeconds(300);
+
+        protected string selection = string.Empty;
+        protected string requestor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // 0: part of format, but not used currently 
+            requestor = request.Requestor;
+            // 1: part of format
+            selection = request.Parameter;
+
+            base.StartEffect(request);
+        }
+
+        protected override void StartEffect()
+        {
+            //base.StartEffect(); // runs Command directly.
+            string? kickUserID = TF2Effects.Instance.TF2Proxy?.User?.KickUserID
+                ?? throw new EffectNotAppliedException("Not enough server information loaded");
+
+            string formattedCommand = string.Format(Command, kickUserID, selection);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(formattedCommand);
+
+        }
+
+        protected override void CheckEffectWorked()
+        {
+            // availability doesn't change, but if it became unavailable it probably won't take.
+            if (Availability != null
+                && !Availability.IsAvailable(TF2Effects.Instance.TF2Proxy))
+                throw new EffectNotVerifiedException("Not in map before command applied");
+        }
+    }
 }
