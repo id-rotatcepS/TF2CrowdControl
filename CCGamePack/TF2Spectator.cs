@@ -619,6 +619,37 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     };
 
     /// <summary>
+    /// directly set crosshair's color.
+    /// </summary>
+    public static readonly Effect crosshair_color = new("Crosshair Color", "crosshair_color")
+    {
+        Description = "Choose the color for my crosshair.",
+        Parameters = new ParameterList(new[] {
+            new ParameterDef(name:"Color", id:"color",
+                ParameterBase.ParameterType.HexColor)
+            //TODO EXPERIMENTAL. HexColor can't be tested in the SDK (throws exception)
+            //9/3/2025 "Lexi : some standalone apps use it atm, im not sure how the native client handles it"
+            //"to be clear
+            // hex-color has existed in the code for a long time
+            // 9mo ago, ui support was added in the app and extension
+            // it is fully working from viewer to game for VNyan, a standalone app (interfaces with our backend directly)"
+            //"more than likely the native client can handle it but the SDK cant prompt for it like you said"
+        }),
+        Duration = TimeSpan.FromMinutes(1),
+        Category = new EffectGrouping(C_NEW, C_LOW_IMPACT, C_CROSSHAIR),
+        Price = 1,
+        #region streamer facing
+        IsDurationEditable = true,
+        //ScaleFactor = 0.5f,
+        //ScaleDecayTime = TimeSpan.FromMinutes(1),
+        //ViewerCooldown = TimeSpan.FromMinutes(2),
+        //SessionCooldown = TimeSpan.FromMinutes(0),
+        Inactive = true, //TODO activate by default if it actually works.
+        #endregion streamer facing
+        Group = new EffectGrouping(G_ALIVE),
+    };
+
+    /// <summary>
     /// animate a rainbow effect on the combat text color.
     /// requires combat text being enabled.
     /// </summary>
@@ -1671,6 +1702,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
 
             crosshair_none,
             crosshair_rainbow,
+            crosshair_color,
             crosshair_giant,
             crosshair_cataracts,
             crosshair_brrr,

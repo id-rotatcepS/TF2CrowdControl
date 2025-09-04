@@ -1,4 +1,6 @@
-﻿namespace EffectSystem.TF2
+﻿using System.Globalization; // for NumberStyles.HexNumber
+
+namespace EffectSystem.TF2
 {
     /// <summary>
     /// self-disables (false IsSelectableGameState) if all values are already set.
@@ -1080,6 +1082,75 @@
                 $"cl_crosshair_red {r};" +
                 $"cl_crosshair_green {g};" +
                 $"cl_crosshair_blue {b};");
+        }
+    }
+
+    public class CrosshairColorEffect : TimedSetEffect
+    {
+        public static readonly string EFFECT_ID = "crosshair_color";
+        public CrosshairColorEffect()
+            : base(EFFECT_ID, TimeSpan.FromMinutes(1), new()
+            {
+                ["cl_crosshair_blue"] = string.Empty,
+                ["cl_crosshair_green"] = string.Empty,
+                ["cl_crosshair_red"] = string.Empty
+            })
+        {
+            Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_COLOR);
+            Availability = new AliveInMap();
+        }
+
+        // doesn't disable just because starting state matches current state.
+        public override bool IsSelectableGameState => IsAvailable
+            // crosshair enabled.
+            && "1" == TF2Effects.Instance.GetValue("crosshair");
+
+        private string hexColor = string.Empty;
+        protected override void StartEffect(EffectDispatchRequest request)
+        {
+            // need to pull request parameter as part of the command
+
+            // color in #xxxxxx format
+            hexColor = request.Parameter.ToLower();
+
+            base.StartEffect(request);
+        }
+
+        public override void StartEffect()
+        {
+            base.StartEffect();
+
+            (byte r, byte g, byte b) = ParseHexRGB(hexColor);
+
+            _ = TF2Effects.Instance.RunRequiredCommand(
+                $"cl_crosshair_red {r};" +
+                $"cl_crosshair_green {g};" +
+                $"cl_crosshair_blue {b};");
+        }
+
+        private static (byte r, byte g, byte b) ParseHexRGB(string hexColor)
+        {
+            // Remove '#' if present
+            if (hexColor.StartsWith("#"))
+                hexColor = hexColor.Substring(1);
+
+            // Ensure valid length for RGB
+            if (hexColor.Length != 6)
+                throw new ArgumentException("Hex color string must be 6 characters long for RGB.");
+
+            // Parse individual color components
+            byte r = ParseHexPair(hexColor, startIndex: 0);
+            byte g = ParseHexPair(hexColor, startIndex: 2);
+            byte b = ParseHexPair(hexColor, startIndex: 4);
+
+            return (r, g, b);
+        }
+
+        private static byte ParseHexPair(string hexString, int startIndex)
+        {
+            if (hexString.Length < (startIndex + 2))
+                throw new ArgumentException("Hex string must have 2 characters per byte.");
+            return byte.Parse(hexString.Substring(startIndex, length: 2), NumberStyles.HexNumber);
         }
     }
 

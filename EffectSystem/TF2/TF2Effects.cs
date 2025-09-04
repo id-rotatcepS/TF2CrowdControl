@@ -107,6 +107,7 @@ namespace EffectSystem.TF2
 
                 new NoCrosshairEffect(),
                 new RainbowCrosshairEffect(),
+                new CrosshairColorEffect(),
                 new CataractsCrosshairEffect(),
                 new GiantCrosshairEffect(),
                 new BrrrCrosshairEffect(),
