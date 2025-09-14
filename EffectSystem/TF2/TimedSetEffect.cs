@@ -456,6 +456,9 @@ namespace EffectSystem.TF2
         {
             blurStrength = 1;
 
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserKill -= RestoreOnKill;
+
             base.StopEffect();
         }
     }
@@ -1375,6 +1378,9 @@ namespace EffectSystem.TF2
         public override void StopEffect()
         {
             scale = 32;
+
+            if (TF2Effects.Instance.TF2Proxy != null)
+                TF2Effects.Instance.TF2Proxy.OnUserKill -= RestoreOnKill;
 
             base.StopEffect();
         }
