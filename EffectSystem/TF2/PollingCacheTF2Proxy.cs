@@ -462,8 +462,7 @@ namespace EffectSystem.TF2
             Map = mapName;
 
             // we start over.
-            //TODO "on death" effects are recording extra deaths becuase of this.
-            RecordUserDeath();
+            RecordUserDeathWithoutNotifying();
 
             SetInfo("info_class", string.Empty);
             lock (valuesLock)
@@ -471,6 +470,13 @@ namespace EffectSystem.TF2
                 Values["info_class"] = string.Empty;
             }
             ClassSelection = string.Empty;
+        }
+
+        // not a standard death - don't cause "OnDeath" events to fire just because map changed.
+        private void RecordUserDeathWithoutNotifying()
+        {
+            UserLastDeath = DateTime.Now;
+            _IsUserAlive = false;
         }
 
         private void PlayerStatus(TF2Status status)
@@ -536,7 +542,7 @@ namespace EffectSystem.TF2
             {
                 if (!IsMapLoaded)
                 {
-                    RecordUserDeath();
+                    RecordUserDeathWithoutNotifying();
                     return false;
                 }
                 if (_IsUserAlive)
@@ -919,7 +925,7 @@ namespace EffectSystem.TF2
         // ways to infer that we're in a map
         // getpos not 000, net_channels, tf_party_debug
         // getpos - stays 000 until you're in the map (at least a camera).
-        public bool IsMapLoaded => IsGetPos000();
+        public bool IsMapLoaded => IsGetPosSomewhere();
 
         public string AllValues => string.Join("\n",
             Values?.Select(x => x.Key + "->" + x.Value)
@@ -931,7 +937,7 @@ namespace EffectSystem.TF2
         // getpos: in map: "setpos 2061.664551 -5343.968750 -948.968689;setang 14.071210 59.451595 0.000000"
         // "setang 9.200377 165.286209 0.000000
         // setpos 361.759491 -559.780396 231.349213;"
-        private bool IsGetPos000()
+        private bool IsGetPosSomewhere()
         {
             //new System.Windows.Media.Media3D.Point3D(0.0, 0.0, 0.0);
             //new System.Windows.Media.Media3D.Vector3D(0.0, 0.0, 0.0);
@@ -940,13 +946,13 @@ namespace EffectSystem.TF2
             if (string.IsNullOrWhiteSpace(getpos))
                 return false;
 
-            bool activeChannels = !setpos000.IsMatch(getpos);
+            bool posSomewhereOtherThan0 = !setpos000.IsMatch(getpos);
 
-            return activeChannels;
+            return posSomewhereOtherThan0;
         }
 
         // net_channels: "No active net channels."
-        private bool IsNoActiveNetChannels()
+        private bool IsActiveNetChannels()
         {
             string? net_channels = GetValue("net_channels");
 

@@ -266,7 +266,7 @@
         }
     }
 
-    public class NoJumpingEffect : TimedEffect
+    public class NoJumpingEffect : DisableBindsEffect
     {
         public static readonly string EFFECT_ID = "no_jumping";
 
@@ -281,35 +281,8 @@
             Availability = new AliveInMap();
         }
 
-        public override bool IsSelectableGameState => IsAvailable
-            && IsJumpAvailable();
-
-        private bool IsJumpAvailable()
-        {
-            CommandBinding? jumpCommand = GetJumpCommand();
-            if (jumpCommand == null)
-                return false;
-            return !jumpCommand.IsChanged;
-        }
-
-        public override void StartEffect()
-        {
-            CommandBinding jumpCommand = GetJumpCommand()
-                ?? throw new EffectNotAppliedException("jump bind not found");
-
-            jumpCommand.ChangeCommand("echo jump disabled");
-        }
-
-        private CommandBinding? GetJumpCommand()
-        {
-            return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+jump");
-        }
-
-        public override void StopEffect()
-        {
-            CommandBinding? jumpCommand = GetJumpCommand();
-            jumpCommand?.RestoreCommand();
-        }
+        protected override IEnumerable<string> GetCommands()
+            => new List<string>() { "+jump" };
     }
 
     /// <summary>
@@ -347,7 +320,9 @@
 
         private bool AreBindsAvailable()
         {
-            foreach (CommandBinding? binding in GetBindings())
+            foreach (CommandBinding? binding in
+                GetCommands().Select(
+                    (command) => TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command)))
             {
                 if (binding == null)
                     return false;
@@ -358,17 +333,13 @@
             return true;
         }
 
-        private IEnumerable<CommandBinding?> GetBindings()
-        {
-            return GetCommands()
-                .Select((command) => TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command));
-        }
-
         /// <summary>
         /// List of commands to disable - if any of them are not bound (or have been rebound by another effect), this effect will be disabled.
         /// </summary>
         /// <returns></returns>
         abstract protected IEnumerable<string> GetCommands();
+
+        private List<CommandBinding> commandBindings = new List<CommandBinding>();
 
         public override void StartEffect()
         {
@@ -377,16 +348,16 @@
                 CommandBinding binding = TF2Effects.Instance.TF2Proxy?.GetCommandBinding(command)
                     ?? throw new EffectNotAppliedException(string.Format("{0} bind not found", command));
 
+                commandBindings.Add(binding);
+
                 binding.ChangeCommand($"echo {command} disabled");
             }
         }
 
         public override void StopEffect()
         {
-            foreach (CommandBinding? binding in GetBindings())
-            {
-                binding?.RestoreCommand();
-            }
+            foreach (CommandBinding binding in commandBindings)
+                binding.RestoreCommand();
         }
     }
 
