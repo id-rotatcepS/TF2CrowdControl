@@ -179,14 +179,11 @@ namespace CrowdControl
 
         private static CCEffectDispatchRequest CreateCCEffectDispatchRequest(EffectRequest request)
         {
-            if (request.code != CC_HYPETRAIN_CODE)
-                return new CCEffectDispatchRequest(request);
+            if (request.code == CC_HYPETRAIN_CODE
+                && request.sourceDetails is HypeTrainSourceDetails hype) // I detest this syntax, but it works so well here.
+                return CreateCCHypeTrainEffectDispatchRequest(request, hype);
 
-            HypeTrainSourceDetails? hype = request.sourceDetails as HypeTrainSourceDetails;
-            if (hype == null)
-                return new CCEffectDispatchRequest(request);
-
-            return CreateCCHypeTrainEffectDispatchRequest(request, hype);
+            return new CCEffectDispatchRequest(request);
         }
 
         private static CCEffectDispatchRequest CreateCCHypeTrainEffectDispatchRequest(EffectRequest request, HypeTrainSourceDetails hype)
