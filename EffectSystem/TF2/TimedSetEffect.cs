@@ -192,25 +192,25 @@ namespace EffectSystem.TF2
             return TF2Effects.Instance.TF2Proxy?.GetCommandBinding("+moveleft");
         }
 
+        private CommandBinding? right = null;
+        private CommandBinding? left = null;
+
         public override void StartEffect()
         {
             base.StartEffect();
 
-            CommandBinding right = GetRightCommand()
+            right = GetRightCommand()
                 ?? throw new EffectNotAppliedException("right bind not found");
-            right.ChangeCommand("+right");
-
-            CommandBinding left = GetLeftCommand()
+            left = GetLeftCommand()
                 ?? throw new EffectNotAppliedException("left bind not found");
+
+            right.ChangeCommand("+right");
             left.ChangeCommand("+left");
         }
 
         public override void StopEffect()
         {
-            CommandBinding? right = GetRightCommand();
             right?.RestoreCommand();
-
-            CommandBinding? left = GetLeftCommand();
             left?.RestoreCommand();
 
             base.StopEffect();
