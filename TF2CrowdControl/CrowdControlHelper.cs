@@ -7,12 +7,11 @@ using EffectSystem.TF2;
 
 namespace CrowdControl
 {
-    // started from Celeste example (not much of that is left)
+    // started from Celeste CrowdControlHelper example (not much of that is left)
 
     /// <summary>
     /// the CrowdControlHelper Instance establishes a CC connection via SimpleTCPClient,
-    /// starts a CC version of EffectDispatcher and feeds it CC EffectRequests 
-    /// plus triggering UpdateUnclosedEffects and RefreshEffectListings on a timer,
+    /// starts a TF2 version of EffectDispatcher with a CC Effect Responder and feeds it CC EffectRequests 
     /// and exposes all the Effects we claim to support in the game pack
     /// </summary>
     public class CrowdControlHelper
@@ -63,13 +62,14 @@ namespace CrowdControl
         public EffectDispatcher EffectDispatcher => _effectDispatcher;
 
         /// <summary>
-        /// Stops all Effects in the EffectDispatcher and Disposes local resources.
+        /// Disposes (Stops all Effects in) the EffectDispatcher and Disposes local resources.
         /// </summary>
         public void ShutDown()
         {
-            _effectDispatcher.StopAll();
+            _effectDispatcher.Dispose();
             _client.Dispose();
-            // probably should set _Instance to null.
+            // not 100% clear whether this is the right timing for this:
+            _Instance = null;
         }
 
         private void ClientConnected()

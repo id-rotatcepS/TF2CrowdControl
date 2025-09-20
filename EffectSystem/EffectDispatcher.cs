@@ -142,18 +142,7 @@ namespace EffectSystem
             catch (Exception e)
             {
                 Aspen.Log.ErrorException(e, $"Update Effect failed [{request?.EffectID}]");
-                throw;
-            }
-        }
-
-        protected void UpdateUnclosedDurationFastAnimationEffects()
-        {
-            foreach (Effect openEffect in Effects.Where(e
-                => !e.IsClosed
-                && e.HasDuration
-                && e.IsUpdateAnimation))
-            {
-                UpdateEffect(openEffect);
+                // this is not handled "well" but rethrow would prevent other effects updating (and statuses getting updated)
             }
         }
 
@@ -173,102 +162,127 @@ namespace EffectSystem
             _client.DurationFinished(e.CurrentRequest);
         }
 
-        public void StopEarly(EffectDispatchRequest req)
+        protected void UpdateUnclosedDurationFastAnimationEffects()
         {
-            if (req.EffectID == string.Empty)
+            foreach (Effect openEffect in Effects.Where(e
+                => !e.IsClosed
+                && e.HasDuration
+                && e.IsUpdateAnimation))
             {
-                try
-                {
-                    StopAll();
-
-                    // TODO AppliedInstant doesn't seem to register... same with "Finished"
-                    Responder.DurationFinished(req);
-                }
-                catch (Exception ex)
-                {
-                    Aspen.Log.ErrorException(ex, $"All Effects Stop failed. ");
-                }
-                return;
-            }
-            if (req.EffectID == null
-                || !Effects.Any(e => e.ID == req.EffectID)
-                )
-            {
-                Aspen.Log.Error($"Effect {req.EffectID} not found. ");// Available effects: {string.Join(", ", Effects.Keys)}");
-                //could not find the effect
-                return;
-            }
-            Effect effect = Effects.First(e => e.ID == req.EffectID);//Effects[request.code];
-
-            try
-            {
-                effect.Stop();
-                //if (!effect.TryStop())
-                //{
-                //    Aspen.Log.Trace($"Effect {request.code} failed to stop.");
-                //    return;
-                //}
-
-                Aspen.Log.Info($"Effect {req.EffectID} stopped.");
-                // TODO AppliedInstant doesn't seem to register... same with "Finished"
-                Responder.DurationFinished(req);
-            }
-            catch (Exception ex)
-            {
-                Aspen.Log.ErrorException(ex, $"Effect {req.EffectID} Stop failed. ");
-                return;
+                UpdateEffect(openEffect);
             }
         }
 
-        virtual public void StopAll()
+        public void StopEarly(EffectDispatchRequest req)
+        {
+            if (IsForAllEffects(req))
+            {
+                StopAll();
+                Responder.DurationFinished(req);
+                return;
+            }
+            if (IsUnregisteredEffect(req))
+            {
+                Aspen.Log.Error($"Effect {req.EffectID} not found. ");// Available effects: {string.Join(", ", Effects.Keys)}");
+                return;
+            }
+
+            Effect effect = Effects.First(e => e.ID == req.EffectID);//Effects[request.code];
+
+            Stop(effect);
+            Responder.DurationFinished(req);
+        }
+
+        private bool IsForAllEffects(EffectDispatchRequest req)
+        {
+            return req.EffectID == string.Empty;
+        }
+
+        public void StopAll()
         {
             foreach (Effect openEffect in Effects.Where(e => !e.IsClosed))
             {
-                try
-                {
-                    openEffect.Stop();
-                    Aspen.Log.Info($"Effect {openEffect.ID} stopped.");
-                }
-                catch (Exception ex)
-                {
-                    Aspen.Log.ErrorException(ex, $"Effect {openEffect.ID} Stop failed. ");
-                }
+                Stop(openEffect);
             }
         }
 
-        // TODO maybe not the best plan, but I need to cache rather than constantly sending hte same status.
+        private void Stop(Effect effect)
+        {
+            try
+            {
+                effect.Stop();
+
+                Aspen.Log.Info($"Effect {effect.ID} stopped.");
+            }
+            catch (Exception ex)
+            {
+                Aspen.Log.ErrorException(ex, $"Effect {effect.ID} Stop failed. ");
+            }
+        }
+
+        private bool IsUnregisteredEffect(EffectDispatchRequest req)
+        {
+            return req.EffectID == null
+                || !Effects.Any(e => e.ID == req.EffectID);
+        }
+
+        // TODO maybe not the best plan, but I need to cache rather than constantly sending the same status.
         private Dictionary<Effect, (bool selectable, bool listable)> EffectListings = new();
         protected void RefreshEffectListings()
         {
             foreach (Effect effect in Effects)
             {
-                bool neversent;
-                bool wasSelectable;
-                bool wasListable;
-                if (EffectListings.ContainsKey(effect))
+                try
                 {
-                    (wasSelectable, wasListable) = EffectListings[effect];
-                    neversent = false;
+                    RefreshEffectListing(effect);
                 }
-                else
+                catch (Exception ex)
                 {
-                    wasSelectable = true;
-                    wasListable = true;
-                    neversent = true;
+                    Aspen.Log.WarningException(ex, $"Effect status refresh failed for {effect?.ID}");
+                    // continue refreshing the others.
                 }
-
-                bool selectable = !GetBlockingMutexEffects(effect).Any()
-                    && effect.IsClosed
-                    && effect.IsSelectableGameState;
-                if (neversent || wasSelectable != selectable)
-                    _client.SetSelectable(effect.ID, selectable);
-
-                bool listable = effect.IsListableGameMode;
-                if (neversent || wasListable != listable)
-                    _client.SetListed(effect.ID, listable);
-
-                EffectListings[effect] = (selectable, listable);
             }
+        }
+
+        private void RefreshEffectListing(Effect effect)
+        {
+            if (EffectListings.ContainsKey(effect))
+                UpdateEffectListing(effect);
+            else
+                FirstEffectListing(effect);
+        }
+
+        private void UpdateEffectListing(Effect effect)
+        {
+            (bool wasSelectable, bool wasListable) = EffectListings[effect];
+
+            bool selectable = IsEffectListingSelectable(effect);
+            if (wasSelectable != selectable)
+                _client.SetSelectable(effect.ID, selectable);
+
+            bool listable = effect.IsListableGameMode;
+            if (wasListable != listable)
+                _client.SetListed(effect.ID, listable);
+
+            EffectListings[effect] = (selectable, listable);
+        }
+
+        private bool IsEffectListingSelectable(Effect effect)
+        {
+            return !GetBlockingMutexEffects(effect).Any()
+                && effect.IsClosed
+                && effect.IsSelectableGameState;
+        }
+
+        private void FirstEffectListing(Effect effect)
+        {
+            bool selectable = IsEffectListingSelectable(effect);
+            _client.SetSelectable(effect.ID, selectable);
+
+            bool listable = effect.IsListableGameMode;
+            _client.SetListed(effect.ID, listable);
+
+            EffectListings[effect] = (selectable, listable);
         }
 
         public delegate void EffectStatesUpdated(EffectDispatcher cc);
@@ -279,6 +293,13 @@ namespace EffectSystem
             OnEffectStatesUpdated?.Invoke(this);
         }
 
+        /// <summary>
+        /// Stops all effects and cleans up any other resources owned by the dispatcher.
+        /// </summary>
+        virtual public void Dispose()
+        {
+            StopAll();
+        }
     }
 
     public class EffectState
