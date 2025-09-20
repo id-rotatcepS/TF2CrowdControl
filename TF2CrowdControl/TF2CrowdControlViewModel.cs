@@ -112,7 +112,7 @@ namespace TF2CrowdControl
             //Aspen.Text
             //Aspen.Show
 
-            CCDispatcher = CrowdControlHelper.Instance;
+            CCDispatcher = CrowdControlToTF2.Instance;
             InstallConfigsCommand = new InstallConfigsCommand(this);
             CommandLog = string.Empty;
 
@@ -136,7 +136,7 @@ namespace TF2CrowdControl
 
         public string WindowTitle { get; }
 
-        private CrowdControlHelper CCDispatcher { get; }
+        private CrowdControlToTF2 CCDispatcher { get; }
 
         public Brush StatusCCColor => CCDispatcher.CrowdControlConnected
             ? new SolidColorBrush(Colors.Green)

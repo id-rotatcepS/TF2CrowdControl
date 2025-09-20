@@ -95,6 +95,10 @@ namespace EffectSystem
             }
         }
 
+        /// <summary>
+        /// easy-to-consume status of all the effects managed by this dispatcher.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<EffectState> GetEffectsStatus()
         {
             List<EffectState> result = new();
