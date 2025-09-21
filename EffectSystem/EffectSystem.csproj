@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aspen\Aspen.csproj" />
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
   </ItemGroup>
 
