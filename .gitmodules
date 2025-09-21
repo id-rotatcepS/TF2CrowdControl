@@ -1,3 +1,6 @@
 [submodule "ConnectorLib.JSON"]
 	path = ConnectorLib.JSON
 	url = https://github.com/WarpWorld/ConnectorLib.JSON.git
+[submodule "Aspen"]
+	path = Aspen
+	url = https://github.com/id-rotatcepS/ASPEN.git
