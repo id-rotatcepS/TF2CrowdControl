@@ -16,6 +16,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EffectSystem", "EffectSyste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorLib.JSON", "ConnectorLib.JSON\ConnectorLib.JSON.csproj", "{A8772A46-A88C-4984-A40C-904A0466A577}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspen", "..\ASPEN\Aspen.csproj", "{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,18 @@ Global
 		{A8772A46-A88C-4984-A40C-904A0466A577}.Release|x64.Build.0 = Release|x64
 		{A8772A46-A88C-4984-A40C-904A0466A577}.Release|x86.ActiveCfg = Release|x86
 		{A8772A46-A88C-4984-A40C-904A0466A577}.Release|x86.Build.0 = Release|x86
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|x64.Build.0 = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Debug|x86.Build.0 = Debug|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|x64.ActiveCfg = Release|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|x64.Build.0 = Release|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|x86.ActiveCfg = Release|Any CPU
+		{193FDFA2-A5B3-3C66-0E57-D9D5CA12E5AC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
