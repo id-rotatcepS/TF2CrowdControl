@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ASPEN\Aspen.csproj" />
+    <ProjectReference Include="..\Aspen\Aspen.csproj" />
     <ProjectReference Include="..\ConnectorLib.JSON\ConnectorLib.JSON.csproj" />
     <ProjectReference Include="..\EffectSystem\EffectSystem.csproj" />
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
