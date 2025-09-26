@@ -7,14 +7,17 @@ namespace EffectSystem.TF2
     /// </summary>
     public class TF2Server
     {
-        public List<TF2Player> Players { get; private set; } = new List<TF2Player>();
+        private List<TF2Player> Players { get; set; } = new List<TF2Player>();
 
         public void RefreshPlayer(TF2Status status)
         {
-            if (Players.Any(PlayerStatusMatch(status)))
-                Players.First(PlayerStatusMatch(status)).Refresh(status);
-            else
-                Players.Add(CreatePlayer(status));
+            lock (Players)
+            {
+                if (Players.Any(PlayerStatusMatch(status)))
+                    Players.First(PlayerStatusMatch(status)).Refresh(status);
+                else
+                    Players.Add(CreatePlayer(status));
+            }
 
             PurgeStalePlayers();
         }
@@ -33,8 +36,18 @@ namespace EffectSystem.TF2
 
         private void PurgeStalePlayers()
         {
-            DateTime now = DateTime.Now;
-            Players.RemoveAll(p => now > p.LastUpdated + TimeSpan.FromSeconds(3));
+            DateTime threeSecondsAgo = DateTime.Now - TimeSpan.FromSeconds(3);
+            lock (Players)
+                Players.RemoveAll(p => threeSecondsAgo > p.LastUpdated);
+        }
+
+        public TF2Player? GetPlayer(string? name)
+        {
+            if (name == null)
+                return null;
+
+            lock (Players)
+                return Players.FirstOrDefault(p => p.Name == name);
         }
     }
 }

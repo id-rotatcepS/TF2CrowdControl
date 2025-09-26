@@ -920,7 +920,7 @@ namespace EffectSystem.TF2
         /// <summary>
         /// Data about the streamer's player in the game server - null if not in a game.
         /// </summary>
-        public TF2Player? User => Server?.Players.FirstOrDefault(p => p.Name == UserName);
+        public TF2Player? User => Server?.GetPlayer(name: UserName);
 
         // ways to infer that we're in a map
         // getpos not 000, net_channels, tf_party_debug
