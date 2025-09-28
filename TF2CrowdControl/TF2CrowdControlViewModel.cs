@@ -10,8 +10,6 @@ using System.Reflection;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using TF2FrameworkInterface;
-
 namespace TF2CrowdControl
 {
     /// <summary>
@@ -112,13 +110,13 @@ namespace TF2CrowdControl
             //Aspen.Text
             //Aspen.Show
 
-            CCDispatcher = CrowdControlToTF2.Instance;
+            CCCommunicator = CrowdControlToTF2.Instance;
             InstallConfigsCommand = new InstallConfigsCommand(this);
             CommandLog = string.Empty;
 
             StartTF2ConnectionAndEffectHandlers();
 
-            CCDispatcher.EffectDispatcher.OnEffectStatesUpdated += (c) =>
+            CCCommunicator.EffectDispatcher.OnEffectStatesUpdated += (c) =>
             {
                 ViewNotification(nameof(StatusEffects));
                 ViewNotification(nameof(StatusMapName));
@@ -136,14 +134,14 @@ namespace TF2CrowdControl
 
         public string WindowTitle { get; }
 
-        private CrowdControlToTF2 CCDispatcher { get; }
+        private CrowdControlToTF2 CCCommunicator { get; }
 
-        public Brush StatusCCColor => CCDispatcher.CrowdControlConnected
+        public Brush StatusCCColor => CCCommunicator.CrowdControlConnected
             ? new SolidColorBrush(Colors.Green)
             : new SolidColorBrush(Colors.DarkRed);
 
         public IEnumerable<EffectState> StatusEffects
-            => CCDispatcher.EffectStates;
+            => CCCommunicator.EffectStates;
 
         #region TF2Status
         public Brush StatusAppColor => TF2Effects.Instance.TF2Proxy?.IsOpen ?? false
@@ -254,19 +252,19 @@ namespace TF2CrowdControl
             }
             catch (Exception e)
             {
-                // This is known to happen when RCON disposes and didn't have an active connection.
+                // (Used to happen when RCON disposed and didn't have an active connection)
                 // We don't actually care. We just want to make a new connection.
                 Aspen.Log.Trace("Issue while shutting down TF2 connection. " + e.Message);
             }
 
             try
             {
-                TF2Effects.Instance.TF2Proxy = NewTF2Poller();
+                TF2Effects.Instance.TF2Proxy = NewTF2Proxy();
                 // (re)establish Effect instances in the dispatcher via CC instance so they can register variables for proxy to poll.
                 //TODO need to stop helper/dispatcher trying when TF2Instance is no good.  have to move control of instance out of the viewmodel, and even then it may not be smart enough to help.
                 //TODO however, dispatcher refresh should close things down when the instance is no good.  Mode is bad - hide everything.
-                CCDispatcher.Effects.Clear();
-                CCDispatcher.Effects.AddRange(TF2Effects.Instance.CreateAllEffects());
+                CCCommunicator.Effects.Clear();
+                CCCommunicator.Effects.AddRange(TF2Effects.Instance.CreateAllEffects());
 
                 TF2Effects.Instance.TF2Proxy.OnUserDied += () => ViewNotification(nameof(StatusClassNameColor));
                 TF2Effects.Instance.TF2Proxy.OnUserSpawned += () =>
@@ -283,16 +281,9 @@ namespace TF2CrowdControl
             }
         }
 
-        private TF2Proxy NewTF2Poller()
+        private TF2Proxy NewTF2Proxy()
         {
-            TF2Instance.WriteRconConfigFile(TF2Config.TF2Path, TF2Config.RCONPort, TF2Config.RCONPassword);
-            //FUTURE pass a Microsoft ILogger to RCON to LogError with details when its connection fails
-            TF2Instance tf2Instance = TF2Instance.CreateCommunications(TF2Config.RCONPort, TF2Config.RCONPassword);
-            // tf2Instance might not be connected, yet, but every SendCommand will attempt to connect again.
-            tf2Instance.SetOnDisconnected(RemakeConnection);
-
-            PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(tf2Instance, TF2Config.TF2Path);
-            return tf2;
+            return PollingCacheTF2Proxy.Create(TF2Config, RemakeConnection);
         }
 
         /// <summary>
@@ -302,7 +293,7 @@ namespace TF2CrowdControl
         {
             (Aspen.Option as TF2SpectatorSettings).SaveConfig();
             // try to shut down effects, but this doesn't help if TF2 was shut down already.
-            this.CCDispatcher.ShutDown();
+            this.CCCommunicator.ShutDown();
 
             TF2Effects.Instance.TF2Proxy?.ShutDown();
         }

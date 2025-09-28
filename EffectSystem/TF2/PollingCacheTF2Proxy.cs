@@ -327,7 +327,19 @@ namespace EffectSystem.TF2
          */
 
 
-        public PollingCacheTF2Proxy(TF2Instance tf2, string tf2Path)
+        public static TF2Proxy Create(TF2Config config, Action onDisconnected)
+        {
+            TF2Instance.WriteRconConfigFile(config.TF2Path, config.RCONPort, config.RCONPassword);
+            //FUTURE pass a Microsoft ILogger to RCON to LogError with details when its connection fails
+            TF2Instance tf2Instance = TF2Instance.CreateCommunications(config.RCONPort, config.RCONPassword);
+            // tf2Instance might not be connected, yet, but every SendCommand will attempt to connect again.
+            tf2Instance.SetOnDisconnected(onDisconnected);
+
+            PollingCacheTF2Proxy tf2 = new PollingCacheTF2Proxy(tf2Instance, config.TF2Path);
+            return tf2;
+        }
+
+        private PollingCacheTF2Proxy(TF2Instance tf2, string tf2Path)
         {
             this.tf2 = tf2;
             this.ConfigFilepath = Path.Combine(tf2Path, "tf/cfg/config.cfg");

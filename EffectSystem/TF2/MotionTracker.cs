@@ -7,7 +7,7 @@ namespace EffectSystem.TF2
     /// <summary>
     /// Keep track of user speed, etc. based on "getpos" output.
     /// </summary>
-    public class MotionTracker
+    internal class MotionTracker
     {
         private TF2Proxy tf2;
 
