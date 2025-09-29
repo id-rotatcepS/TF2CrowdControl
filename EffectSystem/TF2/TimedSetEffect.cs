@@ -1486,6 +1486,11 @@ namespace EffectSystem.TF2
             // crosshair enabled.
             && "1" == TF2Effects.Instance.GetValue("crosshair");
 
+        /// <summary>
+        /// This effect is an animation, but not a fast animation.
+        /// </summary>
+        protected override bool IsContinuousUpdatingEffect => true;
+
         public override void StartEffect()
         {
             base.StartEffect();

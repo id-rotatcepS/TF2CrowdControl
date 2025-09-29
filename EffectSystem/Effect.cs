@@ -65,7 +65,7 @@
         bool IsClosed { get; }
 
         /// <summary>
-        /// Whether this effect's updates perform an update, so it may need faster updating.
+        /// Whether this effect's updates perform an animation, so it may need faster updating.
         /// </summary>
         bool IsUpdateAnimation { get; }
     }

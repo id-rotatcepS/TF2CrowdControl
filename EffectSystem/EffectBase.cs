@@ -140,9 +140,10 @@ namespace EffectSystem
 
         /// <summary>
         /// If this effect needs to update even when the duration isn't elapsing.
-        /// TODO might need to make this a separate concept - currently just alias for <see cref="IsUpdateAnimation"/>
+        /// Default is an alias for <see cref="IsUpdateAnimation"/>
+        /// TODO this probably should be part of the interface, and if so the properties may need better names.
         /// </summary>
-        private bool IsContinuousUpdatingEffect => IsUpdateAnimation;
+        virtual protected bool IsContinuousUpdatingEffect => IsUpdateAnimation;
 
         private void UpdateOrStopAnimations(Action<Effect> onClosing)
         {
