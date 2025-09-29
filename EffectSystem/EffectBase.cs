@@ -61,16 +61,21 @@ namespace EffectSystem
         {
             lock (request)
             {
-                LastUpdate = DateTime.Now;
-                Elapsed = TimeSpan.Zero;
-                IsElapsing = true;
-                CurrentRequest = request;
+                try
+                {
+                    LastUpdate = DateTime.Now;
+                    Elapsed = TimeSpan.Zero;
+                    IsElapsing = true;
+                    CurrentRequest = request;
 
-                StartEffect(request);
-
-                // immediately clear non-duration requests
-                if (!HasDuration)
-                    CurrentRequest = null;
+                    StartEffect(request);
+                }
+                finally
+                {
+                    // immediately clear non-duration requests
+                    if (!HasDuration)
+                        CurrentRequest = null;
+                }
             }
         }
 
@@ -89,10 +94,16 @@ namespace EffectSystem
 
             lock (CurrentRequest)
             {
-                TimeSpan span = ElapsedTimeSpanIncrement();
+                try
+                {
+                    TimeSpan span = ElapsedTimeSpanIncrement();
 
-                StopEffect(span);
-                CurrentRequest = null;
+                    StopEffect(span);
+                }
+                finally
+                {
+                    CurrentRequest = null;
+                }
             }
         }
 
@@ -121,6 +132,10 @@ namespace EffectSystem
                 return;
             lock (CurrentRequest)
             {
+                // Stop() could have happened while awaiting the lock.
+                if (CurrentRequest == null)
+                    return;
+
                 if (!CanElapse)
                 {
                     UpdateOrStopAnimations(OnClosing);
@@ -176,10 +191,16 @@ namespace EffectSystem
                 }
             }
 
-            StopEffect(span);
-            // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
-            onClosing?.Invoke(this);
-            CurrentRequest = null;
+            try
+            {
+                StopEffect(span);
+                // to keep OnClosing consistent with other events, we don't null the request until after invocation, but that means calling IsClosed is false.  That's why we call it OnClosing, not OnClosed.
+                onClosing?.Invoke(this);
+            }
+            finally
+            {
+                CurrentRequest = null;
+            }
         }
 
         private void UpdatePaused(Action<Effect> OnPaused)

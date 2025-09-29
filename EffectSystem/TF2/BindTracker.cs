@@ -166,9 +166,9 @@ namespace EffectSystem.TF2
             if (IsChanged)
                 throw new InvalidOperationException("Command Already Changed");
 
-            EndCurrentCommand();
-
             Bind(Key, newCommand);
+
+            EndCurrentCommand();
             CurrentCommand = newCommand;
         }
 
@@ -192,9 +192,9 @@ namespace EffectSystem.TF2
 
         public void RestoreCommand()
         {
-            EndCurrentCommand();
-
             Bind(Key, OriginalCommand);
+
+            EndCurrentCommand();
             CurrentCommand = OriginalCommand;
         }
     }
