@@ -1,25 +1,36 @@
 ﻿using System.Text.RegularExpressions;
-
 using TF2FrameworkInterface;
 
 namespace EffectSystem.TF2
 {
-    public class BindTracker
+    /// <summary>
+    /// Bind-handling component of PollingCacheTF2Proxy
+    /// </summary>
+    internal class BindTracker
     {
-        private PollingCacheTF2Proxy tf2;
+        private PollingCacheTF2Proxy tf2Proxy;
         private List<CommandBinding> binds = new List<CommandBinding>();
 
         public BindTracker(PollingCacheTF2Proxy pollingCacheTF2Proxy)
         {
-            this.tf2 = pollingCacheTF2Proxy;
+            this.tf2Proxy = pollingCacheTF2Proxy;
         }
 
         private void CacheBinds()
         {
-            binds.Clear();
+            List<(string key, string command)> boundKeysList = GetBoundKeys();
 
+            binds.Clear();
+            binds.AddRange(boundKeysList.Select(
+                (b) => new CommandBinding(tf2Proxy, b.key, b.command)));
+        }
+
+        private List<(string key, string command)> GetBoundKeys()
+        {
+            List<(string key, string command)> boundKeysList = new List<(string, string)>();
             //key_findbinding +forward
-            string boundKeys = tf2.RunCommandRaw("key_listboundkeys");
+            string boundKeys = tf2Proxy.RunCommandRaw("key_listboundkeys");
+
             StringReader bindreader = new StringReader(boundKeys);
             string? bind = bindreader.ReadLine();
             while (bind != null)
@@ -31,12 +42,13 @@ namespace EffectSystem.TF2
                 {
                     string key = matcher.Groups["variable"].Value;
                     string command = matcher.Groups["value"].Value;
-
-                    binds.Add(new CommandBinding(tf2, key, command));
+                    boundKeysList.Add((key, command));
                 }
 
                 bind = bindreader.ReadLine();
             }
+
+            return boundKeysList;
         }
 
         public CommandBinding? GetCommandBinding(string command)
@@ -154,9 +166,9 @@ namespace EffectSystem.TF2
             if (IsChanged)
                 throw new InvalidOperationException("Command Already Changed");
 
-            EndCurrentCommand();
-
             Bind(Key, newCommand);
+
+            EndCurrentCommand();
             CurrentCommand = newCommand;
         }
 
@@ -180,9 +192,9 @@ namespace EffectSystem.TF2
 
         public void RestoreCommand()
         {
-            EndCurrentCommand();
-
             Bind(Key, OriginalCommand);
+
+            EndCurrentCommand();
             CurrentCommand = OriginalCommand;
         }
     }

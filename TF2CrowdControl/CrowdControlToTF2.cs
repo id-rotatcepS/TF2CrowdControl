@@ -7,15 +7,14 @@ using EffectSystem.TF2;
 
 namespace CrowdControl
 {
-    // started from Celeste example (not much of that is left)
+    // started from Celeste CrowdControlHelper example (not much of that is left)
 
     /// <summary>
-    /// the CrowdControlHelper Instance establishes a CC connection via SimpleTCPClient,
-    /// starts a CC version of EffectDispatcher and feeds it CC EffectRequests 
-    /// plus triggering UpdateUnclosedEffects and RefreshEffectListings on a timer,
-    /// and exposes all the Effects we claim to support in the game pack
+    /// the CrowdControlToTF2 Instance establishes a CC connection via SimpleTCPClient,
+    /// starts a TF2 version of EffectDispatcher with a CC Effect Responder and feeds it CC EffectRequests 
+    /// and exposes all the Effects we claim to support in the game pack and their general status.
     /// </summary>
-    public class CrowdControlHelper
+    public class CrowdControlToTF2
     {
         /// <summary>
         /// the request code sent when a hype train event happens.
@@ -23,10 +22,10 @@ namespace CrowdControl
         /// </summary>
         public static readonly string CC_HYPETRAIN_CODE = "event-hype-train";
 
-        private static CrowdControlHelper? _Instance;
-        public static CrowdControlHelper Instance
+        private static CrowdControlToTF2? _Instance;
+        public static CrowdControlToTF2 Instance
             => _Instance
-            ??= new CrowdControlHelper();
+            ??= new CrowdControlToTF2();
 
         private readonly EffectDispatcher _effectDispatcher;
 
@@ -45,7 +44,7 @@ namespace CrowdControl
         /// <see cref="EffectDispatcher.Apply(EffectDispatchRequest)"/>/<see cref="EffectDispatcher.StopEarly(EffectDispatchRequest)"/> calls
         /// (and locally processes Tests).
         /// </summary>
-        private CrowdControlHelper()
+        private CrowdControlToTF2()
         {
             _client = new SimpleTCPClient();
             _client.OnConnected += ClientConnected;
@@ -63,13 +62,14 @@ namespace CrowdControl
         public EffectDispatcher EffectDispatcher => _effectDispatcher;
 
         /// <summary>
-        /// Stops all Effects in the EffectDispatcher and Disposes local resources.
+        /// Disposes (Stops all Effects in) the EffectDispatcher and Disposes local resources.
         /// </summary>
         public void ShutDown()
         {
-            _effectDispatcher.StopAll();
+            _effectDispatcher.Dispose();
             _client.Dispose();
-            // probably should set _Instance to null.
+            // not 100% clear whether this is the right timing for this:
+            _Instance = null;
         }
 
         private void ClientConnected()

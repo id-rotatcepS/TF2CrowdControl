@@ -8,8 +8,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TF2CrowdControl", "TF2Crowd
 		{117B89E0-5D7F-46B0-BAB9-269C5BBF98C2} = {117B89E0-5D7F-46B0-BAB9-269C5BBF98C2}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2FrameworkInterface", "TF2FrameworkInterface\TF2FrameworkInterface.csproj", "{C08020B2-EEAC-4238-8B2B-91CED456E026}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CCGamePack", "CCGamePack\CCGamePack.csproj", "{2A5D86F6-1D60-4487-AA91-0C9A0DBC7E85}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EffectSystem", "EffectSystem\EffectSystem.csproj", "{117B89E0-5D7F-46B0-BAB9-269C5BBF98C2}"
@@ -17,6 +15,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConnectorLib.JSON", "ConnectorLib.JSON\ConnectorLib.JSON.csproj", "{A8772A46-A88C-4984-A40C-904A0466A577}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspen", "Aspen\Aspen.csproj", "{5A928FD2-DABA-4259-AD0B-D04D2DFF136E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TF2FrameworkInterface", "TF2FrameworkInterface\TF2FrameworkInterface.csproj", "{C08020B2-EEAC-4238-8B2B-91CED456E026}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,18 +40,6 @@ Global
 		{E62EA282-7225-433C-9C33-0E2FEB290EA2}.Release|x64.Build.0 = Release|Any CPU
 		{E62EA282-7225-433C-9C33-0E2FEB290EA2}.Release|x86.ActiveCfg = Release|Any CPU
 		{E62EA282-7225-433C-9C33-0E2FEB290EA2}.Release|x86.Build.0 = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x64.Build.0 = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x86.Build.0 = Debug|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x64.ActiveCfg = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x64.Build.0 = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x86.ActiveCfg = Release|Any CPU
-		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x86.Build.0 = Release|Any CPU
 		{2A5D86F6-1D60-4487-AA91-0C9A0DBC7E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2A5D86F6-1D60-4487-AA91-0C9A0DBC7E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A5D86F6-1D60-4487-AA91-0C9A0DBC7E85}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -100,6 +88,18 @@ Global
 		{5A928FD2-DABA-4259-AD0B-D04D2DFF136E}.Release|x64.Build.0 = Release|Any CPU
 		{5A928FD2-DABA-4259-AD0B-D04D2DFF136E}.Release|x86.ActiveCfg = Release|Any CPU
 		{5A928FD2-DABA-4259-AD0B-D04D2DFF136E}.Release|x86.Build.0 = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x64.Build.0 = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Debug|x86.Build.0 = Debug|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x64.ActiveCfg = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x64.Build.0 = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x86.ActiveCfg = Release|Any CPU
+		{C08020B2-EEAC-4238-8B2B-91CED456E026}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

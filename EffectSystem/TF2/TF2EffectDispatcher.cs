@@ -4,19 +4,21 @@ using ASPEN;
 namespace EffectSystem.TF2
 {
     /// <summary>
-    /// EffectDispatcher that does safe-for-TF2 timing for updates
+    /// EffectDispatcher that does safe-for-TF2 timing for updates.
+    /// Triggering UpdateUnclosedDuration(/FastAnimation)Effects and RefreshEffectListings on timers.
     /// </summary>
     public class TF2EffectDispatcher : EffectDispatcher
     {
-        public TF2EffectDispatcher(EffectResponder responses) : base(responses)
+        public TF2EffectDispatcher(EffectResponder responses)
+            : base(responses)
         {
             // start the Update timers.
             _safeTimer = new Timer(TickSafe, null, PollPeriodSafe, Timeout.InfiniteTimeSpan);
             _fastTimer = new Timer(TickFast, null, PollPeriodFast, Timeout.InfiniteTimeSpan);
         }
 
-        private Timer? _safeTimer;
-        private Timer? _fastTimer;
+        private readonly Timer _safeTimer;
+        private readonly Timer _fastTimer;
 
         private static readonly TimeSpan PollPeriodFast = TimeSpan.FromMilliseconds(50);
         private static readonly TimeSpan PollPeriodSafe = TimeSpan.FromMilliseconds(250);
@@ -38,7 +40,7 @@ namespace EffectSystem.TF2
         }
 
         private string tickRepeatedExceptionMessage = string.Empty;
-        private void TickOrPauseOnError(Timer? timer, TimeSpan pollPeriod, Action tickAction)
+        private void TickOrPauseOnError(Timer timer, TimeSpan pollPeriod, Action tickAction)
         {
             try
             {
@@ -66,12 +68,11 @@ namespace EffectSystem.TF2
             );
         }
 
-        public override void StopAll()
+        public override void Dispose()
         {
-            base.StopAll();
-            _safeTimer?.Dispose();
-            _fastTimer?.Dispose();
+            _safeTimer.Dispose();
+            _fastTimer.Dispose();
+            base.Dispose();
         }
-
     }
 }

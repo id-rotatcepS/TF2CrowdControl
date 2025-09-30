@@ -44,7 +44,10 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         : base(player, responseHandler, statusUpdateHandler) { }
 
     public static readonly string C_NEW = "Newest";
+    public static readonly string C_WARNING = "Flashing/Nausea";
+
     public static readonly string C_LOW_IMPACT = "Less Annoying";
+
     public static readonly string C_CHALLENGES = "Challenges";
     public static readonly string C_CAMERA = "Camera";
     public static readonly string C_VIEWMODEL = "View Model";
@@ -236,7 +239,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Vertigo",
         Description = "Oh god oh god oh god make it stop",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_CAMERA),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -258,7 +261,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Challenge: Vertigo Creep - Reduce on Kill",
         Description = "Vertigo keeps getting worse, but every kill halves the effect. Panic Mode at the end.",
         Duration = TimeSpan.FromMinutes(5),
-        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
@@ -277,7 +280,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "6 deaths",
         Description = "TF2, but every time I die my case of vertigo doubles in intensity (for about 6 deaths or up to the duration)",
         Duration = TimeSpan.FromMinutes(5),
-        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
@@ -299,6 +302,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Pixelated",
         Description = "TF2 in the 1980s.",
         Duration = TimeSpan.FromSeconds(30),
+        //TODO C_WARNING?
         Category = new EffectGrouping(C_CAMERA),
         Price = 40,
         #region streamer facing
@@ -322,6 +326,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "6 deaths",
         Description = "TF2, but every time I die the pixels double in size (for about 6 deaths or up to 5 minutes)",
         Duration = TimeSpan.FromMinutes(5),
+        //TODO C_WARNING?
         Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
@@ -344,7 +349,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Camera: Dream Mode",
         Description = "The radiant glow of TF2 in a dream.",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_CAMERA),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -367,7 +372,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         Note = "6 deaths",
         Description = "TF2, but every time I die the dreamy glow doubles in intensity (for about 6 deaths or up to the duration)",
         Duration = TimeSpan.FromMinutes(5),
-        Category = new EffectGrouping(C_CAMERA, C_CHALLENGES),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA, C_CHALLENGES),
         Price = 50,
         #region streamer facing
         IsDurationEditable = true,
@@ -408,7 +413,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "Warning: may cause euphorinausea.",
         Duration = TimeSpan.FromSeconds(15),
-        Category = new EffectGrouping(C_CAMERA, C_TAUNT),
+        Category = new EffectGrouping(C_WARNING, C_CAMERA, C_TAUNT),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -539,7 +544,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "View Model: Plastered",
         Description = "Good eveninging ofischer... I don' feel sho good",
         Duration = TimeSpan.FromSeconds(60),
-        Category = new EffectGrouping(C_VIEWMODEL, C_CAMERA),
+        Category = new EffectGrouping(C_WARNING, C_VIEWMODEL, C_CAMERA),
         Price = 40,
         #region streamer facing
         IsDurationEditable = true,
@@ -1286,7 +1291,8 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
     {
         Description = "TF2 from the POV of hacker/robot/terminator/predator/robocop/iron man/westworld",
         Duration = TimeSpan.FromMinutes(1),
-        Category = new EffectGrouping(C_LOW_IMPACT, C_HUD),
+        // C_WARNING because audio text is very flickery
+        Category = new EffectGrouping(C_WARNING, C_LOW_IMPACT, C_HUD),
         Price = 30,
         #region streamer facing
         IsDurationEditable = true,
@@ -1321,7 +1327,7 @@ public class TF2Spectator : SimpleTCPPack<SimpleTCPServerConnector>
         SortName = "Mouse: Spin Left",
         Description = "I swear I'm not a spinbot.",
         Duration = TimeSpan.FromSeconds(30),
-        Category = new EffectGrouping(C_MOVEMENT, C_GAMEPLAY),
+        Category = new EffectGrouping(C_WARNING, C_MOVEMENT, C_GAMEPLAY),
         Price = 40, // might get us kicked
         #region streamer facing
         IsDurationEditable = true,
