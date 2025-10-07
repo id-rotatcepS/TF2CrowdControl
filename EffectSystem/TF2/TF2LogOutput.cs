@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using TF2FrameworkInterface;
 
@@ -17,7 +16,6 @@ namespace EffectSystem.TF2
     // THEREFORE we have to rely on backup timer of perhaps 30 seconds.
 
 
-    //TODO we also have "*You will spawn as Demoman"
     //TODO "Unhandled GameEvent in ClientModeShared::FireGameEvent - player_death"
     //TODO "Unhandled GameEvent in ClientModeShared::FireGameEvent - localplayer_changeclass"
     /*
@@ -90,7 +88,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
             LineMatchers = new()
             {
                 // needs tf2bd compatibility or prevention, and has no value right now
-                // new ChatMatcher(this),
+                //new ChatMatcher(this),
 
                 new KilledMatcher(this),
                 new SuicidedMatcher(this),
@@ -123,9 +121,11 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
                 //new StatusHeaderMatcher(this),
                 new StatusPlayerMatcher(this),
             };
+
+            //TODO CleanUpOldLogFiles();
         }
 
-        public string LogFileName { get; } = "TF2SpectatorCommandLogOutput.txt".ToLower(); // apparently it ignores case when you set log file name?
+        public string LogFileName { get; } = string.Format("TF2Spectator_con_logfile_{0:yyyy-MM-dd}.txt", DateTime.Now).ToLower(); // apparently it ignores case when you set log file name?
 
         protected string LogFilePath
             => Path.Combine(TF2Path, "tf", LogFileName);
@@ -135,6 +135,8 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
 
         // currently disabled/not needed:
         public string ActiveLoggingCommand => $"status;";
+
+        public bool ReadingFile { get; private set; } = false;
 
         /// <summary>
         /// Called OnPlayerDied
@@ -217,19 +219,28 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
 
         private void ReadLiveLogFileWithRetries()
         {
+            string lastError = string.Empty;
             int tries = 0;
-            while (tries < 60 * 5) // 5 minutes worth of retries.
+            while (tries < 60 * 10) // 10 minutes worth of retries. (they might just be sitting at the menu with no log output)
             {
                 try
                 {
                     ReadLiveLogFile(LogFilePath);
+                    lastError = string.Empty;
                     return;
                 }
                 catch (Exception ex)
                 {
                     ++tries;
                     Thread.Sleep(1000);
-                    ASPEN.Aspen.Log.WarningException(ex, "TF2's Log File");
+
+                    if (lastError != ex.ToString())
+                        ASPEN.Aspen.Log.WarningException(ex, "TF2's Log File (retrying)");
+                    lastError = ex.ToString();
+                }
+                finally
+                {
+                    ReadingFile = false;
                 }
             }
             ASPEN.Aspen.Log.Error("TF2's Log File - giving up. MOST STATUS CHECKS WILL NOT WORK. Recommend restarting this app and TF2.");
@@ -244,6 +255,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (StreamReader sr = new StreamReader(fs, Encoding.Default))
             {
+                ReadingFile = true;
                 ASPEN.Aspen.Log.Info("TF2's Log File - starting.");
                 try
                 {
@@ -411,6 +423,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
     }
     /// <summary>
     /// Fires when the player has selected a different class (including while dead).
+    /// "*You will respawn as Demoman"
     /// </summary>
     public class NextClassChangeMatcher : LineMatcher
     {
@@ -703,7 +716,7 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
             TF2Status playerStatus = new TF2Status(match);
             TF2LogOutput.NotifyPlayerStatus(playerStatus);
         }
-        
+
     }
 
     public class LineMatcher

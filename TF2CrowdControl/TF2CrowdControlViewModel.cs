@@ -144,9 +144,18 @@ namespace TF2CrowdControl
             => CCCommunicator.EffectStates;
 
         #region TF2Status
-        public Brush StatusAppColor => TF2Effects.Instance.TF2Proxy?.IsOpen ?? false
-            ? new SolidColorBrush(Colors.Green)
-            : new SolidColorBrush(Colors.DarkRed);
+        public Brush StatusAppColor
+        {
+            get
+            {
+                if (TF2Effects.Instance.TF2Proxy == null || !TF2Effects.Instance.TF2Proxy.IsOpen)
+                    return new SolidColorBrush(Colors.DarkRed); // not open
+
+                return TF2Effects.Instance.TF2Proxy.IsReading
+                    ? new SolidColorBrush(Colors.Green) // open and reading
+                    : new SolidColorBrush(Colors.CornflowerBlue); // open but not reading
+            }
+        }
 
         public string StatusMapName => TF2Effects.Instance.TF2Proxy?.Map ?? string.Empty;
         public Brush StatusMapNameColor => TF2Effects.Instance.TF2Proxy?.IsMapLoaded ?? false

@@ -182,7 +182,7 @@ namespace EffectSystem
             if (IsForAllEffects(req))
             {
                 StopAll();
-                Responder.DurationFinished(req);
+                _client.DurationFinished(req);
                 return;
             }
             if (IsUnregisteredEffect(req))
@@ -194,7 +194,7 @@ namespace EffectSystem
             Effect effect = Effects.First(e => e.ID == req.EffectID);//Effects[request.code];
 
             Stop(effect);
-            Responder.DurationFinished(req);
+            _client.DurationFinished(req);
         }
 
         private bool IsForAllEffects(EffectDispatchRequest req)

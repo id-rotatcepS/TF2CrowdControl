@@ -730,10 +730,16 @@ namespace EffectSystem.TF2
         /// One-time command has successfully run?
         /// </summary>
         private bool _PollingSetupRun = false;
+        // currently, this will be called 10s after polling tf2 proxy created + when tf2 connection is live.
         private void InitializeLogWhenNeeded()
         {
             // do any leftover initialization
             if (_PollingSetupRun)
+                //... didn't seem to help.
+                //// give it something to log since this could be stuck with no active file once a session until we join a game, otherwise.
+                //if (!log.ReadingFile)
+                //    _ = tf2.SendCommand(new StringCommand("echo logging active"), (s) => { })
+                //        .Wait(MaxCommandRunTime);
                 return;
 
             _PollingSetupRun =
@@ -856,9 +862,7 @@ namespace EffectSystem.TF2
             string result = string.Empty;
 
             if (IsLogworthy(command))
-            {
                 Aspen.Log.Info($"Run> {command}");
-            }
 
             bool completed =
                 sendCommand.Invoke(new StringCommand(command),
@@ -917,6 +921,9 @@ namespace EffectSystem.TF2
         public bool IsOpen
             => tf2 != null
             && tf2.IsConnected;
+
+        public bool IsReading
+            => log.ReadingFile;
 
         /// <summary>
         /// The user's in-game name. 
