@@ -130,7 +130,10 @@ Unhandled GameEvent in ClientModeShared::FireGameEvent - scorestats_accumulated_
         protected string LogFilePath
             => Path.Combine(TF2Path, "tf", LogFileName);
 
-        public string SetupCommand => $"con_logfile \"{LogFileName}\"; echo TF2 Spectator log started";
+        // "con_logfile" changes to a known filename for the log so we know we can find it to read.
+        // "echo" ensures the file gets created ASAP, otherwise it may not happen until a server connection is made.
+        // "wait 100" ensures logfile change is propogated before the echo produces content to create the possibly-new file.
+        public string SetupCommand => $"con_logfile \"{LogFileName}\"; wait 100; echo TF2 Spectator log started";
         // con_timestamp 1 ; Prefix console.log entries with timestamps
 
         // currently disabled/not needed:
