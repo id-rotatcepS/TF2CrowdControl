@@ -11,6 +11,11 @@
         public bool IsOpen { get; }
 
         /// <summary>
+        /// TF2 log is being read
+        /// </summary>
+        public bool IsReading { get; }
+
+        /// <summary>
         /// A game map has loaded
         /// </summary>
         public bool IsMapLoaded { get; }

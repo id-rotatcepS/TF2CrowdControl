@@ -94,6 +94,10 @@ namespace EffectSystem
 
             lock (CurrentRequest)
             {
+                // finishing Update() could have happened while awaiting the lock.
+                if (CurrentRequest == null)
+                    return;
+
                 try
                 {
                     TimeSpan span = ElapsedTimeSpanIncrement();
