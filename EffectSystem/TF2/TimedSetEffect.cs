@@ -577,7 +577,6 @@ namespace EffectSystem.TF2
         public PixelatedTimedEffect()
             : base(EFFECT_ID, TimeSpan.FromSeconds(30), "mat_viewportscale", "0.1")
         {
-            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             // technically works while dead and spectating, but that's not really the point.
             Availability = new AliveInMap();
@@ -672,8 +671,8 @@ namespace EffectSystem.TF2
 
         private void UpdateBloom()
         {
-            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor.ToString());
-            TF2Effects.Instance.SetRequiredValue("mat_non_hdr_bloom_scalefactor", bloomFactor.ToString());
+            TF2Effects.Instance.SetRequiredValue("mat_bloom_scalefactor_scalar", bloomFactor);
+            TF2Effects.Instance.SetRequiredValue("mat_non_hdr_bloom_scalefactor", bloomFactor);
         }
 
         private void OnDeath()
@@ -849,7 +848,7 @@ namespace EffectSystem.TF2
                 return def;
 
             double result;
-            if (double.TryParse(value, out result))
+            if (double.TryParse(value, TF2Effects.Instance.TF2Proxy?.ConsoleFormatter, out result))
                 return result;
             return def;
         }
@@ -860,12 +859,12 @@ namespace EffectSystem.TF2
             LoadOriginalValues();
 
             double newval = Factor * startValue;
-            TF2Effects.Instance.SetRequiredValue(variable, newval.ToString());
+            TF2Effects.Instance.SetRequiredValue(variable, newval);
         }
 
         public override void StopEffect()
         {
-            TF2Effects.Instance.SetValue(variable, startValue.ToString());
+            TF2Effects.Instance.SetValue(variable, startValue);
         }
     }
     public class MouseSensitivityHighEffect : MouseSensitivityEffect

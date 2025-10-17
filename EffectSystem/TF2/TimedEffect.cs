@@ -1080,7 +1080,6 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
-            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             Availability = new InMap();
         }
@@ -1100,7 +1099,7 @@
 
         private void UpdateScale()
         {
-            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale.ToString());
+            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale);
         }
 
         private void OnDeath()

@@ -1,5 +1,5 @@
 ﻿using ASPEN;
-
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 using TF2FrameworkInterface;
@@ -896,6 +896,12 @@ namespace EffectSystem.TF2
         {
             _ = RunCommand("setinfo " + variable + " " + value);
         }
+
+        /// <summary>
+        /// A FormatProvider to use when working with console values in TF2.
+        /// Might not be completely accurate, but most important is we get a dot decimal format from it.
+        /// </summary>
+        public IFormatProvider ConsoleFormatter => CultureInfo.InvariantCulture;
 
         public void SetValue(string variable, string value)
         {

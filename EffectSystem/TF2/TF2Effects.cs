@@ -201,6 +201,9 @@ namespace EffectSystem.TF2
             TF2Proxy.SetInfo(variable, value);
         }
 
+        public void SetInfo(string variable, double value)
+            => SetInfo(variable, value.ToString(TF2Proxy?.ConsoleFormatter));
+
         public void SetValue(string variable, string value)
         {
             try
@@ -212,6 +215,9 @@ namespace EffectSystem.TF2
                 ASPEN.Aspen.Log.Warning(ex.Message);
             }
         }
+
+        public void SetValue(string variable, double value)
+            => SetValue(variable, value.ToString(TF2Proxy?.ConsoleFormatter));
 
         /// <summary>
         /// 
@@ -226,6 +232,9 @@ namespace EffectSystem.TF2
 
             TF2Proxy.SetValue(variable, value);
         }
+
+        public void SetRequiredValue(string variable, double value)
+            => SetRequiredValue(variable, value.ToString(TF2Proxy?.ConsoleFormatter));
 
         public string? GetValue(string variable)
         {
@@ -249,7 +258,7 @@ namespace EffectSystem.TF2
         /// <param name="volumePercent">number between 0.0 and 1.0 (larger values just act like 1.0)</param>
         public void PlayVol(TF2FrameworkInterface.TF2Sound sound, double volumePercent)
         {
-            _ = TF2Proxy?.RunCommand(string.Format("playvol {0} {1}", sound.File, volumePercent));
+            _ = TF2Proxy?.RunCommand(string.Format("playvol {0} {1}", sound.File, volumePercent.ToString(TF2Proxy?.ConsoleFormatter)));
         }
     }
 }
