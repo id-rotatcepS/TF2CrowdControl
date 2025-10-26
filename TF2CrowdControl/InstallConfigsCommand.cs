@@ -3,7 +3,7 @@
 using EffectSystem.TF2;
 
 using System.IO;
-
+using TF2CrowdControl.Resources;
 using TF2FrameworkInterface;
 
 namespace TF2CrowdControl
@@ -121,7 +121,7 @@ namespace TF2CrowdControl
             }
             catch (Exception ex)
             {
-                Aspen.Log.ErrorException(ex, "Failure while installing configuration - connection with TF2 may not work.");
+                Aspen.Log.ErrorException(ex, UserText.Log_InstallConfigsException);
             }
         }
 
@@ -140,7 +140,7 @@ namespace TF2CrowdControl
                     content
                 });
 
-            Aspen.Log.Info(string.Format("Configured {0}", cfgPath));
+            Aspen.Log.Info(string.Format(UserText.Log_InstallConfig, cfgPath));
         }
 
         private void EnsurePathDirectories(string cfgPath)

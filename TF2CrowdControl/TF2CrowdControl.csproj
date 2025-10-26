@@ -25,4 +25,19 @@
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Resources\UserText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserText.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\UserText.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

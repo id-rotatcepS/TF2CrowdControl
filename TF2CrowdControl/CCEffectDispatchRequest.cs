@@ -1,6 +1,7 @@
 ﻿using ConnectorLib.JSON;
 
 using EffectSystem;
+using TF2CrowdControl.Resources;
 
 namespace CrowdControl
 {
@@ -59,8 +60,9 @@ namespace CrowdControl
         public IEnumerable<string> HypeContribs { get; private set; }
 
         public override string Parameter =>
-            Hype + " " +
-            //Progress + " " + // TODO not sure if this is formatted right - it gets logged.  Also might be too long for party-chat.
-            "Special thanks to " + string.Join(", ", HypeContribs);
+            string.Format(UserText.EffectHypeTrain_Format,
+                Hype,
+                Progress,
+                string.Join(", ", HypeContribs));
     }
 }

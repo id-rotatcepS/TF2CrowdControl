@@ -10,6 +10,8 @@ using System.Reflection;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using TF2CrowdControl.Resources;
+
 namespace TF2CrowdControl
 {
     /// <summary>
@@ -94,8 +96,8 @@ namespace TF2CrowdControl
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
             this.WindowTitle = string.Format(
-                "TF2 Spectator for Crowd Control - {0}.{1}.{2} - by id_rotatcepS",
-                version?.Major, version?.Minor, version?.Build);
+                UserText.WindowTitle_Format,
+                version?.Major, version?.Minor, version?.Build, "id_rotatcepS");
 
             Aspen.Log = new TF2SpectatorLog(this);
             // settings load/save to the config file.
@@ -249,7 +251,7 @@ namespace TF2CrowdControl
             catch (Exception)
             {
                 // just a test... if TF2 isn't running that's OK.
-                Aspen.Log.Warning("No TF2 connection yet.");
+                Aspen.Log.Warning(UserText.Log_NoTF2Connection);
             }
         }
 
@@ -286,7 +288,7 @@ namespace TF2CrowdControl
             catch (Exception ex)
             {
                 TF2Effects.Instance.TF2Proxy = null;
-                Aspen.Log.ErrorException(ex, "Failed Connection to TF2. Change port/password/path settings (or restart this app) to try again.");
+                Aspen.Log.ErrorException(ex, UserText.Log_TF2ConnectionException);
             }
         }
 

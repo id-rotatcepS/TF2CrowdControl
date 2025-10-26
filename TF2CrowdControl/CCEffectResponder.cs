@@ -3,6 +3,7 @@
 using ConnectorLib.JSON;
 
 using EffectSystem;
+using TF2CrowdControl.Resources;
 
 namespace CrowdControl
 {
@@ -32,7 +33,7 @@ namespace CrowdControl
 
                 // Unavailable/Retry/Success/Paused/Resumed/Finished
                 if (timeRemaining == null)
-                    Aspen.Log.Info($"{result} effect [{request.code}]. {message}");
+                    Aspen.Log.Info(string.Format(UserText.Log_CCEffectResponder_Format, result, request.code, message));
                 else
                     Aspen.Log.Trace($"{result} effect [{request.code}] {timeRemaining.Value.TotalSeconds}s. {message}");
 
@@ -48,7 +49,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Respond to effect request failed");
+                Aspen.Log.ErrorException(e, UserText.Log_CCEffectResponderException);
                 return false;
             }
         }
@@ -105,7 +106,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, $"Status response for effect {effectID} failed");
+                Aspen.Log.ErrorException(e, string.Format(UserText.Log_CCEffectResponderStatusException_Format, effectID));
                 return false;
             }
         }

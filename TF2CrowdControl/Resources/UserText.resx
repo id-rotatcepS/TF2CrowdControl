@@ -1,0 +1,289 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="InstallConfigs" xml:space="preserve">
+    <value>Install Configs</value>
+    <comment>TF2 Settings button</comment>
+  </data>
+  <data name="LaunchOptions_Before" xml:space="preserve">
+    <value>For the RCON connection to work with this app, TF2's Launch Options must include </value>
+    <comment>TF2 Settings text preceding "-usercon" option</comment>
+  </data>
+  <data name="LaunchOptions_After" xml:space="preserve">
+    <value> and the configs must be installed.  If any of the above settings are changed, TF2 must be closed and reopened.</value>
+    <comment>TF2 Settings text following "-usercon" option</comment>
+  </data>
+  <data name="RCONPassword_Label" xml:space="preserve">
+    <value>RCON password:</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="RCONPassword_ToolTip" xml:space="preserve">
+    <value>Anything is fine - this is just local on your machine</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="RCONPort_Label" xml:space="preserve">
+    <value>RCON port:</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="RCONPort_ToolTip" xml:space="preserve">
+    <value>Any number typically between 40000 and 49000 - this is just local on your machine</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="TF2Path_Label" xml:space="preserve">
+    <value>TF2 Path:</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="TF2Path_ToolTip" xml:space="preserve">
+    <value>The path of the folder that contains tf2_win64.exe</value>
+    <comment>TF2 Settings </comment>
+  </data>
+  <data name="TF2Settings" xml:space="preserve">
+    <value>Team Fortress 2 Settings</value>
+    <comment>expander title</comment>
+  </data>
+  <data name="Status_Before" xml:space="preserve">
+    <value>Status | </value>
+    <comment>expander title heading and spacer before CC</comment>
+  </data>
+  <data name="Status_CC" xml:space="preserve">
+    <value>Crowd Control connection</value>
+    <comment>CC connection text (color-coded)</comment>
+  </data>
+  <data name="Status_CC_After" xml:space="preserve">
+    <value> | </value>
+    <comment>spacer before TF2</comment>
+  </data>
+  <data name="Status_TF2_After" xml:space="preserve">
+    <value> | </value>
+    <comment>spacer before MapName</comment>
+  </data>
+  <data name="Status_TF2" xml:space="preserve">
+    <value>TF2 connection</value>
+    <comment>TF2 connection text (color-coded)</comment>
+  </data>
+  <data name="Status_MapName_After" xml:space="preserve">
+    <value>  </value>
+    <comment>spacer before ClassName</comment>
+  </data>
+  <data name="Status_ClassName_After" xml:space="preserve">
+    <value>  </value>
+    <comment>spacer before VerticalSpeed</comment>
+  </data>
+  <data name="Log" xml:space="preserve">
+    <value>Log</value>
+    <comment>expander title</comment>
+  </data>
+  <data name="WindowTitle_Format" xml:space="preserve">
+    <value>TF2 Spectator for Crowd Control - {0}.{1}.{2} - by {3}</value>
+    <comment>Window Title with version 0: Major; 1: Minor; 2: Build; and 3: author</comment>
+  </data>
+  <data name="Log_NoTF2Connection" xml:space="preserve">
+    <value>No TF2 connection yet.</value>
+  </data>
+  <data name="Log_TF2ConnectionException" xml:space="preserve">
+    <value>Failed Connection to TF2. Change port/password/path settings (or restart this app) to try again.</value>
+  </data>
+  <data name="Log_TF2ConfigLoadException" xml:space="preserve">
+    <value>Loading TF2Config.</value>
+  </data>
+  <data name="Log_TF2ConfigSaveException" xml:space="preserve">
+    <value>Saving TF2Config.</value>
+  </data>
+  <data name="Log_CCConnectionException" xml:space="preserve">
+    <value>Crowd Control connect failed - retrying.</value>
+    <comment>error, loop will retry</comment>
+  </data>
+  <data name="Log_CCConnectionEnd" xml:space="preserve">
+    <value>Crowd Control connection ended.</value>
+    <comment>loop was quit</comment>
+  </data>
+  <data name="Log_CCOnConnectException" xml:space="preserve">
+    <value>Crowd Control OnConnected failed.</value>
+    <comment>error in OnConnect event</comment>
+  </data>
+  <data name="Log_CCListenException" xml:space="preserve">
+    <value>Crowd Control Listen failed.</value>
+    <comment>error listening for new effect requests</comment>
+  </data>
+  <data name="Log_CCEffectInvokeParseFail" xml:space="preserve">
+    <value>Crowd Control Request Parse failed.</value>
+    <comment>request received but could not parse</comment>
+  </data>
+  <data name="Log_CCEffectOnRequestReceivedException" xml:space="preserve">
+    <value>Crowd Control OnRequestReceived failed.</value>
+  </data>
+  <data name="Log_CCKeepAliveException" xml:space="preserve">
+    <value>Crowd Control KeepAlive failed.</value>
+  </data>
+  <data name="Log_CCEffectResponseException" xml:space="preserve">
+    <value>Respond to Crowd Control effect response failed.</value>
+  </data>
+  <data name="Log_CCEffectUpdateException" xml:space="preserve">
+    <value>Crowd Control effect Update failed.</value>
+  </data>
+  <data name="Log_CCEffectGameUpdateException" xml:space="preserve">
+    <value>Crowd Control game Update failed.</value>
+  </data>
+  <data name="Log_InstallConfigsException" xml:space="preserve">
+    <value>Failure while installing configuration - connection with TF2 may not work.</value>
+  </data>
+  <data name="EffectHypeTrainLevel_Format" xml:space="preserve">
+    <value>Level {0} Hype Train!</value>
+    <comment>0: hype level</comment>
+  </data>
+  <data name="EffectHypeTrainProgress_Format" xml:space="preserve">
+    <value>{0} bits makes {1} towards {2}.</value>
+    <comment>0: hype.Total; 1: hype.Progress; 2: hype.Goal</comment>
+  </data>
+  <data name="EffectHypeTrainContributor_Format" xml:space="preserve">
+    <value>{0} ({1} {2})</value>
+    <comment>for each contributor - 0:username; 1:total; 2:type</comment>
+  </data>
+  <data name="Log_EffectHypeTrain_Format" xml:space="preserve">
+    <value>Hype Train Event: {0} {1} {2}</value>
+    <comment>0: formatted trainlevel; 1: formatted progress; 2: formatted comma-joined contributors list</comment>
+  </data>
+  <data name="Log_CCEffectResponder_Format" xml:space="preserve">
+    <value>{0} effect [{1}]. {2}</value>
+    <comment>0: result; 1: request.code; 2: message</comment>
+  </data>
+  <data name="Log_CCEffectResponderException" xml:space="preserve">
+    <value>Respond to effect request failed.</value>
+  </data>
+  <data name="EffectHypeTrain_Format" xml:space="preserve">
+    <value>{0} Special thanks to {2}</value>
+    <comment>message used in party chat. 0: formatted Hype Level; 1: formatted Progress (WARNING not sure if this is formatted safely for chat.  Also might be too long for party-chat. it gets logged anyway) 2: Formatted contributor list comma separated</comment>
+  </data>
+  <data name="Log_InstallConfig" xml:space="preserve">
+    <value>Configured {0}</value>
+    <comment>for each file configured. 0: config file path</comment>
+  </data>
+  <data name="Log_EffectTestNotFound_Format" xml:space="preserve">
+    <value>Effect {0} not found. </value>
+    <comment>"Test" of effect requested, but effect not found. 0: effectID</comment>
+  </data>
+  <data name="Log_EffectRequestTypeUnknown_Format" xml:space="preserve">
+    <value>Unsupported Effect Request Type: {0}</value>
+    <comment>CC requested something we don't know how to do.</comment>
+  </data>
+  <data name="Log_CCEffectResponderStatusException_Format" xml:space="preserve">
+    <value>Status response for effect {} failed.</value>
+    <comment>exception while trying to update effect status (disabled, etc) 0: effectID</comment>
+  </data>
+</root>

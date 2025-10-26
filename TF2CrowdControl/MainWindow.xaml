@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TF2CrowdControl"
+        xmlns:resx="clr-namespace:TF2CrowdControl.Resources"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" 
         Height="500" Width="800"
@@ -18,7 +19,7 @@
     
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <Expander x:Name="TF2Settings" Header="Team Fortress 2 Settings" Background="AntiqueWhite">
+            <Expander x:Name="TF2Settings" Header="{x:Static resx:UserText.TF2Settings}" Background="AntiqueWhite">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -34,26 +35,26 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <Label Grid.Column="0" Grid.Row="0" 
-                               HorizontalContentAlignment="Right">TF2 Path:</Label>
+                               HorizontalContentAlignment="Right" Content="{x:Static resx:UserText.TF2Path_Label}"/>
                         <TextBox Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="0" 
                                  x:Name="TF2Path" Text="{Binding TF2Path}" HorizontalAlignment="Stretch" 
-                                 ToolTip="The path of the folder that contains tf2_win64.exe"/>
+                                 ToolTip="{x:Static resx:UserText.TF2Path_ToolTip}"/>
                         <Label Grid.Column="0" Grid.Row="1" 
-                               HorizontalContentAlignment="Right">RCON password:</Label>
+                               HorizontalContentAlignment="Right" Content="{x:Static resx:UserText.RCONPassword_Label}"/>
                         <TextBox Grid.Column="1" Grid.Row="1"
                                  x:Name="RCONPassword" Text="{Binding RCONPassword}"
-                                 ToolTip="Anything is fine - this is just local on your machine"/>
+                                 ToolTip="{x:Static resx:UserText.RCONPassword_ToolTip}"/>
                         <Label Grid.Column="2" Grid.Row="1" 
-                               HorizontalContentAlignment="Right">RCON port:</Label>
+                               HorizontalContentAlignment="Right" Content="{x:Static resx:UserText.RCONPort_Label}"/>
                         <TextBox Grid.Column="3" Grid.Row="1"
                                  x:Name="RCONPort" Text="{Binding RCONPort}"
-                                 ToolTip="Any number typically between 40000 and 49000 - this is just local on your machine"/>
+                                 ToolTip="{x:Static resx:UserText.RCONPort_ToolTip}"/>
                         <Button Grid.Column="0" Grid.Row="2"
-                                x:Name="InstallConfigs" Content="Install Configs" Command="{Binding InstallConfigsCommand}"/>
+                                x:Name="InstallConfigs" Content="{x:Static resx:UserText.InstallConfigs}" Command="{Binding InstallConfigsCommand}"/>
                         <TextBlock Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="3" TextWrapping="Wrap" Margin="5,10">
-                            <Run>For the RCON connection to work with this app, TF2's Launch Options must include</Run>
-                            <Run Text=" "/><Run FontFamily="Courier New" Background="LightGray">-usercon</Run><Run Text=" "/>
-                            <Run>and the configs must be installed.  If any of the above settings are changed, TF2 must be closed and reopened.</Run>
+                            <Run Text="{x:Static resx:UserText.LaunchOptions_Before}"/>
+                            <Run FontFamily="Courier New" Background="LightGray">-usercon</Run>
+                            <Run Text="{x:Static resx:UserText.LaunchOptions_After}"/>
                         </TextBlock>
                     </Grid>
                 </StackPanel>
@@ -61,23 +62,23 @@
             <Expander x:Name="Status" IsExpanded="False">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Status | "/>
+                        <TextBlock Text="{x:Static resx:UserText.Status_Before}"/>
                         <TextBlock x:Name="CC" 
-                                   Text="Crowd Control connection" 
+                                   Text="{x:Static resx:UserText.Status_CC}" 
                                    Foreground="{Binding StatusCCColor}"/>
-                        <TextBlock Text=" | "/>
+                        <TextBlock Text="{x:Static resx:UserText.Status_CC_After}"/>
                         <TextBlock x:Name="TF2" 
-                                   Text="TF2 connection" 
+                                   Text="{x:Static resx:UserText.Status_TF2}" 
                                    Foreground="{Binding StatusAppColor}"/>
-                        <TextBlock Text=" | "/>
+                        <TextBlock Text="{x:Static resx:UserText.Status_TF2_After}"/>
                         <TextBlock x:Name="MapName" 
                                    Text="{Binding StatusMapName}" 
                                    Foreground="{Binding StatusMapNameColor}"/>
-                        <TextBlock Text="  "/>
+                        <TextBlock Text="{x:Static resx:UserText.Status_MapName_After}"/>
                         <TextBlock x:Name="ClassName" 
                                    Text="{Binding StatusClassName}" 
                                    Foreground="{Binding StatusClassNameColor}"/>
-                        <TextBlock Text="  "/>
+                        <TextBlock Text="{x:Static resx:UserText.Status_ClassName_After}"/>
                         <TextBlock x:Name="VerticalSpeed" 
                                    Text="{Binding StatusVerticalSpeed}" 
                                    Foreground="{Binding StatusVerticalSpeedColor}"/>
@@ -121,7 +122,7 @@
 
                 </StackPanel>
             </Expander>
-            <Expander x:Name="Log" Header="Log" IsExpanded="True" MaxHeight="350">
+            <Expander x:Name="Log" Header="{x:Static resx:UserText.Log}" IsExpanded="True" MaxHeight="350">
                 <ScrollViewer x:Name="logScroller" VerticalScrollBarVisibility="Visible">
                     <TextBox x:Name="log" HorizontalAlignment="Left" MinHeight="70" TextWrapping="Wrap" VerticalContentAlignment="Stretch" MinWidth="700"
                              Text="{Binding CommandLog}" 
