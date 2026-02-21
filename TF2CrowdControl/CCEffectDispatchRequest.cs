@@ -34,6 +34,7 @@ namespace CrowdControl
         /// }
         /// </summary>
         public virtual string Parameter => OriginalRequest.parameters?.First?.First?["value"]?.ToString() ?? string.Empty;
+        // TODO update added dictionary OriginalRequest.arguments - how is this used?
 
         /// <summary>
         /// The requested duration of the effect, in milliseconds.	An option to report this value as decimal seconds (double?) will be available in a future release.
