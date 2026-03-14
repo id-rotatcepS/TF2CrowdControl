@@ -558,6 +558,11 @@
             Availability = new InMap();
         }
 
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
+
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
@@ -998,6 +1003,11 @@
             challenge = new KillstreakChallenge(5);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     /// <summary>
@@ -1013,6 +1023,11 @@
             challenge = new KillsChallenge(3);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     /// <summary>
@@ -1071,6 +1086,11 @@
             challenge = new KillsChallenge(3);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     public class DeathAddsPixelatedTimedEffect : TimedEffect
@@ -1083,6 +1103,11 @@
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
 
         public override bool IsSelectableGameState => IsAvailable;
 

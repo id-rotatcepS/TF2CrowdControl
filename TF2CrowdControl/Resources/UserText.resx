@@ -286,4 +286,12 @@
     <value>Status response for effect {} failed.</value>
     <comment>exception while trying to update effect status (disabled, etc) 0: effectID</comment>
   </data>
+  <data name="TF2_Message_Off" xml:space="preserve">
+    <value>TF2 not started? If it is, check my install instructions and settings then restart it.</value>
+    <comment>When TF2 is not connected</comment>
+  </data>
+  <data name="TF2_Message_No_Log" xml:space="preserve">
+    <value>TF2 Log reading issue is degrading some effects. Consider restarting.</value>
+    <comment>TF2 Log not reading, but TF2 is connected, </comment>
+  </data>
 </root>

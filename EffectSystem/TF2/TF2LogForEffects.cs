@@ -22,6 +22,8 @@ namespace EffectSystem.TF2
     /// </summary>
     public class TF2LogForEffects : TF2LogOutput
     {
+        public static bool IsLogReadingActive => TF2Effects.Instance?.TF2Proxy?.IsReading ?? false;
+
         public TF2LogForEffects(string tf2Path)
             : base(tf2Path)
         {

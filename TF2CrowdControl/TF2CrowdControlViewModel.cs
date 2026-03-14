@@ -7,6 +7,7 @@ using EffectSystem.TF2;
 
 using System.ComponentModel;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -128,6 +129,8 @@ namespace TF2CrowdControl
                 ViewNotification(nameof(StatusVerticalSpeed));
                 ViewNotification(nameof(StatusVerticalSpeedColor));
                 ViewNotification(nameof(StatusAppColor));
+                ViewNotification(nameof(StatusAppMessage));
+                ViewNotification(nameof(StatusAppMessageVisibility));
                 ViewNotification(nameof(StatusCCColor));
 
                 ViewNotification(nameof(ProxyValues));
@@ -146,6 +149,28 @@ namespace TF2CrowdControl
             => CCCommunicator.EffectStates;
 
         #region TF2Status
+        public string StatusAppMessage
+        {
+            get
+            {
+                if (TF2Effects.Instance.TF2Proxy == null || !TF2Effects.Instance.TF2Proxy.IsOpen)
+                    return UserText.TF2_Message_Off; // not open
+
+                return TF2Effects.Instance.TF2Proxy.IsReading
+                    ? string.Empty // open and reading
+                    : UserText.TF2_Message_No_Log; // open but not reading
+            }
+        }
+        public Visibility StatusAppMessageVisibility
+        {
+            get
+            {
+                return string.IsNullOrEmpty(StatusAppMessage)
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+            }
+        }
+
         public Brush StatusAppColor
         {
             get

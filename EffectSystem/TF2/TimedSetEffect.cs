@@ -315,6 +315,11 @@ namespace EffectSystem.TF2
             Availability = new InMap();
         }
 
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
+
         // don't go disabled when effects aren't set yet.
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -374,6 +379,11 @@ namespace EffectSystem.TF2
             Mutex.Add(TF2Effects.MUTEX_MOTION_BLUR);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
 
         // don't go disabled when effects aren't set yet.
         public override bool IsSelectableGameState => IsAvailable;
@@ -511,6 +521,12 @@ namespace EffectSystem.TF2
             // Availability: even works in the menu
             Availability = new InApplication();
         }
+
+        ///// <summary>
+        ///// Effect is a (partial) waste if the log isn't working.
+        ///// </summary>
+        //public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
+
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
@@ -652,6 +668,11 @@ namespace EffectSystem.TF2
             Mutex.Add(TF2Effects.MUTEX_BLOOM);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
 
         // don't go disabled when effects aren't set yet.
         public override bool IsSelectableGameState => IsAvailable;
@@ -1313,6 +1334,11 @@ namespace EffectSystem.TF2
             //base: Mutex.Add(TF2Effects.MUTEX_CROSSHAIR_SHAPE);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
 
         // doesn't disable just because starting state matches current state.
         public override bool IsSelectableGameState => IsAvailable

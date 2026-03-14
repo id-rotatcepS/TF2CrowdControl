@@ -59,6 +59,9 @@
                     </Grid>
                 </StackPanel>
             </Expander>
+            <Label HorizontalContentAlignment="Center" Foreground="White" Background="{Binding StatusAppColor}" 
+                   Content="{Binding StatusAppMessage}"
+                   Visibility="{Binding StatusAppMessageVisibility}" />
             <Expander x:Name="Status" IsExpanded="False">
                 <Expander.Header>
                     <StackPanel Orientation="Horizontal">
