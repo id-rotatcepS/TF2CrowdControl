@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 using System.Net.Sockets;
 using System.Text;
+using TF2CrowdControl.Resources;
 
 namespace CrowdControl
 {
@@ -82,14 +83,14 @@ namespace CrowdControl
                     errorMessage = e.Message;
 
                     // we're in a loop, so this isn't a serious error, just info.
-                    Aspen.Log.InfoException(e, "Crowd Control connect failed - retrying.");
+                    Aspen.Log.InfoException(e, UserText.Log_CCConnectionException);
                 }
                 finally
                 {
                     await DisconnectAsync();
                 }
             }
-            Aspen.Log.Info("Crowd Control connection ended.");
+            Aspen.Log.Info(UserText.Log_CCConnectionEnd);
             Connected = false;
         }
 
@@ -111,7 +112,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Crowd Control OnConnected failed");
+                Aspen.Log.ErrorException(e, UserText.Log_CCOnConnectException);
             }
             _ready.Set();
             _ = await _error.WaitHandle.WaitOneAsync(_quitting.Token);
@@ -160,7 +161,7 @@ namespace CrowdControl
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "Crowd Control Listen failed");
+                    Aspen.Log.ErrorException(e, UserText.Log_CCListenException);
                     _error.Set();
                 }
                 finally
@@ -178,13 +179,13 @@ namespace CrowdControl
             bool parsed = SimpleJSONRequest.TryParse(json, out SimpleJSONRequest? req);
             if (!parsed || req == null)
             {
-                Aspen.Log.Error("Crowd Control Request Parse failed");
+                Aspen.Log.Error(UserText.Log_CCEffectInvokeParseFail);
                 return;
             }
 
             //Log.Debug($"Got a request with ID {req.id}.");
             try { OnRequestReceived?.Invoke(req); }
-            catch (Exception e) { Aspen.Log.ErrorException(e, "Crowd Control OnRequestReceived failed"); }
+            catch (Exception e) { Aspen.Log.ErrorException(e, UserText.Log_CCEffectOnRequestReceivedException); }
             mBytes.Clear();
         }
 
@@ -205,7 +206,7 @@ namespace CrowdControl
                 }
                 catch (Exception e)
                 {
-                    Aspen.Log.ErrorException(e, "Crowd Control KeepAlive failed");
+                    Aspen.Log.ErrorException(e, UserText.Log_CCKeepAliveException);
                     _error.Set();
                 }
                 finally
@@ -232,7 +233,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Respond to Crowd Control effect response failed");
+                Aspen.Log.ErrorException(e, UserText.Log_CCEffectResponseException);
                 return false;
             }
         }
@@ -265,7 +266,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Crowd Control effect Update failed");
+                Aspen.Log.ErrorException(e, UserText.Log_CCEffectUpdateException);
                 return false;
             }
         }
@@ -284,7 +285,7 @@ namespace CrowdControl
             }
             catch (Exception e)
             {
-                Aspen.Log.ErrorException(e, "Crowd Control game Update failed");
+                Aspen.Log.ErrorException(e, UserText.Log_CCEffectGameUpdateException);
                 return false;
             }
         }

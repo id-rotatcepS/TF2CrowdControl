@@ -4,6 +4,7 @@ using ConnectorLib.JSON;
 
 using EffectSystem;
 using EffectSystem.TF2;
+using TF2CrowdControl.Resources;
 
 namespace CrowdControl
 {
@@ -106,7 +107,7 @@ namespace CrowdControl
                         return;
                     default:
                         // there are no other known types that make an EffectRequest
-                        Aspen.Log.Warning($"Unsupported Effect Request Type: {effectRequest.type}");
+                        Aspen.Log.Warning(string.Format(UserText.Log_EffectRequestTypeUnknown_Format, effectRequest.type));
                         return;
                 }
             }
@@ -148,7 +149,7 @@ namespace CrowdControl
                 || !_effectDispatcher.Effects.Any(e => e.ID == effectID)
                 )
             {
-                Aspen.Log.Error($"Effect {effectID} not found. ");// Available effects: {string.Join(", ", Effects.Keys)}");
+                Aspen.Log.Error(string.Format(UserText.Log_EffectTestNotFound_Format, effectID));// Available effects: {string.Join(", ", Effects.Keys)}");
                 //could not find the effect
                 _effectDispatcher.Responder.NotAppliedUnavailable(req);
                 return;
@@ -189,14 +190,14 @@ namespace CrowdControl
         private static CCEffectDispatchRequest CreateCCHypeTrainEffectDispatchRequest(EffectRequest request, HypeTrainSourceDetails hype)
         {
             //hype.Type == req.EffectID;
-            string train = $"Level {hype.Level} Hype Train!";
-            string progress = $"{hype.Total} bits makes {hype.Progress} towards {hype.Goal}.";
+            string train = string.Format(UserText.EffectHypeTrainLevel_Format, hype.Level);
+            string progress = string.Format(UserText.EffectHypeTrainProgress_Format, hype.Total, hype.Progress, hype.Goal);
             IEnumerable<string> contributions =
                 hype.TopContributions.Select(
-                    contrib => $"{contrib.UserName} ({contrib.Total} {contrib.Type})");
+                    contrib => string.Format(UserText.EffectHypeTrainContributor_Format, contrib.UserName, contrib.Total, contrib.Type));
             //$"{hype.LastContribution.Total} {hype.LastContribution.Type} from {hype.LastContribution.UserName}";
 
-            Aspen.Log.Info("Hype Train Event: " + train + " " + progress + " " + string.Join(", ", contributions));
+            Aspen.Log.Info(string.Format(UserText.Log_EffectHypeTrain_Format, train, progress, string.Join(", ", contributions)));
             return new CCHypeTrainEffectDispatchRequest(request, train, progress, contributions);
         }
 

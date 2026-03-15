@@ -1,6 +1,7 @@
 ﻿using ConnectorLib.JSON;
 
 using EffectSystem;
+using TF2CrowdControl.Resources;
 
 namespace CrowdControl
 {
@@ -33,6 +34,7 @@ namespace CrowdControl
         /// }
         /// </summary>
         public virtual string Parameter => OriginalRequest.parameters?.First?.First?["value"]?.ToString() ?? string.Empty;
+        // TODO update added dictionary OriginalRequest.arguments - how is this used?
 
         /// <summary>
         /// The requested duration of the effect, in milliseconds.	An option to report this value as decimal seconds (double?) will be available in a future release.
@@ -59,8 +61,9 @@ namespace CrowdControl
         public IEnumerable<string> HypeContribs { get; private set; }
 
         public override string Parameter =>
-            Hype + " " +
-            //Progress + " " + // TODO not sure if this is formatted right - it gets logged.  Also might be too long for party-chat.
-            "Special thanks to " + string.Join(", ", HypeContribs);
+            string.Format(UserText.EffectHypeTrain_Format,
+                Hype,
+                Progress,
+                string.Join(", ", HypeContribs));
     }
 }

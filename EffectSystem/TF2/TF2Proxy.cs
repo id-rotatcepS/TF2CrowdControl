@@ -33,17 +33,25 @@
         string? GetValue(string variable);
 
         /// <summary>
+        /// style to use when parsing or formatting numbers received from or sent to the TF2 Instance's console 
+        /// <see cref="GetValue(string)"/> <see cref="SetInfo(string, string)"/> <see cref="SetValue(string, string)"/>
+        /// </summary>
+        IFormatProvider ConsoleFormatter { get; }
+
+        /// <summary>
         /// Run the command and wait for its result
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
         string RunCommand(string command);
+
         /// <summary>
         /// RunCommand("setinfo {variable} {value}")
         /// </summary>
         /// <param name="variable"></param>
         /// <param name="value"></param>
         void SetInfo(string variable, string value);
+
         /// <summary>
         /// RunCommand("{variable} {value}")
         /// </summary>

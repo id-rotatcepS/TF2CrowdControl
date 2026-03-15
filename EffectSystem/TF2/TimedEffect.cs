@@ -558,6 +558,11 @@
             Availability = new InMap();
         }
 
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
+
         public override void StartEffect()
         {
             if (TF2Effects.Instance.TF2Proxy == null)
@@ -998,6 +1003,11 @@
             challenge = new KillstreakChallenge(5);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     /// <summary>
@@ -1013,6 +1023,11 @@
             challenge = new KillsChallenge(3);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     /// <summary>
@@ -1071,6 +1086,11 @@
             challenge = new KillsChallenge(3);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
     }
 
     public class DeathAddsPixelatedTimedEffect : TimedEffect
@@ -1080,10 +1100,14 @@
             : base(EFFECT_ID, TimeSpan.FromMinutes(5))
         {
             challenge = new DeathsChallenge(6);// 6th death halving scale is more than basic pixelated
-            Mutex.Add(nameof(PixelatedTimedEffect)); //hierarchy is all mutex
             Mutex.Add(TF2Effects.MUTEX_VIEWPORT);
             Availability = new InMap();
         }
+
+        /// <summary>
+        /// Effect is a waste if the log isn't working.
+        /// </summary>
+        public override bool IsListableGameMode => TF2LogForEffects.IsLogReadingActive;
 
         public override bool IsSelectableGameState => IsAvailable;
 
@@ -1100,7 +1124,7 @@
 
         private void UpdateScale()
         {
-            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale.ToString());
+            TF2Effects.Instance.SetRequiredValue("mat_viewportscale", currentScale);
         }
 
         private void OnDeath()

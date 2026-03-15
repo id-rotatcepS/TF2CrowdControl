@@ -17,12 +17,13 @@ namespace EffectSystem.TF2
         }
 
         /// <summary>
-        /// setpos x, y, and z
+        /// setpos x, y, and z (always uses periods for decimals regardless of language)
         /// </summary>
         private Regex setposxyz = new Regex(@".*setpos\s+(?<spx>\-?\d+(\.\d+)?)\s+(?<spy>\-?\d+(\.\d+)?)\s+(?<spz>\-?\d+(\.\d+)?).*", RegexOptions.Singleline);
         /// <summary>
         /// setang pitch, yaw, and roll
         /// last value is 0.00000... so that's roll.
+        /// (always uses periods for decimals regardless of language)
         /// </summary>
         private Regex setangpyr = new Regex(@".*setang\s+(?<sap>\-?\d+(\.\d+)?)\s+(?<say>\-?\d+(\.\d+)?)\s+(?<sar>\-?\d+(\.\d+)?).*", RegexOptions.Singleline);
 
@@ -94,7 +95,7 @@ namespace EffectSystem.TF2
                 //    string sar = ang.Groups["sar"].Value;
                 //    //misuse of vector? as long as we use it consistently I guess we're fine.
                 //    System.Windows.Media.Media3D.Vector3D currentangle = new System.Windows.Media.Media3D
-                //        .Vector3D(double.Parse(sap), double.Parse(say), double.Parse(sar));
+                //        .Vector3D(double.Parse(sap, tf2.ConsoleFormatter), double.Parse(say, tf2.ConsoleFormatter), double.Parse(sar, tf2.ConsoleFormatter));
 
                 //    if (!lastangle.Equals(straight))
                 //    {
@@ -113,7 +114,7 @@ namespace EffectSystem.TF2
 
         private void UpdateDistanceAndPosition(string spx, string spy, string spz)
         {
-            Vector3 currentposition = new Vector3(float.Parse(spx), float.Parse(spy), float.Parse(spz));
+            Vector3 currentposition = new Vector3(float.Parse(spx, tf2.ConsoleFormatter), float.Parse(spy, tf2.ConsoleFormatter), float.Parse(spz, tf2.ConsoleFormatter));
 
             lastDistance = GetLastDistance(currentposition);
 

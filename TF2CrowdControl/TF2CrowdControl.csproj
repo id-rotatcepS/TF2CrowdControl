@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <ApplicationIcon>Spectator-Logo1.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +23,21 @@
     <ProjectReference Include="..\ConnectorLib.JSON\ConnectorLib.JSON.csproj" />
     <ProjectReference Include="..\EffectSystem\EffectSystem.csproj" />
     <ProjectReference Include="..\TF2FrameworkInterface\TF2FrameworkInterface.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\UserText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UserText.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\UserText.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

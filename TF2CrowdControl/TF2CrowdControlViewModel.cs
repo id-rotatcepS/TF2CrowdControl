@@ -7,8 +7,11 @@ using EffectSystem.TF2;
 
 using System.ComponentModel;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using TF2CrowdControl.Resources;
 
 namespace TF2CrowdControl
 {
@@ -94,8 +97,8 @@ namespace TF2CrowdControl
         {
             Version? version = Assembly.GetExecutingAssembly().GetName().Version;
             this.WindowTitle = string.Format(
-                "TF2 Spectator for Crowd Control - {0}.{1}.{2} - by id_rotatcepS",
-                version?.Major, version?.Minor, version?.Build);
+                UserText.WindowTitle_Format,
+                version?.Major, version?.Minor, version?.Build, "id_rotatcepS");
 
             Aspen.Log = new TF2SpectatorLog(this);
             // settings load/save to the config file.
@@ -126,6 +129,8 @@ namespace TF2CrowdControl
                 ViewNotification(nameof(StatusVerticalSpeed));
                 ViewNotification(nameof(StatusVerticalSpeedColor));
                 ViewNotification(nameof(StatusAppColor));
+                ViewNotification(nameof(StatusAppMessage));
+                ViewNotification(nameof(StatusAppMessageVisibility));
                 ViewNotification(nameof(StatusCCColor));
 
                 ViewNotification(nameof(ProxyValues));
@@ -144,6 +149,28 @@ namespace TF2CrowdControl
             => CCCommunicator.EffectStates;
 
         #region TF2Status
+        public string StatusAppMessage
+        {
+            get
+            {
+                if (TF2Effects.Instance.TF2Proxy == null || !TF2Effects.Instance.TF2Proxy.IsOpen)
+                    return UserText.TF2_Message_Off; // not open
+
+                return TF2Effects.Instance.TF2Proxy.IsReading
+                    ? string.Empty // open and reading
+                    : UserText.TF2_Message_No_Log; // open but not reading
+            }
+        }
+        public Visibility StatusAppMessageVisibility
+        {
+            get
+            {
+                return string.IsNullOrEmpty(StatusAppMessage)
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
+            }
+        }
+
         public Brush StatusAppColor
         {
             get
@@ -249,7 +276,7 @@ namespace TF2CrowdControl
             catch (Exception)
             {
                 // just a test... if TF2 isn't running that's OK.
-                Aspen.Log.Warning("No TF2 connection yet.");
+                Aspen.Log.Warning(UserText.Log_NoTF2Connection);
             }
         }
 
@@ -286,7 +313,7 @@ namespace TF2CrowdControl
             catch (Exception ex)
             {
                 TF2Effects.Instance.TF2Proxy = null;
-                Aspen.Log.ErrorException(ex, "Failed Connection to TF2. Change port/password/path settings (or restart this app) to try again.");
+                Aspen.Log.ErrorException(ex, UserText.Log_TF2ConnectionException);
             }
         }
 

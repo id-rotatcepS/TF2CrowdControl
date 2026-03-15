@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 using System.IO;
 using System.Reflection;
+using TF2CrowdControl.Resources;
 
 namespace TF2CrowdControl
 {
@@ -97,7 +98,7 @@ namespace TF2CrowdControl
             }
             catch (Exception ex)
             {
-                Aspen.Log.ErrorException(ex, "Loading TF2Config");
+                Aspen.Log.ErrorException(ex, UserText.Log_TF2ConfigLoadException);
             }
 
             // default
@@ -122,7 +123,7 @@ namespace TF2CrowdControl
             }
             catch (Exception ex)
             {
-                Aspen.Log.ErrorException(ex, "Saving TF2Config");
+                Aspen.Log.ErrorException(ex, UserText.Log_TF2ConfigSaveException);
             }
         }
     }

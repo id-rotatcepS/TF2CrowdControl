@@ -1,5 +1,5 @@
 ﻿using ASPEN;
-
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 using TF2FrameworkInterface;
@@ -16,7 +16,7 @@ namespace EffectSystem.TF2
 
         private readonly Timer timer;
         private readonly Timer fasttimer;
-        private readonly TF2LogOutput log;
+        private readonly TF2LogForEffects log;
         private readonly Dictionary<TF2Command, Action<string?>> commands;
         private readonly Dictionary<string, string?> Values;
         private readonly object valuesLock = new object();
@@ -390,7 +390,7 @@ namespace EffectSystem.TF2
                 // start in 30 seconds, manual repeat
                 dueTime: 1000 * 10, period: Timeout.Infinite);
 
-            log = new TF2LogOutput(tf2Path);
+            log = new TF2LogForEffects(tf2Path);
             log.OnPlayerDied += PlayerDied;
             log.OnUserChangedClass += UserChangedClass;
             log.OnUserSelectedClass += UserSelectedClass;
@@ -896,6 +896,12 @@ namespace EffectSystem.TF2
         {
             _ = RunCommand("setinfo " + variable + " " + value);
         }
+
+        /// <summary>
+        /// A FormatProvider to use when working with console values in TF2.
+        /// Might not be completely accurate, but most important is we get a dot decimal format from it.
+        /// </summary>
+        public IFormatProvider ConsoleFormatter => CultureInfo.InvariantCulture;
 
         public void SetValue(string variable, string value)
         {
